@@ -1,8 +1,9 @@
 export default function Footer() {
   return (
-    <footer className="footer">
-      <div className="footer-inner">
-        <div>
+    <footer className="footer-premium">
+      <div className="footer-premium-inner">
+        {/* Brand & Tagline */}
+        <div className="footer-col-brand">
           <div className="footer-brand">
             <span className="footer-brand-mark">
               <svg viewBox="0 0 24 24" fill="none">
@@ -12,15 +13,57 @@ export default function Footer() {
             </span>
             SIBITA
           </div>
-          <p className="footer-tagline">Sistem Bimbingan Tugas Akhir — membantu mahasiswa menyelesaikan skripsi lebih cepat dan terstruktur.</p>
+          <p className="footer-desc">
+            Sistem Bimbingan Tugas Akhir — platform terintegrasi yang membantu mahasiswa dan dosen menyelesaikan skripsi dengan proses yang lebih cepat, rapi, dan terstruktur.
+          </p>
         </div>
-        <div className="footer-info">
-          <p>📍 Jl. Colombo No.1 Karangmalang Yogyakarta 55281</p>
-          <p>📞 0274-586168 &nbsp;|&nbsp; +62 274 542185</p>
-          <p>✉️ humas@uin-mataram.ac.id</p>
+
+        {/* Links Column 1 */}
+        <div className="footer-col-links">
+          <h4 className="footer-heading">Eksplorasi</h4>
+          <ul>
+            <li><a href="#">Beranda</a></li>
+            <li><a href="#">Panduan Skripsi</a></li>
+            <li><a href="#">Cari Jurnal</a></li>
+            <li><a href="#">FAQ Mahasiswa</a></li>
+          </ul>
+        </div>
+
+        {/* Links Column 2 */}
+        <div className="footer-col-links">
+          <h4 className="footer-heading">Layanan</h4>
+          <ul>
+            <li><a href="#">Pusat Bantuan</a></li>
+            <li><a href="#">Syarat & Ketentuan</a></li>
+            <li><a href="#">Kebijakan Privasi</a></li>
+            <li><a href="#">Hubungi Admin</a></li>
+          </ul>
+        </div>
+
+        {/* Contact Column */}
+        <div className="footer-col-contact">
+          <h4 className="footer-heading">Hubungi Kami</h4>
+          <div className="footer-contact-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            <span>Jl. Colombo No.1 Karangmalang<br/>Yogyakarta 55281</span>
+          </div>
+          <div className="footer-contact-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            <span>0274-586168</span>
+          </div>
+          <div className="footer-contact-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            <span>humas@uin-mataram.ac.id</span>
+          </div>
         </div>
       </div>
-      <div className="footer-bottom">&copy; 2026 SIBITA &middot; Sistem Bimbingan Tugas Akhir</div>
+
+      {/* Bottom Bar */}
+      <div className="footer-premium-bottom">
+        <div className="fp-bottom-inner">
+          <span>&copy; 2026 SIBITA</span>
+        </div>
+      </div>
     </footer>
   );
 }
