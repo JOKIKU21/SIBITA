@@ -1,25 +1,25 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import Sidebar from "../../_components/dashboard/Sidebar";
-import Topbar from "../../_components/dashboard/Topbar";
-import ProfileCard from "../../_components/dashboard/ProfileCard";
-import SimControl from "../../_components/dashboard/SimControl";
-import ProgressTable from "../../_components/dashboard/ProgressTable";
-import StageForm from "../../_components/dashboard/StageForm";
-import TaskPanel from "../../_components/dashboard/TaskPanel";
-import ChatPanel from "../../_components/dashboard/ChatPanel";
+import Sidebar from "@/app/components/dashboard/Sidebar";
+import Topbar from "@/app/components/dashboard/Topbar";
+import ProfileCard from "@/app/components/dashboard/ProfileCard";
+import SimControl from "@/app/components/dashboard/SimControl";
+import ProgressTable from "@/app/components/dashboard/ProgressTable";
+import StageForm from "@/app/components/dashboard/StageForm";
+import TaskPanel from "@/app/components/dashboard/TaskPanel";
+import ChatPanel from "@/app/components/dashboard/ChatPanel";
 
 const STAGES = [
-  { n: 1,  name: "Diskusi Konsep dan Judul Penelitian", days: 7 },
-  { n: 2,  name: "Penyusunan Proposal Penelitian", days: 14 },
-  { n: 3,  name: "Konsultasi Dosen Pembimbing (ke-1)", days: 7 },
-  { n: 4,  name: "Revisi Proposal Penelitian", days: 7 },
-  { n: 5,  name: "Persiapan dan Ujian Proposal", days: 7 },
-  { n: 6,  name: "Penyusunan Instrumen Penelitian", days: 7 },
-  { n: 7,  name: "Konsultasi Dosen Pembimbing (ke-2)", days: 7 },
-  { n: 8,  name: "Pengambilan Data Penelitian", days: 21 },
-  { n: 9,  name: "Pengolahan Data Penelitian", days: 7 },
+  { n: 1, name: "Diskusi Konsep dan Judul Penelitian", days: 7 },
+  { n: 2, name: "Penyusunan Proposal Penelitian", days: 14 },
+  { n: 3, name: "Konsultasi Dosen Pembimbing (ke-1)", days: 7 },
+  { n: 4, name: "Revisi Proposal Penelitian", days: 7 },
+  { n: 5, name: "Persiapan dan Ujian Proposal", days: 7 },
+  { n: 6, name: "Penyusunan Instrumen Penelitian", days: 7 },
+  { n: 7, name: "Konsultasi Dosen Pembimbing (ke-2)", days: 7 },
+  { n: 8, name: "Pengambilan Data Penelitian", days: 21 },
+  { n: 9, name: "Pengolahan Data Penelitian", days: 7 },
   { n: 10, name: "Penyusunan BAB IV", days: 14 },
   { n: 11, name: "Konsultasi Dosen Pembimbing (ke-3)", days: 7 },
   { n: 12, name: "Revisi BAB IV", days: 7 },
@@ -49,9 +49,13 @@ export default function MahasiswaPage() {
   const [activeView, setActiveView] = useState("dashboard");
   const [view, setView] = useState<"overview" | "detail">("overview");
   const [currentStage, setCurrentStage] = useState(1);
-  const [completedStages, setCompletedStages] = useState<Record<number, number | null>>(() => {
+  const [completedStages, setCompletedStages] = useState<
+    Record<number, number | null>
+  >(() => {
     const state: Record<number, number | null> = {};
-    STAGES.forEach((s) => { state[s.n] = null; });
+    STAGES.forEach((s) => {
+      state[s.n] = null;
+    });
     return state;
   });
   const [simulatedDay, setSimulatedDay] = useState(0);
@@ -69,21 +73,33 @@ export default function MahasiswaPage() {
     setView("overview");
   }, []);
 
-  const handleComplete = useCallback((stage: number) => {
-    setCompletedStages((prev) => ({
-      ...prev,
-      [stage]: simulatedDay,
-    }));
-    if (stage < 16) {
-      setCurrentStage(stage + 1);
-    } else {
-      setView("overview");
-    }
-  }, [simulatedDay]);
+  const handleComplete = useCallback(
+    (stage: number) => {
+      setCompletedStages((prev) => ({
+        ...prev,
+        [stage]: simulatedDay,
+      }));
+      if (stage < 16) {
+        setCurrentStage(stage + 1);
+      } else {
+        setView("overview");
+      }
+    },
+    [simulatedDay],
+  );
 
   // Compute status for each stage
   const windows = computeStageWindows();
-  const stageStatuses: Record<number, { pct: number; colorKey: string; label: string; startDay: number; deadlineDay: number }> = {};
+  const stageStatuses: Record<
+    number,
+    {
+      pct: number;
+      colorKey: string;
+      label: string;
+      startDay: number;
+      deadlineDay: number;
+    }
+  > = {};
 
   let totalPct = 0;
   STAGES.forEach((s) => {
@@ -98,20 +114,33 @@ export default function MahasiswaPage() {
     if (completedDay !== null) {
       pct = 100;
       if (completedDay <= win.deadlineDay - 3) {
-        colorKey = "green"; label = "Selesai Tepat Waktu";
+        colorKey = "green";
+        label = "Selesai Tepat Waktu";
       } else if (completedDay <= win.deadlineDay - 1) {
-        colorKey = "yellow"; label = "Selesai (Mendekati Tenggat)";
+        colorKey = "yellow";
+        label = "Selesai (Mendekati Tenggat)";
       } else {
-        colorKey = "red"; label = "Selesai (Melebihi Tenggat)";
+        colorKey = "red";
+        label = "Selesai (Melebihi Tenggat)";
       }
     } else if (!hasStarted) {
-      pct = 0; colorKey = "grey"; label = "Belum Mulai";
+      pct = 0;
+      colorKey = "grey";
+      label = "Belum Mulai";
     } else {
-      pct = 0; colorKey = "blue"; label = "Sedang Berjalan";
+      pct = 0;
+      colorKey = "blue";
+      label = "Sedang Berjalan";
     }
 
     totalPct += pct;
-    stageStatuses[s.n] = { pct, colorKey, label, startDay: win.startDay, deadlineDay: win.deadlineDay };
+    stageStatuses[s.n] = {
+      pct,
+      colorKey,
+      label,
+      startDay: win.startDay,
+      deadlineDay: win.deadlineDay,
+    };
   });
 
   const overallProgress = Math.round(totalPct / STAGES.length);
@@ -121,7 +150,11 @@ export default function MahasiswaPage() {
 
   return (
     <div className="dashboard-layout">
-      <Sidebar role="mahasiswa" activeView={activeView} onViewChange={setActiveView} />
+      <Sidebar
+        role="mahasiswa"
+        activeView={activeView}
+        onViewChange={setActiveView}
+      />
 
       <div className="dash-main">
         <Topbar title={topbarTitle} avatarInitial="A" />
@@ -132,7 +165,10 @@ export default function MahasiswaPage() {
               {view === "overview" ? (
                 <>
                   <ProfileCard overallProgress={overallProgress} />
-                  <SimControl simulatedDay={simulatedDay} onAdvance={handleAdvanceDay} />
+                  <SimControl
+                    simulatedDay={simulatedDay}
+                    onAdvance={handleAdvanceDay}
+                  />
                   <ProgressTable
                     stages={STAGES}
                     stageStatuses={stageStatuses}
@@ -141,17 +177,25 @@ export default function MahasiswaPage() {
                 </>
               ) : (
                 <>
-                  <button className="back-to-progress" onClick={handleBackToOverview}>
+                  <button
+                    className="back-to-progress"
+                    onClick={handleBackToOverview}
+                  >
                     ‹ Kembali ke Progress Skripsi
                   </button>
 
                   <div className="stage-header-simple">
-                    <span className="stage-header-badge">Tahap {currentStage}</span>
+                    <span className="stage-header-badge">
+                      Tahap {currentStage}
+                    </span>
                     <h1 className="stage-header-title">{stageData?.name}</h1>
                   </div>
 
                   <div className="dash-grid">
-                    <StageForm currentStage={currentStage} onComplete={handleComplete} />
+                    <StageForm
+                      currentStage={currentStage}
+                      onComplete={handleComplete}
+                    />
 
                     <div className="dash-right">
                       <TaskPanel currentStage={currentStage} />
@@ -170,7 +214,10 @@ export default function MahasiswaPage() {
                 <p>Lihat progress bimbingan skripsi Anda.</p>
               </div>
               <ProfileCard overallProgress={overallProgress} />
-              <SimControl simulatedDay={simulatedDay} onAdvance={handleAdvanceDay} />
+              <SimControl
+                simulatedDay={simulatedDay}
+                onAdvance={handleAdvanceDay}
+              />
               <ProgressTable
                 stages={STAGES}
                 stageStatuses={stageStatuses}
@@ -187,49 +234,117 @@ export default function MahasiswaPage() {
               </div>
               <div className="grid-equal">
                 <div className="panel">
-                  <div className="panel-header"><span className="panel-title">Data Diri</span></div>
+                  <div className="panel-header">
+                    <span className="panel-title">Data Diri</span>
+                  </div>
                   <div className="panel-body">
-                    <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 22 }}>
-                      <div style={{ width: 72, height: 72, borderRadius: "50%", background: "linear-gradient(135deg,#2B3BAF,#4A5CDB)", color: "#fff", fontSize: 28, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>A</div>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 16,
+                        marginBottom: 22,
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 72,
+                          height: 72,
+                          borderRadius: "50%",
+                          background: "linear-gradient(135deg,#2B3BAF,#4A5CDB)",
+                          color: "#fff",
+                          fontSize: 28,
+                          fontWeight: 800,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        A
+                      </div>
                       <div>
-                        <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 4 }}>Ahmad Fauzi</div>
-                        <div style={{ fontSize: 13, color: "var(--text-muted)" }}>NIM 210101032 · Sistem Informasi</div>
+                        <div
+                          style={{
+                            fontSize: 16,
+                            fontWeight: 800,
+                            marginBottom: 4,
+                          }}
+                        >
+                          Ahmad Fauzi
+                        </div>
+                        <div
+                          style={{ fontSize: 13, color: "var(--text-muted)" }}
+                        >
+                          NIM 210101032 · Sistem Informasi
+                        </div>
                       </div>
                     </div>
                     <div className="form-group">
                       <label className="form-label">Nama Lengkap</label>
-                      <input className="form-input" type="text" defaultValue="Ahmad Fauzi" />
+                      <input
+                        className="form-input"
+                        type="text"
+                        defaultValue="Ahmad Fauzi"
+                      />
                     </div>
                     <div className="form-group">
                       <label className="form-label">Email</label>
-                      <input className="form-input" type="email" defaultValue="ahmad.fauzi@uin-mataram.ac.id" />
+                      <input
+                        className="form-input"
+                        type="email"
+                        defaultValue="ahmad.fauzi@uin-mataram.ac.id"
+                      />
                     </div>
                     <div className="form-group">
                       <label className="form-label">NIM</label>
-                      <input className="form-input" type="text" defaultValue="210101032" />
+                      <input
+                        className="form-input"
+                        type="text"
+                        defaultValue="210101032"
+                      />
                     </div>
                     <div className="form-actions">
-                      <button className="btn btn-primary">Simpan Perubahan</button>
+                      <button className="btn btn-primary">
+                        Simpan Perubahan
+                      </button>
                     </div>
                   </div>
                 </div>
                 <div className="panel">
-                  <div className="panel-header"><span className="panel-title">Ubah Password</span></div>
+                  <div className="panel-header">
+                    <span className="panel-title">Ubah Password</span>
+                  </div>
                   <div className="panel-body">
                     <div className="form-group">
                       <label className="form-label">Password Lama</label>
-                      <input className="form-input" type="password" placeholder="••••••••" />
+                      <input
+                        className="form-input"
+                        type="password"
+                        placeholder="••••••••"
+                      />
                     </div>
                     <div className="form-group">
                       <label className="form-label">Password Baru</label>
-                      <input className="form-input" type="password" placeholder="••••••••" />
+                      <input
+                        className="form-input"
+                        type="password"
+                        placeholder="••••••••"
+                      />
                     </div>
                     <div className="form-group">
-                      <label className="form-label">Konfirmasi Password Baru</label>
-                      <input className="form-input" type="password" placeholder="••••••••" />
+                      <label className="form-label">
+                        Konfirmasi Password Baru
+                      </label>
+                      <input
+                        className="form-input"
+                        type="password"
+                        placeholder="••••••••"
+                      />
                     </div>
                     <div className="form-actions">
-                      <button className="btn btn-primary">Update Password</button>
+                      <button className="btn btn-primary">
+                        Update Password
+                      </button>
                     </div>
                   </div>
                 </div>
