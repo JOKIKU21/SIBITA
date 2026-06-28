@@ -37,11 +37,18 @@ async function handler(request: NextRequest) {
 
   const response = await fetch(targetUrl, init);
 
+  const responseHeaders = new Headers(response.headers);
+  // Remove encoding and length headers because fetch() automatically decompresses the response body.
+  // Keeping them would cause the browser to fail decoding the decompressed body stream.
+  responseHeaders.delete("content-encoding");
+  responseHeaders.delete("content-length");
+  responseHeaders.delete("transfer-encoding");
+
   // Create a new response, forwarding status, headers, and body
   const proxyResponse = new Response(response.body, {
     status: response.status,
     statusText: response.statusText,
-    headers: response.headers,
+    headers: responseHeaders,
   });
 
   return proxyResponse;

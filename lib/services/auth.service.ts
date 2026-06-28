@@ -49,7 +49,8 @@ export async function signUp(
     }
 
     return { success: true, data: { email: data?.user?.email ?? payload.email } };
-  } catch {
+  } catch (err) {
+    console.error("Sign up error:", err);
     return { success: false, error: "Terjadi kesalahan jaringan" };
   }
 }
@@ -71,7 +72,8 @@ export async function signIn(
 
     const role = (data?.user as { role?: UserRole })?.role ?? "student";
     return { success: true, data: { redirectTo: getDashboardPath(role) } };
-  } catch {
+  } catch (err) {
+    console.error("Sign in error:", err);
     return { success: false, error: "Terjadi kesalahan jaringan" };
   }
 }
@@ -102,7 +104,8 @@ export async function sendEmailOTP(
     }
 
     return { success: true, data: null };
-  } catch {
+  } catch (err) {
+    console.error("Send email OTP error:", err);
     return { success: false, error: "Terjadi kesalahan jaringan" };
   }
 }
@@ -124,7 +127,8 @@ export async function verifyEmailOTP(
     }
 
     return { success: true, data: null };
-  } catch {
+  } catch (err) {
+    console.error("Verify email OTP error:", err);
     return { success: false, error: "Terjadi kesalahan jaringan" };
   }
 }
@@ -140,7 +144,8 @@ export async function signOut(): Promise<AuthResult> {
     }
 
     return { success: true, data: null };
-  } catch {
+  } catch (err) {
+    console.error("Sign out error:", err);
     return { success: false, error: "Terjadi kesalahan jaringan" };
   }
 }
@@ -156,7 +161,8 @@ export async function getSession() {
     }
 
     return data;
-  } catch {
+  } catch (err) {
+    console.error("Get session error:", err);
     return null;
   }
 }
