@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { authClient } from "@/lib/auth-client";
 
 /* ── SVG Icon components ── */
 const BookIcon = () => (
@@ -82,13 +83,24 @@ export default function Sidebar({ role, activeView, onViewChange }: SidebarProps
   const menus = ROLE_MENUS[role] ?? ROLE_MENUS.mahasiswa;
   const user = ROLE_USERS[role] ?? ROLE_USERS.mahasiswa;
 
+  const { data: session } = authClient.useSession();
+
+  const handleLogout = async () => {
+    try {
+      await authClient.signOut();
+      window.location.href = "/masuk"; // Redirect to login page after logout
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
   return (
     <aside className="sidebar">
       <Link href="/" className="sidebar-brand">
         <span className="sidebar-brand-mark">
           <BookIcon />
         </span>
-        SIBITA
+        {session?.user?.name}
       </Link>
 
       {menus.map((item) => (
@@ -110,9 +122,9 @@ export default function Sidebar({ role, activeView, onViewChange }: SidebarProps
           <div className="sidebar-user-name">{user.name}</div>
           <div className="sidebar-user-role">{user.role}</div>
         </div>
-        <Link href="/masuk" className="sidebar-logout-btn" title="Logout">
+        <button className="sidebar-logout-btn" title="Logout" onClick={handleLogout}>
           <LogoutIcon />
-        </Link>
+        </button>
       </div>
     </aside>
   );
