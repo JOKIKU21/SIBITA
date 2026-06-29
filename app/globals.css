@@ -749,14 +749,16 @@ body {
 ══════════════════════════════ */
 .dashboard-layout {
   display: flex;
-  min-height: 100vh;
+  height: 100vh; /* ponytail: lock layout to viewport height */
+  overflow: hidden;
 }
 
 /* ── SIDEBAR (New Design) ── */
 .sidebar {
   width: 220px;
   background: var(--blue-primary);
-  min-height: 100vh;
+  height: 100vh; /* ponytail: sidebar matches viewport height */
+  overflow-y: auto; /* ponytail: scroll internally if items overflow */
   flex-shrink: 0;
   padding: 0;
   display: flex;
@@ -865,7 +867,8 @@ body {
 .dash-main {
   flex: 1;
   background: #F0F2FA;
-  min-height: 100vh;
+  height: 100vh; /* ponytail: lock main panel height */
+  overflow-y: auto; /* ponytail: scroll content internally */
   overflow-x: hidden;
 }
 
@@ -1901,7 +1904,7 @@ body {
 }
 @media (max-width: 640px) {
   .dashboard-layout { flex-direction: column; }
-  .sidebar { width: 100%; min-height: auto; flex-direction: row; align-items: center; flex-wrap: wrap; padding: 8px; }
+  .sidebar { width: 100%; min-height: auto; height: auto; overflow-y: visible; flex-direction: row; align-items: center; flex-wrap: wrap; padding: 8px; } /* ponytail: reset desktop height & scrolling on mobile horizontal view */
   .sidebar-spacer { display: none; }
   .sidebar-user { border-top: none; border-left: 1px solid rgba(255,255,255,0.1); padding: 8px 12px; }
   .sidebar-brand { padding: 8px 12px; border-bottom: none; margin-bottom: 0; }

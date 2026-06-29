@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+const API_URL = process.env.BETTER_AUTH_BACKEND_URL ?? "http://localhost:3001";
 
 /**
  * Proxy all Better Auth requests to the backend.

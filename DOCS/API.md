@@ -14,70 +14,6 @@ Backend API for **SIBITA (Sistem Bimbingan Tugas Akhir)** — a role-based web p
 | Auth | [Better Auth](https://better-auth.com) |
 | Email | [Resend](https://resend.com) |
 
-## Prerequisites
-
-- [Bun](https://bun.sh) >= 1.0
-- PostgreSQL database (or [Neon](https://neon.tech) serverless)
-
-## Getting Started
-
-### 1. Install dependencies
-
-```sh
-bun install
-```
-
-### 2. Configure environment variables
-
-Copy `.env.example` or create `.env` with the following:
-
-```env
-DATABASE_URL=postgresql://user:password@host/dbname
-BETTER_AUTH_SECRET=your-secret-min-32-chars
-BETTER_AUTH_URL=http://localhost:3001
-GOOGLE_CLIENT_ID=your-google-client-id
-GOOGLE_CLIENT_SECRET=your-google-client-secret
-FRONTEND_URL=http://localhost:5173
-RESEND_API_KEY=re_xxxxxxxxxxxxx
-EMAIL_FROM="SIBITA <onboarding@sibita.com>"
-```
-
-> Generate `BETTER_AUTH_SECRET` with: `openssl rand -base64 32`
-
-### 3. Push database schema
-
-```sh
-bunx drizzle-kit push
-```
-
-### 4. Run the development server
-
-```sh
-bun run dev
-```
-
-The API will be available at **http://localhost:3001**
-
-## Project Structure
-
-```
-src/
-  index.ts              Hono app — routes, middleware, auth handler
-  routes/
-    user.ts             User management route definitions
-  controllers/
-    user.ts             User CRUD controller logic
-lib/
-  auth.ts               Better Auth config (email/password + Google OAuth + password reset)
-  email.ts              Email templates & sending via Resend
-db/
-  index.ts              Database connection (pg driver) + Drizzle relational query schema
-  schema.ts             All tables: user, student_profile, lecturer_profile, auth tables, relations
-drizzle/
-  0000_initial.sql      Migration: full schema with enums + profile tables
-drizzle.config.ts       Drizzle Kit configuration
-```
-
 ## Database Schema
 
 Profile data is split out of the core `user` table into role-specific tables
@@ -198,29 +134,12 @@ app.get("/api/protected", authMiddleware, (c) => {
 });
 ```
 
-### Google OAuth Setup
-
-1. Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
-2. Create an OAuth 2.0 Client ID
-3. Add authorized redirect URI: `http://localhost:3001/api/auth/callback/google`
-4. Copy the Client ID and Client Secret to your `.env` file
-
-## Available Scripts
-
-| Command | Description |
-|---------|-------------|
-| `bun run dev` | Start dev server with hot reload |
-| `bunx drizzle-kit push` | Push schema changes to database |
-| `bunx drizzle-kit generate` | Generate Drizzle migrations |
-| `bunx drizzle-kit migrate` | Run pending migrations |
-| `bunx @better-auth/cli@latest generate --output ./db/auth-schema.ts` | Regenerate auth schema (run after adding auth plugins) |
-
 ## API Usage Examples
 
 ### Sign Up
 
 ```sh
-curl -X POST http://localhost:3001/api/auth/sign-up/email \
+curl -X POST http://localhost:3000/api/auth/sign-up/email \
   -H "Content-Type: application/json" \
   -d '{"name": "John Doe", "email": "john@example.com", "password": "password123"}'
 ```
@@ -228,7 +147,7 @@ curl -X POST http://localhost:3001/api/auth/sign-up/email \
 ### Sign In
 
 ```sh
-curl -X POST http://localhost:3001/api/auth/sign-in/email \
+curl -X POST http://localhost:3000/api/auth/sign-in/email \
   -H "Content-Type: application/json" \
   -d '{"email": "john@example.com", "password": "password123"}'
 ```
@@ -236,15 +155,15 @@ curl -X POST http://localhost:3001/api/auth/sign-in/email \
 ### Google Sign In
 
 ```sh
-curl -X POST http://localhost:3001/api/auth/sign-in/social \
+curl -X POST http://localhost:3000/api/auth/sign-in/social \
   -H "Content-Type: application/json" \
-  -d '{"provider": "google", "callbackURL": "http://localhost:3001"}'
+  -d '{"provider": "google", "callbackURL": "http://localhost:3000"}'
 ```
 
 ### Forgot Password (Request Reset Link)
 
 ```sh
-curl -X POST http://localhost:3001/api/auth/forget-password \
+curl -X POST http://localhost:3000/api/auth/forget-password \
   -H "Content-Type: application/json" \
   -d '{"email": "john@example.com", "redirectTo": "http://localhost:5173/reset-password"}'
 ```
@@ -252,7 +171,7 @@ curl -X POST http://localhost:3001/api/auth/forget-password \
 ### Reset Password (with Token)
 
 ```sh
-curl -X POST http://localhost:3001/api/auth/reset-password \
+curl -X POST http://localhost:3000/api/auth/reset-password \
   -H "Content-Type: application/json" \
   -d '{"newPassword": "newpassword123", "token": "token-from-email-url"}'
 ```
@@ -260,7 +179,7 @@ curl -X POST http://localhost:3001/api/auth/reset-password \
 ### Change Password (while Logged In)
 
 ```sh
-curl -X POST http://localhost:3001/api/auth/change-password \
+curl -X POST http://localhost:3000/api/auth/change-password \
   -H "Content-Type: application/json" \
   -H "Cookie: better-auth.session_token=..." \
   -d '{"currentPassword": "password123", "newPassword": "newpassword456"}'
@@ -269,7 +188,7 @@ curl -X POST http://localhost:3001/api/auth/change-password \
 ### Update Profile (student)
 
 ```sh
-curl -X PATCH http://localhost:3001/api/users/profile \
+curl -X PATCH http://localhost:3000/api/users/profile \
   -H "Content-Type: application/json" \
   -H "Cookie: better-auth.session_token=..." \
   -d '{"name": "John Updated", "campus": "Universitas Udayana", "studyProgram": "Teknik Informatika", "education": "S1"}'
@@ -278,7 +197,7 @@ curl -X PATCH http://localhost:3001/api/users/profile \
 ### Update Profile (lecturer)
 
 ```sh
-curl -X PATCH http://localhost:3001/api/users/profile \
+curl -X PATCH http://localhost:3000/api/users/profile \
   -H "Content-Type: application/json" \
   -H "Cookie: better-auth.session_token=..." \
   -d '{"name": "Dr. Jane", "nidn": "0012345678", "campus": "Universitas Udayana", "department": "Informatika", "education": "S3"}'
@@ -287,7 +206,7 @@ curl -X PATCH http://localhost:3001/api/users/profile \
 ### Admin Update User (activate a lecturer, set quota)
 
 ```sh
-curl -X PATCH http://localhost:3001/api/users/{user-id} \
+curl -X PATCH http://localhost:3000/api/users/{user-id} \
   -H "Content-Type: application/json" \
   -H "Cookie: better-auth.session_token=..." \
   -d '{"role": "lecturer", "status": "active", "quota": 10}'
@@ -296,12 +215,8 @@ curl -X PATCH http://localhost:3001/api/users/{user-id} \
 ### Admin Update User (assign advisor to a student)
 
 ```sh
-curl -X PATCH http://localhost:3001/api/users/{student-user-id} \
+curl -X PATCH http://localhost:3000/api/users/{student-user-id} \
   -H "Content-Type: application/json" \
   -H "Cookie: better-auth.session_token=..." \
   -d '{"status": "active", "advisorId": "lecturer-user-id"}'
 ```
-
-## License
-
-Private — All rights reserved.

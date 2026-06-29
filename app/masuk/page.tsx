@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signIn, signInWithGoogle } from "@/lib/services/auth.service";
+import { signInWithGoogle } from "@/lib/services/auth.service";
+import  { authClient } from "@/lib/auth-client";
 
 export default function MasukPage() {
   const router = useRouter();
@@ -18,12 +19,11 @@ export default function MasukPage() {
     setError("");
     setLoading(true);
 
-    const result = await signIn({ email, password });
+    const result = await authClient.signIn.email({ email, password });
 
-    if (result.success) {
-      router.push(result.data.redirectTo);
+    if (result) {
+      router.push("/dashboard/mahasiswa");
     } else {
-      setError(result.error);
       setLoading(false);
     }
   }

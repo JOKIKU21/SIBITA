@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import Sidebar from "@/app/components/dashboard/Sidebar";
-import Topbar from "@/app/components/dashboard/Topbar";
-import ProfileCard from "@/app/components/dashboard/ProfileCard";
-import SimControl from "@/app/components/dashboard/SimControl";
-import ProgressTable from "@/app/components/dashboard/ProgressTable";
-import StageForm from "@/app/components/dashboard/StageForm";
-import TaskPanel from "@/app/components/dashboard/TaskPanel";
-import ChatPanel from "@/app/components/dashboard/ChatPanel";
+import Sidebar from "@/components/dashboard/Sidebar";
+import Topbar from "@/components/dashboard/Topbar";
+import ProfileCard from "@/components/dashboard/ProfileCard";
+import SimControl from "@/components/dashboard/SimControl";
+import ProgressTable from "@/components/dashboard/ProgressTable";
+import StageForm from "@/components/dashboard/StageForm";
+import TaskPanel from "@/components/dashboard/TaskPanel";
+import ChatPanel from "@/components/dashboard/ChatPanel";
 
 const STAGES = [
   { n: 1, name: "Diskusi Konsep dan Judul Penelitian", days: 7 },

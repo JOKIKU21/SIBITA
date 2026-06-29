@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Sidebar from "@/app/components/dashboard/Sidebar";
-import Topbar from "@/app/components/dashboard/Topbar";
+import Sidebar from "@/components/dashboard/Sidebar";
+import Topbar from "@/components/dashboard/Topbar";
 
 /* ── Dosen Dashboard ── */
 

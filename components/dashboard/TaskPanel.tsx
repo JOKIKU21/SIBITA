@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 
 interface TaskPanelProps {
   currentStage: number;
@@ -45,11 +45,13 @@ const TASKS_PER_STAGE: Record<number, string[]> = {
 
 export default function TaskPanel({ currentStage }: TaskPanelProps) {
   const tasks = TASKS_PER_STAGE[currentStage] || [];
-  const [checked, setChecked] = useState<boolean[]>(new Array(tasks.length).fill(false));
+  const [prevStage, setPrevStage] = useState(currentStage);
+  const [checked, setChecked] = useState<boolean[]>(() => new Array(tasks.length).fill(false));
 
-  useEffect(() => {
+  if (currentStage !== prevStage) {
+    setPrevStage(currentStage);
     setChecked(new Array(tasks.length).fill(false));
-  }, [currentStage, tasks.length]);
+  }
 
   const toggle = useCallback((i: number) => {
     setChecked((prev) => {

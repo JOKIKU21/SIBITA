@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signUp, signInWithGoogle } from "@/lib/services/auth.service";
+import { signUp, signInWithGoogle, sendEmailOTP } from "@/lib/services/auth.service";
+
 
 export default function DaftarPage() {
   const router = useRouter();
@@ -27,7 +28,7 @@ export default function DaftarPage() {
       setLoading(false);
       return;
     }
-
+    sendEmailOTP(email, "email-verification");
     // 2. Redirect to verification page with email param (Better Auth sends OTP automatically on sign up)
     router.push(`/verifikasi?email=${encodeURIComponent(result.data.email)}`);
   }
