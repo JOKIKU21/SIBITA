@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import AuthCard from "@/components/AuthCard";
 import { AuthError } from "@/components/AuthAlert";
 import FormInput from "@/components/FormInput";
 import PasswordInput from "@/components/PasswordInput";
 import GoogleButton from "@/components/GoogleButton";
-
-// ponytail: page needs use client for form state (error, loading) + event handlers
+import { authService } from "@/services/auth";
 
 const BOOK_ICON = (
   <svg viewBox="0 0 24 24" fill="none" width="32" height="32">
@@ -29,10 +29,11 @@ const BOOK_ICON = (
 );
 
 export default function MasukPage() {
+  const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function handleLogin(e: React.FormEvent<HTMLFormElement>) {
+  async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
     setLoading(true);
@@ -41,14 +42,33 @@ export default function MasukPage() {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    // ponytail: placeholder — replace with actual auth logic
-    console.log("[MasukPage] Login attempt:", { email, password });
-
-    // Simulate async
-    setTimeout(() => {
-      console.log("[MasukPage] Login success — redirect to dashboard");
+    try {
+      await authService.signIn(email, password);
+      router.push("/dashboard/mahasiswa");
+    } catch (err: any) {
+      setError(err.message || "Email atau password salah.");
+      // Redirect to verification if email is not verified
+      if (
+        err.message?.toLowerCase().includes("verify") ||
+        err.message?.toLowerCase().includes("verified") ||
+        err.message?.toLowerCase().includes("unverified")
+      ) {
+        router.push(`/verifikasi?email=${encodeURIComponent(email)}`);
+      }
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
+  }
+
+  async function handleGoogleLogin() {
+    setError("");
+    setLoading(true);
+    try {
+      await authService.signInWithGoogle();
+    } catch (err: any) {
+      setError(err.message || "Gagal masuk dengan Google.");
+      setLoading(false);
+    }
   }
 
   return (
@@ -77,7 +97,11 @@ export default function MasukPage() {
 
       <div className="divider">Atau Masuk dengan</div>
 
-      <GoogleButton label="Masuk dengan Google" disabled={loading} />
+      <GoogleButton
+        label="Masuk dengan Google"
+        disabled={loading}
+        onClick={handleGoogleLogin}
+      />
 
       <p className="back-link">
         Belum punya akun? <Link href="/daftar">Daftar di sini</Link>

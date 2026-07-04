@@ -8,8 +8,7 @@ import { AuthError } from "@/components/AuthAlert";
 import FormInput from "@/components/FormInput";
 import PasswordInput from "@/components/PasswordInput";
 import GoogleButton from "@/components/GoogleButton";
-
-// ponytail: same structure as masuk — needs use client for form state + router.push
+import { authService } from "@/services/auth";
 
 const BOOK_ICON = (
   <svg viewBox="0 0 24 24" fill="none" width="32" height="32">
@@ -34,7 +33,7 @@ export default function DaftarPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function handleDaftar(e: React.FormEvent<HTMLFormElement>) {
+  async function handleDaftar(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
     setLoading(true);
@@ -44,14 +43,26 @@ export default function DaftarPage() {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    // ponytail: placeholder — replace with actual auth logic
-    console.log("[DaftarPage] Register attempt:", { name, email, password });
+    try {
+      await authService.signUp(name, email, password);
 
-    // Simulate async + redirect to verification
-    setTimeout(() => {
-      console.log("[DaftarPage] Register success — redirecting to verifikasi");
       router.push(`/verifikasi?email=${encodeURIComponent(email)}`);
-    }, 1000);
+    } catch (err: any) {
+      setError(err.message || "Gagal melakukan pendaftaran.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleGoogleLogin() {
+    setError("");
+    setLoading(true);
+    try {
+      await authService.signInWithGoogle();
+    } catch (err: any) {
+      setError(err.message || "Gagal melakukan pendaftaran dengan Google.");
+      setLoading(false);
+    }
   }
 
   return (
@@ -88,7 +99,11 @@ export default function DaftarPage() {
 
       <div className="divider">Atau Daftar dengan</div>
 
-      <GoogleButton label="Daftar dengan Google" disabled={loading} />
+      <GoogleButton
+        label="Daftar dengan Google"
+        disabled={loading}
+        onClick={handleGoogleLogin}
+      />
 
       <p className="back-link">
         Sudah punya akun? <Link href="/masuk">Masuk di sini</Link>

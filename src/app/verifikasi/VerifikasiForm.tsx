@@ -2,11 +2,10 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import AuthCard from "@/components/AuthCard";
 import { AuthError, AuthSuccess } from "@/components/AuthAlert";
-
-// ponytail: this component needs use client for OTP input state, refs, timers, searchParams
+import { authService } from "@/services/auth";
 
 const MAIL_ICON = (
   <svg viewBox="0 0 24 24" fill="none" width="32" height="32">
@@ -17,7 +16,16 @@ const MAIL_ICON = (
       strokeLinecap="round"
       strokeLinejoin="round"
     />
-    <rect x="3" y="5" width="18" height="14" rx="2" stroke="#2B3BAF" strokeWidth="2" strokeLinecap="round" />
+    <rect
+      x="3"
+      y="5"
+      width="18"
+      height="14"
+      rx="2"
+      stroke="#2B3BAF"
+      strokeWidth="2"
+      strokeLinecap="round"
+    />
   </svg>
 );
 
@@ -25,6 +33,7 @@ const OTP_LENGTH = 6;
 const RESEND_COOLDOWN = 60;
 
 export default function VerifikasiForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email") ?? "";
 
@@ -76,7 +85,10 @@ export default function VerifikasiForm() {
 
   const handlePaste = useCallback((e: React.ClipboardEvent) => {
     e.preventDefault();
-    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, OTP_LENGTH);
+    const pasted = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, OTP_LENGTH);
     if (!pasted) return;
 
     setOtp(() => {
@@ -91,7 +103,7 @@ export default function VerifikasiForm() {
     inputRefs.current[lastIndex]?.focus();
   }, []);
 
-  function handleVerify(e: React.FormEvent) {
+  async function handleVerify(e: React.FormEvent) {
     e.preventDefault();
     const code = otp.join("");
 
@@ -108,39 +120,58 @@ export default function VerifikasiForm() {
     setError("");
     setLoading(true);
 
-    // ponytail: placeholder — replace with actual verification logic
-    console.log("[VerifikasiForm] Verify OTP:", { email, code });
-
-    // Simulate async
-    setTimeout(() => {
+    try {
+      await authService.verifyEmailOtp(email, code);
       setSuccess("Email berhasil diverifikasi! Mengalihkan...");
-      console.log("[VerifikasiForm] Verification success — redirect to /masuk");
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 1500);
+    } catch (err: any) {
+      setError(err.message || "Gagal memverifikasi OTP.");
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   }
 
-  function handleResend() {
+  async function handleResend() {
     if (resendCooldown > 0 || !email) return;
 
     setError("");
     setResendCooldown(RESEND_COOLDOWN);
 
-    // ponytail: placeholder — replace with actual resend logic
-    console.log("[VerifikasiForm] Resend OTP to:", email);
-
-    setSuccess("Kode OTP baru telah dikirim ke email Anda");
-    setTimeout(() => setSuccess(""), 3000);
+    try {
+      await authService.resendOtp(email);
+      setSuccess("Kode OTP baru telah dikirim ke email Anda");
+      setTimeout(() => setSuccess(""), 5000);
+    } catch (err: any) {
+      setError(err.message || "Gagal mengirim ulang kode OTP.");
+      setResendCooldown(0); // reset cooldown on failure so they can try again
+    }
   }
 
   const otpComplete = otp.join("").length === OTP_LENGTH;
 
   return (
     <AuthCard icon={MAIL_ICON} title="Verifikasi Email">
-      <p style={{ fontSize: "14px", color: "var(--text-muted)", marginBottom: "8px", lineHeight: "1.6" }}>
+      <p
+        style={{
+          fontSize: "14px",
+          color: "var(--text-muted)",
+          marginBottom: "8px",
+          lineHeight: "1.6",
+        }}
+      >
         Kami telah mengirimkan kode OTP 6 digit ke email:
       </p>
       {email ? (
-        <p style={{ fontSize: "14px", fontWeight: 600, color: "var(--blue-primary)", marginBottom: "24px" }}>
+        <p
+          style={{
+            fontSize: "14px",
+            fontWeight: 600,
+            color: "var(--blue-primary)",
+            marginBottom: "24px",
+          }}
+        >
           {email}
         </p>
       ) : null}
@@ -194,14 +225,17 @@ export default function VerifikasiForm() {
           style={{
             background: "none",
             border: "none",
-            color: resendCooldown > 0 ? "var(--text-light)" : "var(--blue-primary)",
+            color:
+              resendCooldown > 0 ? "var(--text-light)" : "var(--blue-primary)",
             fontWeight: 600,
             cursor: resendCooldown > 0 ? "default" : "pointer",
             padding: 0,
             font: "inherit",
           }}
         >
-          {resendCooldown > 0 ? `Kirim Ulang (${resendCooldown}s)` : "Kirim Ulang"}
+          {resendCooldown > 0
+            ? `Kirim Ulang (${resendCooldown}s)`
+            : "Kirim Ulang"}
         </button>
         <br />
         <br />
