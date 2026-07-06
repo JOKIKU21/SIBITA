@@ -1,4 +1,3 @@
-"use client";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { ProgressProvider } from "@/components/providers/ProgressProvider";
 import type { ReactNode } from "react";

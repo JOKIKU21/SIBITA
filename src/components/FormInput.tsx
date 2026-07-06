@@ -1,6 +1,4 @@
-"use client";
-
-import React, { InputHTMLAttributes } from "react";
+import { InputHTMLAttributes } from "react";
 import Input from "@/components/Input";
 
 export default function FormInput({

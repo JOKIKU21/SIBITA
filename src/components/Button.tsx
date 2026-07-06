@@ -1,5 +1,3 @@
-"use client";
-
 import React, { ButtonHTMLAttributes, forwardRef } from "react";
 import Link from "next/link";
 

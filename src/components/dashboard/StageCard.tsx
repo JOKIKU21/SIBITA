@@ -1,12 +1,28 @@
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import type { Stage } from "@/lib/stages";
 import type { StageStatus, StageWindow } from "@/lib/stage-status";
 import { formatStageDate } from "@/lib/stage-status";
 
-function getBadgeInfo(status: StageStatus) {
-  if (status === "belum-mulai") return { cls: "bg-neutral-bg text-neutral-muted", label: "Belum Mulai" };
-  if (status === "berlangsung") return { cls: "bg-brand-bg text-brand", label: "Berlangsung" };
-  return { cls: "bg-success-bg text-success", label: "Selesai ✓" };
+const STATUS_STYLES: Record<StageStatus, string> = {
+  "belum-mulai": "bg-neutral-bg text-neutral-muted",
+  berlangsung: "bg-brand-bg text-brand",
+  selesai: "bg-success-bg text-success",
+};
+
+const STATUS_LABELS: Record<StageStatus, string> = {
+  "belum-mulai": "Belum Mulai",
+  berlangsung: "Berlangsung",
+  selesai: "Selesai ✓",
+};
+
+function StatusBadge({ status }: { status: StageStatus }) {
+  return (
+    <span
+      className={`whitespace-nowrap rounded-full py-0.75 px-2.5 text-[11.5px] font-bold shrink-0 ${STATUS_STYLES[status]}`}
+    >
+      {STATUS_LABELS[status]}
+    </span>
+  );
 }
 
 // Map the STAGE_ICONS from the HTML exactly based on stage.n
@@ -30,8 +46,6 @@ const RAW_ICONS = [
 ];
 
 export function StageCard({ stage, status, window }: { stage: Stage; status: StageStatus; window: StageWindow }) {
-  const router = useRouter();
-  const badge = getBadgeInfo(status);
   const rawSvg = RAW_ICONS[stage.n - 1] || "";
 
   const getIconClass = (status: StageStatus) => {
@@ -70,10 +84,10 @@ export function StageCard({ stage, status, window }: { stage: Stage; status: Sta
         {stage.n !== 16 && <div className={getLineClass(status)} />}
       </div>
       <div className="flex-1">
-        <div className={getCardClass(status)} onClick={() => router.push(`/dashboard/mahasiswa/tahap/${stage.slug}`)}>
+        <Link href={`/dashboard/mahasiswa/tahap/${stage.slug}`} className={`block ${getCardClass(status)}`}>
           <div className="flex items-center justify-between gap-2.5 mb-2">
             <span className="font-display text-5.5 font-extrabold text-brand tracking-[-0.01em] leading-none">{String(stage.n).padStart(2, "0")}</span>
-            <span className={`text-[11.5px] font-bold py-0.75 px-2.5 rounded-full whitespace-nowrap shrink-0 ${badge.cls}`}>{badge.label}</span>
+            <StatusBadge status={status} />
           </div>
           <div className="font-display text-[15px] font-bold text-neutral-text mb-0.75">{stage.name}</div>
           <div className="text-[12.5px] text-brand font-semibold mb-2">{formatStageDate(window.start)} – {formatStageDate(window.end)}</div>
@@ -83,7 +97,7 @@ export function StageCard({ stage, status, window }: { stage: Stage; status: Sta
               <span className="text-[11.5px] text-neutral-muted font-semibold">{daysLabel}</span>
             </div>
           )}
-        </div>
+        </Link>
       </div>
     </div>
   );

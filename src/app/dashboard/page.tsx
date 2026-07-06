@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { authClient } from "@/lib/auth-client";
 
-// ponytail: dedicated page for /dashboard route that checks the session server-side and redirects to the correct role path
 export default async function DashboardPage() {
   const reqHeaders = await headers();
   const cookieHeader = reqHeaders.get("cookie") || "";
@@ -22,7 +21,6 @@ export default async function DashboardPage() {
 
     const role = (sessionData.user as { role?: string }).role || "student";
 
-    // Redirection routing map based on user role
     const rolePaths: Record<string, string> = {
       student: "/dashboard/mahasiswa",
       lecturer: "/dashboard/dosen",
