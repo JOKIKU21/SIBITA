@@ -3,7 +3,7 @@
 import React, { InputHTMLAttributes, forwardRef, useState } from "react";
 import Button from "@/components/Button";
 
-export type InputVariant = "default" | "bordered" | "custom";
+export type InputVariant = "default" | "bordered" | "ghost" | "custom";
 export type InputSize = "sm" | "md" | "lg" | "custom";
 
 export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
@@ -81,6 +81,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const variantStyles: Record<InputVariant, string> = {
       default: "bg-neutral-bg border-[1.5px] border-transparent rounded-2.5 py-3 px-4 text-3.5 focus:border-brand-light focus:bg-[#f8f9ff] disabled:bg-neutral-bg",
       bordered: "bg-neutral-bg border-[1.5px] border-neutral-border rounded-2.25 py-2.75 px-3.5 text-3.5 focus:border-brand-light",
+      // ghost: flat, borderless read-only look — same box metrics as `bordered`
+      // (1.5px transparent border + matching padding) so toggling between the
+      // two never shifts layout.
+      ghost: "bg-transparent border-[1.5px] border-transparent rounded-2.25 py-2.75 px-3.5 text-3.5 text-neutral-muted cursor-default",
       custom: "",
     };
 
