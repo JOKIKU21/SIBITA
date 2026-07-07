@@ -76,9 +76,8 @@ export function Sidebar() {
         <div className="text-2.5 font-bold tracking-widest uppercase text-white/35 px-2.5 mb-1.5 mt-4.5">Menu Utama</div>
         <Link
           href="/dashboard/mahasiswa"
-          className={`flex items-center gap-3 py-2.75 px-3.5 rounded-2.5 text-3.5 font-semibold bg-transparent border-none w-full text-left cursor-pointer mb-1 transition-[background,color] duration-150 group ${
-            isHomeActive ? "bg-white/14 text-white" : "text-white/70 hover:bg-white/8 hover:text-white"
-          }`}
+          className={`flex items-center gap-3 py-2.75 px-3.5 rounded-2.5 text-3.5 font-semibold bg-transparent border-none w-full text-left cursor-pointer mb-1 transition-[background,color] duration-150 group ${isHomeActive ? "bg-white/14 text-white" : "text-white/70 hover:bg-white/8 hover:text-white"
+            }`}
         >
           <svg viewBox="0 0 24 24" fill="none" className={`w-4.5 h-4.5 shrink-0 transition-opacity duration-150 ${isHomeActive ? "opacity-100" : "opacity-70 group-hover:opacity-100"}`}>
             <rect
@@ -122,9 +121,8 @@ export function Sidebar() {
         </Link>
         <Link
           href="/dashboard/mahasiswa/referensi"
-          className={`flex items-center gap-3 py-2.75 px-3.5 rounded-2.5 text-3.5 font-semibold bg-transparent border-none w-full text-left cursor-pointer mb-1 transition-[background,color] duration-150 group ${
-            isRefActive ? "bg-white/14 text-white" : "text-white/70 hover:bg-white/8 hover:text-white"
-          }`}
+          className={`flex items-center gap-3 py-2.75 px-3.5 rounded-2.5 text-3.5 font-semibold bg-transparent border-none w-full text-left cursor-pointer mb-1 transition-[background,color] duration-150 group ${isRefActive ? "bg-white/14 text-white" : "text-white/70 hover:bg-white/8 hover:text-white"
+            }`}
         >
           <svg viewBox="0 0 24 24" fill="none" className={`w-4.5 h-4.5 shrink-0 transition-opacity duration-150 ${isRefActive ? "opacity-100" : "opacity-70 group-hover:opacity-100"}`}>
             <path
@@ -139,9 +137,8 @@ export function Sidebar() {
         </Link>
         <Link
           href="/dashboard/mahasiswa/profil"
-          className={`flex items-center gap-3 py-2.75 px-3.5 rounded-2.5 text-3.5 font-semibold bg-transparent border-none w-full text-left cursor-pointer mb-1 transition-[background,color] duration-150 group ${
-            isProfileActive ? "bg-white/14 text-white" : "text-white/70 hover:bg-white/8 hover:text-white"
-          }`}
+          className={`flex items-center gap-3 py-2.75 px-3.5 rounded-2.5 text-3.5 font-semibold bg-transparent border-none w-full text-left cursor-pointer mb-1 transition-[background,color] duration-150 group ${isProfileActive ? "bg-white/14 text-white" : "text-white/70 hover:bg-white/8 hover:text-white"
+            }`}
         >
           <svg viewBox="0 0 24 24" fill="none" className={`w-4.5 h-4.5 shrink-0 transition-opacity duration-150 ${isProfileActive ? "opacity-100" : "opacity-70 group-hover:opacity-100"}`}>
             <circle
