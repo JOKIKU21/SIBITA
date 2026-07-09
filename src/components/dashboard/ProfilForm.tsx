@@ -9,7 +9,7 @@ import {
   useChangePassword,
   useStudentProfile,
   useUpdateProfile,
-} from "@/hooks/useStudentProfile";
+} from "@/hooks/useStudent";
 import {
   useLecturerProfile,
   useUpdateLecturerProfile,
@@ -24,9 +24,11 @@ interface ProfilFormProps {
 
 const EMPTY_PROFILE_FORM = {
   name: "",
-  education: "",
+  phoneNumber: "",
   studyProgram: "",
   campus: "",
+  nidn: "",
+  department: "",
 };
 
 const EMPTY_PASSWORD_FORM = {
@@ -83,9 +85,11 @@ export default function ProfilForm({ initialRole }: ProfilFormProps = {}) {
     if (resolvedRole === "student" && studentProfile) {
       setForm({
         name: studentProfile.name ?? "",
-        education: studentProfile.education ?? "",
+        phoneNumber: studentProfile.phoneNumber ?? "",
         studyProgram: studentProfile.studyProgram ?? "",
         campus: studentProfile.campus ?? "",
+        nidn: "",
+        department: "",
       });
     } else if (
       resolvedRole === "lecturer" &&
@@ -94,9 +98,11 @@ export default function ProfilForm({ initialRole }: ProfilFormProps = {}) {
     ) {
       setForm({
         name: user.name ?? "",
-        education: "",
-        studyProgram: lecturerProfileResponse.profile.department ?? "",
+        phoneNumber: user.phoneNumber ?? "",
+        studyProgram: "",
         campus: lecturerProfileResponse.profile.campus ?? "",
+        nidn: lecturerProfileResponse.profile.nidn ?? "",
+        department: lecturerProfileResponse.profile.department ?? "",
       });
     } else if (
       (resolvedRole === "admin" || resolvedRole === "superadmin") &&
@@ -104,9 +110,11 @@ export default function ProfilForm({ initialRole }: ProfilFormProps = {}) {
     ) {
       setForm({
         name: user.name ?? "",
-        education: "",
+        phoneNumber: user.phoneNumber ?? "",
         studyProgram: "",
         campus: "",
+        nidn: "",
+        department: "",
       });
     }
   }, [studentProfile, lecturerProfileResponse, user, resolvedRole]);
@@ -115,23 +123,29 @@ export default function ProfilForm({ initialRole }: ProfilFormProps = {}) {
     if (resolvedRole === "student") {
       setForm({
         name: studentProfile?.name ?? "",
-        education: studentProfile?.education ?? "",
+        phoneNumber: studentProfile?.phoneNumber ?? "",
         studyProgram: studentProfile?.studyProgram ?? "",
         campus: studentProfile?.campus ?? "",
+        nidn: "",
+        department: "",
       });
     } else if (resolvedRole === "lecturer") {
       setForm({
         name: user?.name ?? "",
-        education: "",
-        studyProgram: lecturerProfileResponse?.profile?.department ?? "",
+        phoneNumber: user?.phoneNumber ?? "",
+        studyProgram: "",
         campus: lecturerProfileResponse?.profile?.campus ?? "",
+        nidn: lecturerProfileResponse?.profile?.nidn ?? "",
+        department: lecturerProfileResponse?.profile?.department ?? "",
       });
     } else if (resolvedRole === "admin" || resolvedRole === "superadmin") {
       setForm({
         name: user?.name ?? "",
-        education: "",
+        phoneNumber: user?.phoneNumber ?? "",
         studyProgram: "",
         campus: "",
+        nidn: "",
+        department: "",
       });
     }
   };
@@ -146,7 +160,7 @@ export default function ProfilForm({ initialRole }: ProfilFormProps = {}) {
       updateStudentProfile.mutate(
         {
           name: form.name,
-          education: form.education,
+          phoneNumber: form.phoneNumber,
           studyProgram: form.studyProgram,
           campus: form.campus,
         },
@@ -163,8 +177,32 @@ export default function ProfilForm({ initialRole }: ProfilFormProps = {}) {
             }),
         }
       );
+    } else if (resolvedRole === "lecturer") {
+      updateLecturerProfile.mutate(
+        {
+          name: form.name,
+          nidn: form.nidn,
+          campus: form.campus,
+          department: form.department,
+          phoneNumber: form.phoneNumber,
+        },
+        {
+          onSuccess: async () => {
+            setIsEditing(false);
+            // Refresh Better Auth session to sync the header/sidebar immediately
+            await authClient.getSession();
+            toast.success("Profil diperbarui", {
+              description: "Perubahan berhasil disimpan.",
+            });
+          },
+          onError: (err) =>
+            toast.error("Gagal menyimpan profil", {
+              description: err instanceof Error ? err.message : undefined,
+            }),
+        }
+      );
     } else {
-      // For lecturer, admin, superadmin - updates user name
+      // For admin, superadmin - updates user name
       updateLecturerProfile.mutate(
         {
           name: form.name,
@@ -415,7 +453,7 @@ export default function ProfilForm({ initialRole }: ProfilFormProps = {}) {
                   <Input
                     variant={editableVariant}
                     type="text"
-                    value={form.name}
+                    value={form.name || ""}
                     readOnly={!isEditing}
                     onChange={(e) =>
                       setForm((f) => ({ ...f, name: e.target.value }))
@@ -432,21 +470,24 @@ export default function ProfilForm({ initialRole }: ProfilFormProps = {}) {
                     <Input
                       variant="ghost"
                       type="text"
-                      value={studentProfile?.nim}
+                      value={studentProfile?.nim || ""}
                       readOnly
                     />
                   </div>
                 )}
-                {resolvedRole === "lecturer" && (
+                 {resolvedRole === "lecturer" && (
                   <div className="flex flex-col gap-1.5">
                     <label className="text-[12.5px] font-semibold text-neutral-muted">
                       NIDN
                     </label>
                     <Input
-                      variant="ghost"
+                      variant={editableVariant}
                       type="text"
-                      value={lecturerProfileResponse?.profile?.nidn}
-                      readOnly
+                      value={form.nidn || ""}
+                      readOnly={!isEditing}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, nidn: e.target.value }))
+                      }
                     />
                   </div>
                 )}
@@ -461,8 +502,8 @@ export default function ProfilForm({ initialRole }: ProfilFormProps = {}) {
                     type="email"
                     value={
                       resolvedRole === "student"
-                        ? studentProfile?.email
-                        : user?.email
+                        ? (studentProfile?.email || "")
+                        : (user?.email || "")
                     }
                     readOnly
                   />
@@ -474,14 +515,30 @@ export default function ProfilForm({ initialRole }: ProfilFormProps = {}) {
                     No. HP
                   </label>
                   <Input
-                    variant="ghost"
+                    variant={
+                      resolvedRole === "student" || resolvedRole === "lecturer"
+                        ? editableVariant
+                        : "ghost"
+                    }
                     type="text"
                     value={
-                      (resolvedRole === "student"
-                        ? studentProfile?.phoneNumber
-                        : user?.phoneNumber) || "-"
+                      resolvedRole === "student" || resolvedRole === "lecturer"
+                        ? (form.phoneNumber || "")
+                        : (user?.phoneNumber || "")
                     }
-                    readOnly
+                    readOnly={
+                      resolvedRole === "student" || resolvedRole === "lecturer"
+                        ? !isEditing
+                        : true
+                    }
+                    onChange={(e) => {
+                      if (
+                        resolvedRole === "student" ||
+                        resolvedRole === "lecturer"
+                      ) {
+                        setForm((f) => ({ ...f, phoneNumber: e.target.value }));
+                      }
+                    }}
                   />
                 </div>
 
@@ -494,7 +551,7 @@ export default function ProfilForm({ initialRole }: ProfilFormProps = {}) {
                     <Input
                       variant={editableVariant}
                       type="text"
-                      value={form.studyProgram}
+                      value={form.studyProgram || ""}
                       readOnly={!isEditing}
                       onChange={(e) =>
                         setForm((f) => ({ ...f, studyProgram: e.target.value }))
@@ -502,16 +559,19 @@ export default function ProfilForm({ initialRole }: ProfilFormProps = {}) {
                     />
                   </div>
                 )}
-                {resolvedRole === "lecturer" && (
+                 {resolvedRole === "lecturer" && (
                   <div className="flex flex-col gap-1.5">
                     <label className="text-[12.5px] font-semibold text-neutral-muted">
                       Departemen
                     </label>
                     <Input
-                      variant="ghost"
+                      variant={editableVariant}
                       type="text"
-                      value={form.studyProgram}
-                      readOnly
+                      value={form.department || ""}
+                      readOnly={!isEditing}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, department: e.target.value }))
+                      }
                     />
                   </div>
                 )}
@@ -525,7 +585,7 @@ export default function ProfilForm({ initialRole }: ProfilFormProps = {}) {
                     <Input
                       variant={editableVariant}
                       type="text"
-                      value={form.campus}
+                      value={form.campus || ""}
                       readOnly={!isEditing}
                       onChange={(e) =>
                         setForm((f) => ({ ...f, campus: e.target.value }))
@@ -539,10 +599,13 @@ export default function ProfilForm({ initialRole }: ProfilFormProps = {}) {
                       Asal Kampus
                     </label>
                     <Input
-                      variant="ghost"
+                      variant={editableVariant}
                       type="text"
-                      value={form.campus}
-                      readOnly
+                      value={form.campus || ""}
+                      readOnly={!isEditing}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, campus: e.target.value }))
+                      }
                     />
                   </div>
                 )}
@@ -554,13 +617,10 @@ export default function ProfilForm({ initialRole }: ProfilFormProps = {}) {
                       Jenjang Pendidikan
                     </label>
                     <Input
-                      variant={editableVariant}
+                      variant="ghost"
                       type="text"
-                      value={form.education}
-                      readOnly={!isEditing}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, education: e.target.value }))
-                      }
+                      value={studentProfile?.education || "-"}
+                      readOnly
                     />
                   </div>
                 )}

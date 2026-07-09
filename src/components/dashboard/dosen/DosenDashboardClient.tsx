@@ -4,7 +4,7 @@ import { useLecturerDashboardSummary, useLecturerStudents } from "@/hooks/useLec
 import { authClient } from "@/lib/auth-client";
 import { StatCards } from "./StatCards";
 import { BimbinganTable } from "./BimbinganTable";
-import type { MahasiswaBimbingan } from "@/lib/dosen-data";
+import type { MahasiswaBimbingan } from "@/services/lecturer";
 
 // Helper to determine status based on backend value
 const mapStatus = (backendStatus: string): "aktif" | "mendekati-tenggat" | "terlambat" => {

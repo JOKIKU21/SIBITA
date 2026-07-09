@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import type { Stage } from "@/lib/stages";
 import { snakeToTitleCase, getStageMetadata } from "@/lib/stages";
 import type { StageNote, StageFile } from "@/services/student";
-import { useCreateNote, useUpdateNote, useCreateFile, useDeleteFile } from "@/hooks/useStudentBimbingan";
+import { useCreateNote, useUpdateNote, useCreateFile, useDeleteFile } from "@/hooks/useStudent";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
 import { useToast } from "@/components/providers/ToastProvider";
@@ -14,9 +14,16 @@ interface StageFormProps {
   stageId?: string;
   existingNote?: StageNote;
   existingFiles?: StageFile[];
+  readOnly?: boolean;
 }
 
-export function StageForm({ stage, stageId, existingNote, existingFiles = [] }: StageFormProps) {
+export function StageForm({
+  stage,
+  stageId,
+  existingNote,
+  existingFiles = [],
+  readOnly = false,
+}: StageFormProps) {
   const [formData, setFormData] = useState<Record<string, string>>({});
   const toast = useToast();
   const createNoteMut = useCreateNote();
@@ -138,20 +145,22 @@ export function StageForm({ stage, stageId, existingNote, existingFiles = [] }: 
             return (
               <div key={idx} className="mb-4.5">
                 <label className="block text-[13.5px] font-semibold mb-2 text-neutral-text">
-                  {label} <span className="text-danger">*</span>
+                  {label} {!readOnly && <span className="text-danger">*</span>}
                 </label>
 
                 {field.type === "file" ? (
                   <div className="flex flex-col gap-3">
-                    <label className="border-[1.5px] border-dashed border-[#C7CCE0] bg-neutral-bg rounded-2 py-7 px-3.5 text-center text-[13.5px] text-neutral-muted cursor-pointer transition-[background,border-color] duration-200 hover:bg-[#ECEEF7] hover:border-brand-light block">
-                      Choose a file or drag & drop it here
-                      <input
-                        type="file"
-                        className="hidden"
-                        onChange={handleFileChange}
-                        disabled={createFileMut.isPending}
-                      />
-                    </label>
+                    {!readOnly && (
+                      <label className="border-[1.5px] border-dashed border-[#C7CCE0] bg-neutral-bg rounded-2 py-7 px-3.5 text-center text-[13.5px] text-neutral-muted cursor-pointer transition-[background,border-color] duration-200 hover:bg-[#ECEEF7] hover:border-brand-light block">
+                        Choose a file or drag & drop it here
+                        <input
+                          type="file"
+                          className="hidden"
+                          onChange={handleFileChange}
+                          disabled={createFileMut.isPending}
+                        />
+                      </label>
+                    )}
 
                     {createFileMut.isPending && (
                       <div className="text-[12.5px] text-neutral-muted italic">Mengunggah file...</div>
@@ -191,14 +200,16 @@ export function StageForm({ stage, stageId, existingNote, existingFiles = [] }: 
                                 </span>
                               </div>
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteFile(file.id)}
-                              disabled={deleteFileMut.isPending}
-                              className="text-danger hover:text-danger-dark text-[12px] font-semibold bg-transparent border-none cursor-pointer disabled:opacity-50"
-                            >
-                              Hapus
-                            </button>
+                            {!readOnly && (
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteFile(file.id)}
+                                disabled={deleteFileMut.isPending}
+                                className="text-danger hover:text-danger-dark text-[12px] font-semibold bg-transparent border-none cursor-pointer disabled:opacity-50"
+                              >
+                                Hapus
+                              </button>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -208,9 +219,11 @@ export function StageForm({ stage, stageId, existingNote, existingFiles = [] }: 
                   <textarea
                     value={value}
                     onChange={(e) => handleInputChange(field.key, e.target.value)}
-                    className="w-full bg-neutral-bg border-[1.5px] border-transparent rounded-2 py-3 px-3.5 text-3.5 text-neutral-text outline-none font-sans transition-[border-color,background] duration-200 focus:border-brand-light focus:bg-[#f8f9ff] resize-y min-h-20"
-                    placeholder={`Masukkan ${label}`}
-                    required
+                    className="w-full bg-neutral-bg border-[1.5px] border-transparent rounded-2 py-3 px-3.5 text-3.5 text-neutral-text outline-none font-sans transition-[border-color,background] duration-200 focus:border-brand-light focus:bg-[#f8f9ff] resize-y min-h-20 disabled:opacity-60 disabled:cursor-not-allowed"
+                    placeholder={readOnly ? "-" : `Masukkan ${label}`}
+                    required={!readOnly}
+                    disabled={readOnly}
+                    readOnly={readOnly}
                   />
                 ) : (
                   <Input
@@ -218,40 +231,44 @@ export function StageForm({ stage, stageId, existingNote, existingFiles = [] }: 
                     variant="default"
                     value={value}
                     onChange={(e) => handleInputChange(field.key, e.target.value)}
-                    placeholder={`Masukkan ${label}`}
-                    required
+                    placeholder={readOnly ? "-" : `Masukkan ${label}`}
+                    required={!readOnly}
+                    disabled={readOnly}
+                    readOnly={readOnly}
                   />
                 )}
               </div>
             );
           })}
 
-          <div className="flex gap-3 mt-5.5">
-            <Button
-              type="button"
-              variant="outline"
-              size="custom"
-              className="flex-1 p-3 rounded-2.25"
-              onClick={() => {
-                if (existingNote?.data) {
-                  setFormData(existingNote.data as Record<string, string>);
-                } else {
-                  setFormData({});
-                }
-              }}
-            >
-              Batal
-            </Button>
-            <Button
-              type="submit"
-              variant="brand"
-              size="custom"
-              className="flex-1 p-3 rounded-2.25"
-              isLoading={loading}
-            >
-              Simpan Data
-            </Button>
-          </div>
+          {!readOnly && (
+            <div className="flex gap-3 mt-5.5">
+              <Button
+                type="button"
+                variant="outline"
+                size="custom"
+                className="flex-1 p-3 rounded-2.25"
+                onClick={() => {
+                  if (existingNote?.data) {
+                    setFormData(existingNote.data as Record<string, string>);
+                  } else {
+                    setFormData({});
+                  }
+                }}
+              >
+                Batal
+              </Button>
+              <Button
+                type="submit"
+                variant="brand"
+                size="custom"
+                className="flex-1 p-3 rounded-2.25"
+                isLoading={loading}
+              >
+                Simpan Data
+              </Button>
+            </div>
+          )}
         </form>
       </div>
     </div>

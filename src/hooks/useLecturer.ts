@@ -20,13 +20,18 @@ export function useLecturerProfile(options?: any) {
   });
 }
 
-/** Update the current lecturer's profile (e.g. name). */
+/** Update the current lecturer's profile. */
 export function useUpdateLecturerProfile() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: { name: string }) =>
-      lecturerService.updateProfile(payload),
+    mutationFn: (payload: {
+      name?: string;
+      nidn?: string;
+      campus?: string;
+      department?: string;
+      phoneNumber?: string;
+    }) => lecturerService.updateProfile(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: lecturerKeys.profile() });
     },
@@ -46,5 +51,23 @@ export function useLecturerStudents() {
   return useQuery({
     queryKey: lecturerKeys.students(),
     queryFn: () => lecturerService.getStudents(),
+  });
+}
+
+/** Read a specific student's bimbingan progress. */
+export function useLecturerStudentProgress(studentId: string) {
+  return useQuery({
+    queryKey: [...lecturerKeys.students(), studentId] as const,
+    queryFn: () => lecturerService.getStudentProgress(studentId),
+    enabled: !!studentId,
+  });
+}
+
+/** Read a specific student's stage details. */
+export function useLecturerStudentStageDetail(studentId: string, stageId?: string) {
+  return useQuery({
+    queryKey: [...lecturerKeys.students(), studentId, "detail", stageId || ""] as const,
+    queryFn: () => lecturerService.getStudentStageDetail(studentId, stageId!),
+    enabled: !!studentId && !!stageId,
   });
 }

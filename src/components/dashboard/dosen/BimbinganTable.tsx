@@ -1,7 +1,7 @@
 // ponytail: Server Component — no 'use client'
 
 import Link from "next/link";
-import type { MahasiswaBimbingan } from "@/lib/dosen-data";
+import type { MahasiswaBimbingan } from "@/services/lecturer";
 
 const STATUS_BADGE: Record<MahasiswaBimbingan["status"], { cls: string; label: string }> = {
   aktif: { cls: "bg-success-bg text-success", label: "Aktif" },

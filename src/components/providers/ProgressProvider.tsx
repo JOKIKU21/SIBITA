@@ -11,7 +11,7 @@ import {
   useState,
 } from "react";
 
-import { useStudentBimbingan } from "@/hooks/useStudentBimbingan";
+import { useStudentBimbingan } from "@/hooks/useStudent";
 import { STAGES, getStageMetadata } from "@/lib/stages";
 import type { Stage } from "@/lib/stages";
 import type { StudentProgress } from "@/services/student";

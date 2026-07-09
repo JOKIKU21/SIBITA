@@ -27,7 +27,7 @@ export interface UpdateProfilePayload {
   name?: string;
   campus?: string;
   studyProgram?: string;
-  education?: string;
+  phoneNumber?: string;
 }
 
 /** Body for `POST /api/auth/change-password`. */

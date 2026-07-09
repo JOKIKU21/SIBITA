@@ -49,7 +49,12 @@ curl -X POST http://localhost:3001/api/auth/change-password \
 curl -X PATCH http://localhost:3001/api/users/profile \
   -H "Content-Type: application/json" \
   -H "Cookie: better-auth.session_token=..." \
-  -d '{"name": "John Updated", "campus": "Universitas Udayana", "studyProgram": "Teknik Informatika", "education": "S1"}'
+  -d '{
+    "name": "John",
+    "campus": "Universitas Udayana",
+    "studyProgram": "Teknik Informatika",
+    "phoneNumber": "0821234567767644"
+}'
 ```
 
 ### Get Student Profile
@@ -509,4 +514,19 @@ returns:
   ],
   "files": []
 }
+```
+
+### Update Profile (Lecturer)
+
+```sh
+curl -X PATCH http://localhost:3001/api/users/profile \
+  -H "Content-Type: application/json" \
+  -H "Cookie: better-auth.session_token=..." \
+  -d '{
+    "name": "John",
+    "nidn": "3423534546ase",
+    "campus": "Universitas Udayanaasds",
+    "department": "Teknik Informatikasad",
+    "phoneNumber": "0821234567767644"
+}'
 ```

@@ -1,4 +1,5 @@
 import { apiFetch } from "@/lib/api-client";
+import type { BackendStage, StudentProgress, GetStageDetailResponse } from "./student";
 
 export interface LecturerProfile {
   userId: string;
@@ -44,6 +45,24 @@ export interface GetLecturerStudentsResponse {
   students: LecturerStudent[];
 }
 
+export interface MahasiswaBimbingan {
+  userId: string;
+  nim: string;
+  nama: string;
+  prodi: string;
+  judul: string;
+  tahapanAktif: number;
+  tahapanNama: string;
+  status: "aktif" | "mendekati-tenggat" | "terlambat";
+  progress: number;
+  avatarColor: string;
+}
+
+export interface GetLecturerStudentProgressResponse {
+  stages: BackendStage[];
+  progress: StudentProgress | null;
+}
+
 export const lecturerService = {
   /** Fetch the signed-in lecturer's profile information. */
   getProfile() {
@@ -66,8 +85,28 @@ export const lecturerService = {
     });
   },
 
-  /** Update lecturer profile (e.g. name). */
-  updateProfile(payload: { name: string }) {
+  /** Fetch a specific student's bimbingan stages and progress. */
+  getStudentProgress(studentId: string) {
+    return apiFetch<GetLecturerStudentProgressResponse>(`/api/lecturer/students/${studentId}`, {
+      method: "GET",
+    });
+  },
+
+  /** Fetch details of a specific stage (notes and files) for a student. */
+  getStudentStageDetail(studentId: string, stageId: string) {
+    return apiFetch<GetStageDetailResponse>(`/api/lecturer/students/${studentId}/${stageId}`, {
+      method: "GET",
+    });
+  },
+
+  /** Update lecturer profile. */
+  updateProfile(payload: {
+    name?: string;
+    nidn?: string;
+    campus?: string;
+    department?: string;
+    phoneNumber?: string;
+  }) {
     return apiFetch<unknown>("/api/users/profile", {
       method: "PATCH",
       body: JSON.stringify(payload),

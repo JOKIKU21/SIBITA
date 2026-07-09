@@ -2,7 +2,7 @@
 
 import { useLecturerStudents } from "@/hooks/useLecturer";
 import { BimbinganTable } from "./BimbinganTable";
-import type { MahasiswaBimbingan } from "@/lib/dosen-data";
+import type { MahasiswaBimbingan } from "@/services/lecturer";
 
 // Helper to determine status based on backend value
 const mapStatus = (backendStatus: string): "aktif" | "mendekati-tenggat" | "terlambat" => {

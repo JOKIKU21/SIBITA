@@ -5,7 +5,7 @@ import type { Stage } from "@/lib/stages";
 import { getStageMetadata, calculateRemainingDays } from "@/lib/stages";
 import { StageForm } from "@/components/dashboard/StageForm";
 import { ChatPanel } from "@/components/dashboard/ChatPanel";
-import { useStudentBimbingan, useStudentBimbinganDetail } from "@/hooks/useStudentBimbingan";
+import { useStudentBimbingan, useStudentBimbinganDetail } from "@/hooks/useStudent";
 
 interface StagePageClientProps {
   stage: Omit<Stage, "icon">;

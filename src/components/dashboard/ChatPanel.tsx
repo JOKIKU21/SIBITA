@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { Plus, ArrowUp } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
-import { useChatMessages, useSendChatMessage } from "@/hooks/useStudentBimbingan";
+import { useChatMessages, useSendChatMessage } from "@/hooks/useStudent";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
 
