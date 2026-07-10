@@ -27,6 +27,7 @@ export function AdminSidebar() {
   const isDashboardActive = pathname === "/dashboard/admin";
   const isDosenActive = pathname.startsWith("/dashboard/admin/manajemen-dosen");
   const isMahasiswaActive = pathname.startsWith("/dashboard/admin/manajemen-mahasiswa");
+  const isRegistrasiActive = pathname.startsWith("/dashboard/admin/registrasi");
   const isReferensiActive = pathname.startsWith("/dashboard/admin/referensi");
   const isProfilActive = pathname === "/dashboard/admin/profil";
 
@@ -65,13 +66,20 @@ export function AdminSidebar() {
           Dashboard
         </Link>
 
+        <Link href="/dashboard/admin/registrasi" className={linkClass(isRegistrasiActive)}>
+          <svg viewBox="0 0 24 24" fill="none" className={iconClass(isRegistrasiActive)}>
+            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Registrasi
+        </Link>
+
         <Link href="/dashboard/admin/manajemen-dosen" className={linkClass(isDosenActive)}>
           <svg viewBox="0 0 24 24" fill="none" className={iconClass(isDosenActive)}>
             <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="1.8" />
             <path d="M2 21v-1a6 6 0 0 1 6-6h2a6 6 0 0 1 6 6v1" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
             <path d="M16 3.13a4 4 0 0 1 0 7.75M21 21v-1a4 4 0 0 0-3-3.87" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
           </svg>
-          Manajemen Dosen
+          Data Dosen
         </Link>
 
         <Link href="/dashboard/admin/manajemen-mahasiswa" className={linkClass(isMahasiswaActive)}>
@@ -79,7 +87,7 @@ export function AdminSidebar() {
             <path d="M22 10v6M2 10l10-5 10 5-10 5-10 5z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
             <path d="M6 12.5V16a6 6 0 0 0 12 0v-3.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          Manajemen Mahasiswa
+          Data Mahasiswa
         </Link>
 
         <Link href="/dashboard/admin/referensi" className={linkClass(isReferensiActive)}>
