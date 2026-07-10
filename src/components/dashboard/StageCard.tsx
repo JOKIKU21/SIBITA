@@ -55,7 +55,7 @@ export function StageCard({
   basePath = "/dashboard/mahasiswa/tahap",
   remainingDays,
 }: {
-  stage: Stage & { slug: string; name?: string; desc?: string; days?: number };
+  stage: Stage & { id?: string; name?: string; desc?: string; days?: number };
   status: StageStatus;
   window: StageWindow;
   basePath?: string;
@@ -112,6 +112,48 @@ export function StageCard({
     daysLabel = `Mulai hari ke-${window.start}`;
   }
 
+  const cardContent = (
+    <>
+      <div className="flex items-center justify-between gap-2.5 mb-2">
+        <div className="flex items-center gap-2">
+          <span className="font-display text-5.5 font-extrabold text-brand tracking-[-0.01em] leading-none">
+            {String(stage.n).padStart(2, "0")}
+          </span>
+          {status === "berlangsung" && remainingDays !== undefined && (
+            <>
+              {remainingDays <= 0 ? (
+                <span className="whitespace-nowrap rounded-full bg-danger-bg text-danger px-2.5 py-0.75 text-[11px] font-bold">
+                  Melewati Deadline ⚠️
+                </span>
+              ) : remainingDays <= 3 ? (
+                <span className="whitespace-nowrap rounded-full bg-warning-bg text-warning px-2.5 py-0.75 text-[11px] font-bold">
+                  Mendekati Deadline ⚠️
+                </span>
+              ) : null}
+            </>
+          )}
+        </div>
+        <StatusBadge status={status} />
+      </div>
+      <div className="font-display text-[15px] font-bold text-neutral-text mb-0.75">
+        {name}
+      </div>
+      <div className="text-[12.5px] text-brand font-semibold mb-2">
+        {formatStageDate(window.start)} – {formatStageDate(window.end)}
+      </div>
+      <div className="text-[13px] text-neutral-muted leading-[1.55]">
+        {desc}
+      </div>
+      {status !== "belum-mulai" && (
+        <div className="flex justify-end mt-2.5">
+          <span className="text-[11.5px] text-neutral-muted font-semibold">
+            {daysLabel}
+          </span>
+        </div>
+      )}
+    </>
+  );
+
   return (
     <div className="flex gap-0 relative">
       <div className="flex flex-col items-center w-14 shrink-0">
@@ -123,46 +165,10 @@ export function StageCard({
       </div>
       <div className="flex-1">
         <Link
-          href={`${basePath}/${stage.slug}`}
+          href={`${basePath}/${stage.n}`}
           className={`block ${getCardClass(status)}`}
         >
-          <div className="flex items-center justify-between gap-2.5 mb-2">
-            <div className="flex items-center gap-2">
-              <span className="font-display text-5.5 font-extrabold text-brand tracking-[-0.01em] leading-none">
-                {String(stage.n).padStart(2, "0")}
-              </span>
-              {status === "berlangsung" && remainingDays !== undefined && (
-                <>
-                  {remainingDays <= 0 ? (
-                    <span className="whitespace-nowrap rounded-full bg-danger-bg text-danger px-2.5 py-0.75 text-[11px] font-bold">
-                      Melewati Deadline ⚠️
-                    </span>
-                  ) : remainingDays <= 3 ? (
-                    <span className="whitespace-nowrap rounded-full bg-warning-bg text-warning px-2.5 py-0.75 text-[11px] font-bold">
-                      Mendekati Deadline ⚠️
-                    </span>
-                  ) : null}
-                </>
-              )}
-            </div>
-            <StatusBadge status={status} />
-          </div>
-          <div className="font-display text-[15px] font-bold text-neutral-text mb-0.75">
-            {name}
-          </div>
-          <div className="text-[12.5px] text-brand font-semibold mb-2">
-            {formatStageDate(window.start)} – {formatStageDate(window.end)}
-          </div>
-          <div className="text-[13px] text-neutral-muted leading-[1.55]">
-            {desc}
-          </div>
-          {status !== "belum-mulai" && (
-            <div className="flex justify-end mt-2.5">
-              <span className="text-[11.5px] text-neutral-muted font-semibold">
-                {daysLabel}
-              </span>
-            </div>
-          )}
+          {cardContent}
         </Link>
       </div>
     </div>

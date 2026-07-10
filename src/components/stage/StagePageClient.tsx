@@ -7,18 +7,17 @@ import { MahasiswaChatPanel } from "@/components/stage/MahasiswaChatPanel";
 import { useStudentBimbingan, useStudentBimbinganDetail } from "@/hooks/useStudent";
 
 interface StagePageClientProps {
-  slug: string;
+  stageId: string;
 }
 
-export function StagePageClient({ slug }: StagePageClientProps) {
+export function StagePageClient({ stageId: urlStageId }: StagePageClientProps) {
   const { data: bimbinganData, isLoading: isBimbinganLoading } = useStudentBimbingan();
   
-  const backendStage = bimbinganData?.stages?.find((s) => s.slug === slug);
-  const stageId = backendStage?.id;
-  const stageOrder = backendStage?.order;
+  const stageOrder = parseInt(urlStageId, 10);
   const stageConfig = STAGES.find((s) => s.n === stageOrder);
+  const backendStage = bimbinganData?.stages?.find((s) => s.order === stageOrder);
 
-  const { data: detailData, isLoading: isDetailLoading } = useStudentBimbinganDetail(stageId);
+  const { data: detailData, isLoading: isDetailLoading } = useStudentBimbinganDetail(urlStageId);
   const existingNote = detailData?.notes?.[0];
   const existingFiles = detailData?.files || [];
 
@@ -47,13 +46,11 @@ export function StagePageClient({ slug }: StagePageClientProps) {
   const metadata = getStageMetadata(stageConfig.n, backendStage);
 
   const progress = bimbinganData?.progress;
-  const isCurrentStage = progress?.currentStageId === stageId && progress?.status === "in progress";
+  const isCurrentStage = progress?.currentStageOrder === stageOrder && (progress?.status === "in_progress" || progress?.status === "in progress");
   const remainingDays = isCurrentStage && progress?.startedAt
     ? calculateRemainingDays(progress.startedAt, metadata.days)
     : undefined;
 
-  const nextBackendStage = bimbinganData?.stages?.find((s) => s.order === stageConfig.n + 1);
-  const nextStage = nextBackendStage ? { slug: nextBackendStage.slug } : null;
 
   return (
     <div className="block">
@@ -100,7 +97,7 @@ export function StagePageClient({ slug }: StagePageClientProps) {
             <div className="flex flex-col gap-5">
               <StageForm
                 stage={stageConfig}
-                stageId={stageId}
+                stageId={urlStageId}
                 existingNote={existingNote}
                 existingFiles={existingFiles}
                 stageName={metadata.name}
@@ -108,7 +105,7 @@ export function StagePageClient({ slug }: StagePageClientProps) {
             </div>
 
             <div className="flex flex-col gap-5">
-              <MahasiswaChatPanel stageId={stageId} />
+              <MahasiswaChatPanel stageId={urlStageId} />
             </div>
           </div>
         )}

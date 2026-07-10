@@ -11,5 +11,5 @@ export default async function StagePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  return <StagePageClient slug={id} />;
+  return <StagePageClient stageId={id} />;
 }

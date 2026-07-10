@@ -21,12 +21,13 @@ export function DosenFileUpload({ existingFiles = [] }: DosenFileUploadProps) {
     const newFile: StageFile = {
       id: Math.random().toString(),
       studentId: "",
-      stageId: "",
+      stageOrder: 0,
+      uploadedById: "lecturer",
       fileName: file.name,
       fileUrl: "#",
       fileSize: file.size,
-      type: "lecturer",
       createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
     setFiles((prev) => [...prev, newFile]);
     alert(`File berhasil diunggah: ${file.name}`);

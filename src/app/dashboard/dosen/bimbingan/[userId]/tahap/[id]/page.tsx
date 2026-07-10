@@ -12,5 +12,5 @@ export default async function DosenStagePage({
   params: Promise<{ userId: string; id: string }>;
 }) {
   const { userId, id } = await params;
-  return <DosenStagePageClient userId={userId} slug={id} />;
+  return <DosenStagePageClient userId={userId} stageId={id} />;
 }

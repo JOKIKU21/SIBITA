@@ -143,8 +143,8 @@ export function StageForm({
   const otherFields = stage.fields.filter((f) => f.type !== "readonly-list");
   
   // Filter student and lecturer files
-  const studentFiles = existingFiles.filter((file) => !file.type || file.type === "student");
-  const lecturerFiles = existingFiles.filter((file) => file.type === "lecturer");
+  const studentFiles = existingFiles.filter((file) => file.uploadedById === file.studentId);
+  const lecturerFiles = existingFiles.filter((file) => file.uploadedById !== file.studentId);
 
   const isFormDisabled = readOnly || !isEditing;
   const hasLecturerFeedback = !!(existingNote?.comment || lecturerFiles.length > 0);

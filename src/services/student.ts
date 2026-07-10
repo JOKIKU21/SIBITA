@@ -37,20 +37,19 @@ export interface ChangePasswordPayload {
 }
 
 export interface BackendStage {
-  id: string;
   order: number;
   name: string;
-  slug: string;
-  description: string | null;
   durationDays: number;
 }
 
 export interface StudentProgress {
+  id: string;
   studentId: string;
-  currentStageId: string | null;
+  currentStageOrder: number;
   startedAt: string;
   status: string;
-  finishedAt: string | null;
+  stageDeadline: string;
+  createdAt: string;
   updatedAt: string;
 }
 
@@ -62,7 +61,8 @@ export interface GetBimbinganResponse {
 export interface StageNote {
   id: string;
   studentId: string;
-  stageId: string;
+  stageOrder: number;
+  authorId: string;
   data: Record<string, unknown> | null;
   comment?: string | null;
   status?: string;
@@ -74,13 +74,14 @@ export interface StageNote {
 export interface StageFile {
   id: string;
   studentId: string;
-  stageId: string;
+  stageOrder: number;
+  uploadedById: string;
   fileName: string;
   fileUrl: string;
   fileType?: string;
   fileSize?: number;
-  type?: "student" | "lecturer";
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface GetStageDetailResponse {
@@ -93,13 +94,14 @@ export interface ChatMessage {
   id: string;
   studentId: string;
   senderId: string;
-  stageId: string;
+  stageOrder: number;
   message: string | null;
   fileName: string | null;
   fileUrl: string | null;
   fileType: string | null;
   fileSize: number | null;
   createdAt: string;
+  updatedAt: string;
   sender: {
     id: string;
     name: string;

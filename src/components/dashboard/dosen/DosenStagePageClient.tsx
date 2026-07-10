@@ -15,20 +15,19 @@ import { ApprovalCheckbox } from "@/components/dashboard/dosen/ApprovalCheckbox"
 
 interface DosenStagePageClientProps {
   userId: string;
-  slug: string;
+  stageId: string;
 }
 
-export function DosenStagePageClient({ userId, slug }: DosenStagePageClientProps) {
-  // 1. Fetch student progress list to get the UUID of this stage
+export function DosenStagePageClient({ userId, stageId: urlStageId }: DosenStagePageClientProps) {
+  // 1. Fetch student progress list
   const { data: progressData, isLoading: isProgressLoading } = useLecturerStudentProgress(userId);
-  const backendStage = progressData?.stages?.find((s) => s.slug === slug);
-  const stageId = backendStage?.id;
-  const stageOrder = backendStage?.order;
+  const stageOrder = parseInt(urlStageId, 10);
   const stageConfig = STAGES.find((s) => s.n === stageOrder);
+  const backendStage = progressData?.stages?.find((s) => s.order === stageOrder);
   const metadata = getStageMetadata(stageOrder || 0, backendStage);
 
   // 2. Fetch notes & files for this stage
-  const { data: detailData, isLoading: isDetailLoading } = useLecturerStudentStageDetail(userId, stageId);
+  const { data: detailData, isLoading: isDetailLoading } = useLecturerStudentStageDetail(userId, urlStageId);
   const existingNote = detailData?.notes?.[0];
   const existingFiles = detailData?.files || [];
 
@@ -43,7 +42,7 @@ export function DosenStagePageClient({ userId, slug }: DosenStagePageClientProps
 
   const isLoading = isProgressLoading || isDetailLoading || isStudentsLoading;
 
-  const lecturerFiles = existingFiles.filter((file) => file.type === "lecturer");
+  const lecturerFiles = existingFiles.filter((file) => file.uploadedById !== file.studentId);
 
   if (isLoading) {
     return (
@@ -98,7 +97,7 @@ export function DosenStagePageClient({ userId, slug }: DosenStagePageClientProps
           <div className="flex flex-col gap-5">
             <StageForm
               stage={stageConfig}
-              stageId={stageId}
+              stageId={urlStageId}
               existingNote={existingNote}
               existingFiles={existingFiles}
               readOnly={true}
@@ -111,7 +110,7 @@ export function DosenStagePageClient({ userId, slug }: DosenStagePageClientProps
 
           {/* Kolom Kanan: Chat Panel */}
           <div className="flex flex-col">
-            <DosenChatPanel stageId={stageId} studentId={userId} />
+            <DosenChatPanel stageId={urlStageId} studentId={userId} />
           </div>
         </div>
       </div>

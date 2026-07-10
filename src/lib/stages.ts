@@ -247,7 +247,7 @@ export function calculateRemainingDays(startedAt: string | Date, durationDays: n
  */
 export function getStageMetadata(
   n: number,
-  backendStage?: { name: string; description: string | null; durationDays: number }
+  backendStage?: { name: string; description?: string | null; durationDays: number }
 ) {
   return {
     name: backendStage?.name || `Tahap ${n}`,

@@ -1,245 +1,295 @@
-### Get Student Stage List
+# SIBITA API Documentation (Bimbingan & Chat)
 
-```sh
-curl -X GET http://localhost:3001/api/student/bimbingan \
-  -H "Cookie: better-auth.session_token=..."
-```
+Dokumentasi ini menjelaskan endpoints API untuk fitur **Bimbingan Mandiri** (Thesis Stages) dan **Chat** baik untuk peran Mahasiswa (Student) maupun Dosen (Lecturer).
 
-returns:
+> [!NOTE]
+> Parameter `:stageId` atau `stageId` pada seluruh endpoint di bawah menggunakan nomor urut/sequence **`order`** tahapan (integer 1-17), bukan UUID atau slug.
 
+---
+
+## 📚 Fitur Bimbingan Mandiri
+
+### 1. Ambil Daftar Tahapan Bimbingan (Mahasiswa)
+Mengambil seluruh 17 tahapan bimbingan beserta data progres aktif mahasiswa saat ini.
+
+* **Endpoint:** `GET /api/student/bimbingan`
+* **Autentikasi:** Wajib (Role: `student`)
+
+#### Contoh Response (200 OK)
 ```json
 {
   "progress": {
-    "studentId": "user-uuid-1234",
-    "currentStageId": "stage_1",
+    "id": "progress-uuid-1111",
+    "studentId": "student-uuid-1234",
+    "currentStageOrder": 4,
     "startedAt": "2026-07-09T13:52:43.847Z",
-    "status": "in progress",
-    "finishedAt": "2026-07-09T13:52:43.847Z",
+    "status": "in_progress",
+    "stageDeadline": "2026-07-16T13:52:43.847Z",
+    "createdAt": "2026-07-09T13:52:43.847Z",
     "updatedAt": "2026-07-09T13:52:43.847Z"
   },
   "stages": [
     {
-      "id": "stage_1",
       "order": 1,
-      "name": "Pengajuan Topik Skripsi",
-      "description": "Mahasiswa mengajukan judul skripsi beserta rumusan masalah.",
+      "name": "Diskusi Konsep dan Judul Penelitian",
+      "durationDays": 7
+    },
+    {
+      "order": 2,
+      "name": "Penyusunan Proposal",
       "durationDays": 14
     }
   ]
 }
 ```
 
-### Get Detail Student Stage
+---
 
-```sh
-curl -X GET http://localhost:3001/api/student/bimbingan/{stageId} \
-  -H "Cookie: better-auth.session_token=..."
-```
+### 2. Ambil Detail Tahapan Bimbingan (Mahasiswa)
+Mengambil detail dari satu tahapan tertentu berdasarkan nomor urut `:stageId` (1-17), termasuk daftar catatan (`notes`) dan berkas lampiran (`files`).
 
-returns:
+* **Endpoint:** `GET /api/student/bimbingan/:stageId`
+* **Autentikasi:** Wajib (Role: `student`)
 
+#### Contoh Response (200 OK)
 ```json
 {
   "stage": {
-    "id": "09ceb569-1a9c-4bd0-9b6a-3b29d37502ff",
     "order": 1,
     "name": "Diskusi Konsep dan Judul Penelitian",
-    "slug": "diskusi-konsep-dan-judul-penelitian",
     "durationDays": 7,
-    "createdAt": "2026-07-09T13:24:33.863Z"
+    "createdAt": "2026-07-09T13:24:33.863Z",
+    "updatedAt": "2026-07-09T13:24:33.863Z"
   },
   "notes": [
     {
-      "id": "1765ce76-6d5d-44e8-a1dc-a5dbd38fe39f",
-      "studentId": "Q3oGcQsMU7Fg8m7Yb9RhKoRCLHU9GXj8",
-      "stageId": "09ceb569-1a9c-4bd0-9b6a-3b29d37502ff",
+      "id": "note-uuid-1111",
+      "studentId": "student-uuid-1234",
+      "stageOrder": 1,
+      "authorId": "student-uuid-1234",
       "data": {
-        "rumusan_masalah": "Bagaimana meningkatkan akurasi fine-tuning Model Bahasa Besar (LLM) untuk mendeteksi dialek bahasa daerah dengan keterbatasan dataset?",
         "judul_penelitian": "Analisis Performa Model Bahasa Besar pada Dataset Lokal",
-        "topik_penelitian": "Kecerdasan Buatan dan Pemrosesan Bahasa Alami",
-        "alasan_penelitian": "Dialek bahasa daerah sering kali tidak terwakili dengan baik dalam LLM komersial, sehingga penelitian ini penting untuk pelestarian bahasa lokal."
+        "topik_penelitian": "Kecerdasan Buatan dan Pemrosesan Bahasa Alami"
       },
-      "comment": "Diskusi konsep judul skripsi disetujui oleh dosen pembimbing: Analisis Performa Model Bahasa Besar pada Dataset Lokal.",
+      "comment": "Konsep judul skripsi disetujui.",
       "status": "approved",
-      "createdAt": "2026-06-14T13:26:28.146Z",
       "completedAt": "2026-06-15T13:26:28.146Z",
+      "createdAt": "2026-06-14T13:26:28.146Z",
       "updatedAt": "2026-07-09T13:28:24.617Z"
     }
   ],
   "files": [
     {
-      "id": "3b86ca95-4f08-4ed5-ac75-147af1ee6a50",
-      "studentId": "Q3oGcQsMU7Fg8m7Yb9RhKoRCLHU9GXj8",
-      "stageId": "09ceb569-1a9c-4bd0-9b6a-3b29d37502ff",
+      "id": "file-uuid-2222",
+      "studentId": "student-uuid-1234",
+      "stageOrder": 1,
+      "uploadedById": "student-uuid-1234",
       "fileName": "Draft_Judul_Skripsi.pdf",
       "fileUrl": "https://example.com/files/draft_judul.pdf",
       "fileType": "application/pdf",
       "fileSize": 153600,
-      "type": "student",
-      "createdAt": "2026-06-14T13:26:28.180Z"
+      "createdAt": "2026-06-14T13:26:28.180Z",
+      "updatedAt": "2026-06-14T13:26:28.180Z"
     }
   ]
 }
 ```
 
-### Get Student Stage List (Lecturer View)
+---
 
-```sh
-curl -X GET http://localhost:3001/api/lecturer/bimbingan/{studentId} \
-  -H "Cookie: better-auth.session_token=..."
-```
+### 3. Ambil Daftar Tahapan Bimbingan Mahasiswa (Dosen View)
+Dosen memantau daftar tahapan bimbingan serta progres aktif mahasiswa bimbingan tertentu.
 
-returns:
+* **Endpoint:** `GET /api/lecturer/bimbingan/:studentId`
+* **Autentikasi:** Wajib (Role: `lecturer`, harus dosen wali/pembimbing mahasiswa tersebut)
 
+#### Contoh Response (200 OK)
+Struktur respon sama dengan versi mahasiswa:
 ```json
 {
   "progress": {
-    "studentId": "user-uuid-1234",
-    "currentStageId": "stage_1",
+    "id": "progress-uuid-1111",
+    "studentId": "student-uuid-1234",
+    "currentStageOrder": 4,
     "startedAt": "2026-07-09T13:52:43.852Z",
-    "status": "in progress",
-    "finishedAt": "2026-07-09T13:52:43.852Z",
+    "status": "in_progress",
+    "stageDeadline": "2026-07-16T13:52:43.852Z",
+    "createdAt": "2026-07-09T13:52:43.852Z",
     "updatedAt": "2026-07-09T13:52:43.852Z"
   },
   "stages": [
     {
-      "id": "stage_1",
       "order": 1,
-      "name": "Pengajuan Topik Skripsi",
-      "description": "Mahasiswa mengajukan judul skripsi beserta rumusan masalah.",
-      "durationDays": 14
+      "name": "Diskusi Konsep dan Judul Penelitian",
+      "durationDays": 7
     }
   ]
 }
 ```
 
-### Get Detail Student Stage (Lecturer View)
+---
 
-```sh
-curl -X GET http://localhost:3001/api/lecturer/bimbingan/{studentId}/{stageId} \
-  -H "Cookie: better-auth.session_token=..."
-```
+### 4. Ambil Detail Tahapan Bimbingan Mahasiswa (Dosen View)
+Dosen melihat detail tahapan tertentu, termasuk catatan bimbingan (`notes`) dan berkas (`files`) mahasiswa bimbingannya.
 
-returns:
+* **Endpoint:** `GET /api/lecturer/bimbingan/:studentId/:stageId`
+* **Autentikasi:** Wajib (Role: `lecturer`, harus dosen wali/pembimbing mahasiswa tersebut)
 
+#### Contoh Response (200 OK)
+Struktur respon sama dengan detail bimbingan versi mahasiswa.
+
+---
+
+## 💬 Fitur Chat / Percakapan Bimbingan
+
+### 5. Ambil Riwayat Chat (Mahasiswa)
+Mengambil riwayat pesan bimbingan mahasiswa pada tahapan bimbingan tertentu.
+
+* **Endpoint:** `GET /api/student/chat/:stageId?limit=50&offset=0`
+* **Autentikasi:** Wajib (Role: `student`)
+
+#### Contoh Response (200 OK)
 ```json
 {
-  "stage": {
-    "id": "09ceb569-1a9c-4bd0-9b6a-3b29d37502ff",
-    "order": 1,
-    "name": "Diskusi Konsep dan Judul Penelitian",
-    "slug": "diskusi-konsep-dan-judul-penelitian",
-    "durationDays": 7,
-    "createdAt": "2026-07-09T13:24:33.863Z"
-  },
-  "notes": [
+  "messages": [
     {
-      "id": "1765ce76-6d5d-44e8-a1dc-a5dbd38fe39f",
-      "studentId": "Q3oGcQsMU7Fg8m7Yb9RhKoRCLHU9GXj8",
-      "stageId": "09ceb569-1a9c-4bd0-9b6a-3b29d37502ff",
-      "data": {
-        "rumusan_masalah": "Bagaimana meningkatkan akurasi fine-tuning Model Bahasa Besar (LLM) untuk mendeteksi dialek bahasa daerah dengan keterbatasan dataset?",
-        "judul_penelitian": "Analisis Performa Model Bahasa Besar pada Dataset Lokal",
-        "topik_penelitian": "Kecerdasan Buatan dan Pemrosesan Bahasa Alami",
-        "alasan_penelitian": "Dialek bahasa daerah sering kali tidak terwakili dengan baik dalam LLM komersial, sehingga penelitian ini penting untuk pelestarian bahasa lokal."
-      },
-      "comment": "Diskusi konsep judul skripsi disetujui oleh dosen pembimbing: Analisis Performa Model Bahasa Besar pada Dataset Lokal.",
-      "status": "approved",
-      "createdAt": "2026-06-14T13:26:28.146Z",
-      "completedAt": "2026-06-15T13:26:28.146Z",
-      "updatedAt": "2026-07-09T13:34:11.068Z"
+      "id": "chat-message-uuid-abcde",
+      "studentId": "student-uuid-1234",
+      "senderId": "lecturer-uuid-5678",
+      "stageOrder": 1,
+      "message": "Silakan kirimkan perbaikan latar belakang.",
+      "fileName": "koreksi.pdf",
+      "fileUrl": "https://example.com/uploads/koreksi.pdf",
+      "fileType": "application/pdf",
+      "fileSize": 102400,
+      "createdAt": "2026-07-09T13:56:25.876Z",
+      "updatedAt": "2026-07-09T13:56:25.876Z",
+      "sender": {
+        "id": "lecturer-uuid-5678",
+        "name": "Dr. Dosen Pembimbing",
+        "image": null
+      }
     }
   ],
-  "files": [
+  "advisor": {
+    "id": "lecturer-uuid-5678",
+    "name": "Dr. Dosen Pembimbing",
+    "image": null
+  },
+  "pagination": {
+    "limit": 50,
+    "offset": 0,
+    "total": 1
+  }
+}
+```
+
+---
+
+### 6. Ambil Riwayat Chat dengan Mahasiswa (Dosen View)
+Dosen mengambil riwayat pesan dengan mahasiswa bimbingan tertentu pada tahapan tertentu.
+
+* **Endpoint:** `GET /api/lecturer/chat/:studentId/:stageId?limit=50&offset=0`
+* **Autentikasi:** Wajib (Role: `lecturer`, harus dosen wali/pembimbing mahasiswa tersebut)
+
+#### Contoh Response (200 OK)
+```json
+{
+  "messages": [
     {
-      "id": "3b86ca95-4f08-4ed5-ac75-147af1ee6a50",
-      "studentId": "Q3oGcQsMU7Fg8m7Yb9RhKoRCLHU9GXj8",
-      "stageId": "09ceb569-1a9c-4bd0-9b6a-3b29d37502ff",
-      "fileName": "Draft_Judul_Skripsi.pdf",
-      "fileUrl": "https://example.com/files/draft_judul.pdf",
+      "id": "chat-message-uuid-abcde",
+      "studentId": "student-uuid-1234",
+      "senderId": "lecturer-uuid-5678",
+      "stageOrder": 1,
+      "message": "Silakan kirimkan perbaikan latar belakang.",
+      "fileName": "koreksi.pdf",
+      "fileUrl": "https://example.com/uploads/koreksi.pdf",
       "fileType": "application/pdf",
-      "fileSize": 153600,
-      "type": "student",
-      "createdAt": "2026-06-14T13:26:28.180Z"
+      "fileSize": 102400,
+      "createdAt": "2026-07-09T13:56:25.876Z",
+      "updatedAt": "2026-07-09T13:56:25.876Z",
+      "sender": {
+        "id": "lecturer-uuid-5678",
+        "name": "Dr. Dosen Pembimbing",
+        "image": null
+      }
     }
-  ]
+  ],
+  "student": {
+    "id": "student-uuid-1234",
+    "name": "Mahasiswa SIBITA",
+    "image": null
+  },
+  "pagination": {
+    "limit": 50,
+    "offset": 0,
+    "total": 1
+  }
 }
 ```
 
-### Get Student Stage Chat Messages
+---
 
-```sh
-curl -X GET http://localhost:3001/api/student/chat/:stageId \
-  -H "Cookie: better-auth.session_token=..."
-```
+### 7. Kirim Pesan Chat (Mahasiswa)
+Mengirimkan pesan ke dosen pembimbing pada tahapan bimbingan tertentu.
 
-returns:
+* **Endpoint:** `POST /api/student/chat/:stageId`
+* **Autentikasi:** Wajib (Role: `student`)
+* **Request Body:**
+  ```json
+  {
+    "message": "Selamat pagi Pak, saya sudah mengunggah draf bab 1."
+  }
+  ```
 
+#### Contoh Response (201 Created)
 ```json
 {
-  "messages": [
-    {
-      "id": "chat-uuid-111",
-      "studentId": "user-uuid-1234",
-      "senderId": "lecturer-uuid-5678",
-      "stageId": "stage-uuid-555",
-      "message": "Silakan kirimkan perbaikan latar belakang.",
-      "fileName": "koreksi.pdf",
-      "fileUrl": "string",
-      "fileType": "string",
-      "fileSize": 0,
-      "createdAt": "2026-07-09T13:56:25.876Z"
-    }
-  ]
+  "message": {
+    "id": "chat-message-uuid-2222",
+    "studentId": "student-uuid-1234",
+    "senderId": "student-uuid-1234",
+    "stageOrder": 1,
+    "message": "Selamat pagi Pak, saya sudah mengunggah draf bab 1.",
+    "fileName": null,
+    "fileUrl": null,
+    "fileType": null,
+    "fileSize": null,
+    "createdAt": "2026-07-09T14:02:11.120Z",
+    "updatedAt": "2026-07-09T14:02:11.120Z"
+  }
 }
 ```
 
-### Get Lecturer Stage Chat Messages
+---
 
-```sh
-curl -X GET http://localhost:3001/api/lecturer/chat/:studentId/:stageId \
-  -H "Cookie: better-auth.session_token=..."
-```
+### 8. Kirim Pesan Chat ke Mahasiswa (Dosen View)
+Dosen mengirimkan pesan ke mahasiswa bimbingannya pada tahapan bimbingan tertentu.
 
-returns:
+* **Endpoint:** `POST /api/lecturer/chat/:studentId/:stageId`
+* **Autentikasi:** Wajib (Role: `lecturer`, harus dosen wali/pembimbing mahasiswa tersebut)
+* **Request Body:**
+  ```json
+  {
+    "message": "Saya sudah memeriksa draf Anda. Silakan lengkapi revisi bagian metodologi."
+  }
+  ```
 
+#### Contoh Response (201 Created)
 ```json
 {
-  "messages": [
-    {
-      "id": "chat-uuid-111",
-      "studentId": "user-uuid-1234",
-      "senderId": "lecturer-uuid-5678",
-      "stageId": "stage-uuid-555",
-      "message": "Silakan kirimkan perbaikan latar belakang.",
-      "fileName": "koreksi.pdf",
-      "fileUrl": "string",
-      "fileType": "string",
-      "fileSize": 0,
-      "createdAt": "2026-07-09T13:57:23.912Z"
-    }
-  ]
+  "message": {
+    "id": "chat-message-uuid-3333",
+    "studentId": "student-uuid-1234",
+    "senderId": "lecturer-uuid-5678",
+    "stageOrder": 1,
+    "message": "Saya sudah memeriksa draf Anda. Silakan lengkapi revisi bagian metodologi.",
+    "fileName": null,
+    "fileUrl": null,
+    "fileType": null,
+    "fileSize": null,
+    "createdAt": "2026-07-09T14:04:45.312Z",
+    "updatedAt": "2026-07-09T14:04:45.312Z"
+  }
 }
-```
-
-### Send Chat Message (Student)
-
-```sh
-curl -X POST http://localhost:3001/api/student/chat/:stageId \
-  -H "Content-Type: application/json" \
-  -H "Cookie: better-auth.session_token=..." \
-  -d '{
-    "message": "Silakan kirimkan perbaikan latar belakang.",
-  }'
-```
-
-### Send Chat Message (Lecturer)
-
-```sh
-curl -X POST http://localhost:3001/api/lecturer/chat/:studentId/:stageId \
-  -H "Content-Type: application/json" \
-  -H "Cookie: better-auth.session_token=..." \
-  -d '{
-    "message": "Saya sudah menerima perbaikan latar belakang Anda. Silakan lanjutkan ke tahap berikutnya.",
-  }'
 ```

@@ -101,7 +101,7 @@ export const lecturerService = {
 
   /** Fetch a specific student's bimbingan stages and progress. */
   getStudentProgress(studentId: string) {
-    return apiFetch<GetLecturerStudentProgressResponse>(`/api/lecturer/students/${studentId}`, {
+    return apiFetch<GetLecturerStudentProgressResponse>(`/api/lecturer/bimbingan/${studentId}`, {
       method: "GET",
     });
   },

@@ -133,7 +133,6 @@ export function DosenBimbinganDetailClient({ userId }: { userId: string }) {
     const metadata = getStageMetadata(stageConfig.n, backendStage);
     return {
       ...stageConfig,
-      slug: backendStage?.slug || "",
       name: metadata.name,
       desc: metadata.desc,
       days: metadata.days,

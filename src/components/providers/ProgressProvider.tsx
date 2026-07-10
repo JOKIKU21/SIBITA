@@ -17,8 +17,6 @@ import type { Stage } from "@/lib/stages";
 import type { StudentProgress } from "@/services/student";
 
 export interface MergedStage extends Stage {
-  id?: string;
-  slug: string;
   name: string;
   desc: string;
   days: number;
@@ -66,9 +64,8 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
       return completed;
     }
 
-    const currentStage = stages.find((s) => s.id === progress.currentStageId);
-    if (currentStage) {
-      const currentOrder = currentStage.order;
+    const currentOrder = progress.currentStageOrder;
+    if (currentOrder) {
       for (let i = 1; i < currentOrder; i++) {
         completed.add(i);
       }
@@ -88,8 +85,6 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
       const metadata = getStageMetadata(stageConfig.n, backendStage);
       return {
         ...stageConfig,
-        id: backendStage?.id,
-        slug: backendStage?.slug || "",
         name: metadata.name,
         desc: metadata.desc,
         days: metadata.days,
