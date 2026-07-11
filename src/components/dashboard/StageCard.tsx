@@ -12,7 +12,7 @@ const STATUS_STYLES: Record<StageStatus, string> = {
 const STATUS_LABELS: Record<StageStatus, string> = {
   "belum-mulai": "Belum Mulai",
   berlangsung: "Berlangsung",
-  selesai: "Selesai ✓",
+  selesai: "Selesai",
 };
 
 function StatusBadge({ status }: { status: StageStatus }) {
@@ -54,12 +54,14 @@ export function StageCard({
   window,
   basePath = "/dashboard/mahasiswa/tahap",
   remainingDays,
+  startedAt,
 }: {
   stage: Stage & { id?: string; name?: string; desc?: string; days?: number };
   status: StageStatus;
   window: StageWindow;
   basePath?: string;
   remainingDays?: number;
+  startedAt?: string | Date;
 }) {
   const name = stage.name ?? `Tahap ${stage.n}`;
   const desc = stage.desc ?? "";
@@ -139,7 +141,7 @@ export function StageCard({
         {name}
       </div>
       <div className="text-[12.5px] text-brand font-semibold mb-2">
-        {formatStageDate(window.start)} – {formatStageDate(window.end)}
+        {formatStageDate(window.start, startedAt)} – {formatStageDate(window.end, startedAt)}
       </div>
       <div className="text-[13px] text-neutral-muted leading-[1.55]">
         {desc}

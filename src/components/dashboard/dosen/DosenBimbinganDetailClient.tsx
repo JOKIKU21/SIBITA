@@ -198,23 +198,14 @@ export function DosenBimbinganDetailClient({ userId }: { userId: string }) {
             const status = getStageStatus(stage.n, completedStages);
             const isOngoing = status === "berlangsung";
 
-            let remainingDays: number | undefined = undefined;
-            if (isOngoing) {
-              const rawStartedAt =
-                (student as any).startedAt ||
-                (student as any).currentStage?.startedAt ||
-                (student as any).currentStageStartedAt ||
-                (student as any).updatedAt;
+            // Use progress.startedAt from the API as the timeline anchor
+            const rawStartedAt = progressData?.progress?.startedAt;
 
-              if (rawStartedAt) {
-                remainingDays = calculateRemainingDays(rawStartedAt, stage.days);
-              } else {
-                // Fallback to timeline-relative date calculation to avoid dummy values
-                const TIMELINE_START = new Date(2026, 5, 29);
-                const computedStart = new Date(TIMELINE_START);
-                computedStart.setDate(computedStart.getDate() + windows[stage.n].start);
-                remainingDays = calculateRemainingDays(computedStart, stage.days);
-              }
+            // Calculate remaining days using accumulated duration (window.end)
+            // window.end = sum of durationDays for stages 1..N
+            let remainingDays: number | undefined = undefined;
+            if (isOngoing && rawStartedAt) {
+              remainingDays = calculateRemainingDays(rawStartedAt, windows[stage.n].end);
             }
 
             return (
@@ -225,6 +216,7 @@ export function DosenBimbinganDetailClient({ userId }: { userId: string }) {
                 window={windows[stage.n]}
                 remainingDays={remainingDays}
                 basePath={`/dashboard/dosen/bimbingan/${userId}/tahap`}
+                startedAt={rawStartedAt}
               />
             );
           })}

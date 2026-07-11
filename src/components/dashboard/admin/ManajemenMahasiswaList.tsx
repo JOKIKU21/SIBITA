@@ -22,7 +22,7 @@ export function ManajemenMahasiswaList() {
     <div className="flex flex-col gap-6">
       {/* Search & Filters */}
       <div className="bg-white border border-neutral-border rounded-3.5 p-5 flex flex-wrap gap-4 items-center justify-between">
-        <div className="flex-1 min-w-[280px]">
+        <div className="flex-1 min-w-70">
           <div className="relative">
             <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-muted">
               <svg viewBox="0 0 24 24" fill="none" className="w-4.5 h-4.5">
@@ -121,7 +121,7 @@ export function ManajemenMahasiswaList() {
                     </td>
 
                     {/* Progres Bimbingan */}
-                    <td className="py-3.5 px-4 min-w-[180px]">
+                    <td className="py-3.5 px-4 min-w-45">
                       <div className="flex items-center gap-2.5">
                         <div className="flex-1 h-1.5 rounded-full bg-neutral-bg overflow-hidden">
                           <div

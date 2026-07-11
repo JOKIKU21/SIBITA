@@ -287,7 +287,7 @@ export function RegistrasiMahasiswaList() {
           })}
         </div>
 
-        <div className="flex-1 max-w-sm min-w-[240px]">
+        <div className="flex-1 max-w-sm min-w-60">
           <div className="relative">
             <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-muted">
               <svg viewBox="0 0 24 24" fill="none" className="w-4.5 h-4.5">
@@ -376,7 +376,7 @@ export function RegistrasiMahasiswaList() {
 
                   {/* Rejected Reason */}
                   {activeTab === "rejected" && (
-                    <td className="py-3.5 px-4 text-[12.5px] text-danger max-w-[200px] truncate" title={reg.rejectedReason || ""}>
+                    <td className="py-3.5 px-4 text-[12.5px] text-danger max-w-50 truncate" title={reg.rejectedReason || ""}>
                       {reg.rejectedReason}
                     </td>
                   )}

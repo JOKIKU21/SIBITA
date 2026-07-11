@@ -225,18 +225,22 @@ export function snakeToTitleCase(str: string): string {
 }
 
 /**
- * Calculates the deadline date from the startedAt date and durationDays.
+ * Calculates the deadline date from the startedAt date and accumulated durationDays.
+ * `durationDays` should be the cumulative sum of all stage durations up to (and including)
+ * the target stage, computed from the API's stage list.
  */
-export function calculateDeadline(startedAt: string | Date, durationDays: number): Date {
+export function calculateDeadline(startedAt: string | Date, accumulatedDays: number): Date {
   const start = new Date(startedAt);
-  return new Date(start.getTime() + durationDays * 24 * 60 * 60 * 1000);
+  return new Date(start.getTime() + accumulatedDays * 24 * 60 * 60 * 1000);
 }
 
 /**
- * Calculates remaining days from the startedAt date and durationDays.
+ * Calculates remaining days until the deadline.
+ * `accumulatedDays` should be the cumulative sum of all stage durations up to (and including)
+ * the target stage, counted from `startedAt`.
  */
-export function calculateRemainingDays(startedAt: string | Date, durationDays: number): number {
-  const deadline = calculateDeadline(startedAt, durationDays);
+export function calculateRemainingDays(startedAt: string | Date, accumulatedDays: number): number {
+  const deadline = calculateDeadline(startedAt, accumulatedDays);
   const now = new Date();
   const diffTime = deadline.getTime() - now.getTime();
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));

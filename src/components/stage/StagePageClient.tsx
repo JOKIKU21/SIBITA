@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { STAGES, getStageMetadata, calculateRemainingDays } from "@/lib/stages";
+import { computeStageWindows } from "@/lib/stage-status";
 import { StageForm } from "@/components/dashboard/StageForm";
 import { MahasiswaChatPanel } from "@/components/stage/MahasiswaChatPanel";
 import { useStudentBimbingan, useStudentBimbinganDetail } from "@/hooks/useStudent";
@@ -45,10 +46,19 @@ export function StagePageClient({ stageId: urlStageId }: StagePageClientProps) {
 
   const metadata = getStageMetadata(stageConfig.n, backendStage);
 
+  // Merge backend stages to compute accumulated windows
+  const mergedStages = STAGES.map((sc) => {
+    const bs = bimbinganData?.stages?.find((s) => s.order === sc.n);
+    const m = getStageMetadata(sc.n, bs);
+    return { ...sc, name: m.name, desc: m.desc, days: m.days };
+  });
+  const windows = computeStageWindows(mergedStages);
+
   const progress = bimbinganData?.progress;
   const isCurrentStage = progress?.currentStageOrder === stageOrder && (progress?.status === "in_progress" || progress?.status === "in progress");
+  // Use accumulated durationDays (window.end) for deadline calculation
   const remainingDays = isCurrentStage && progress?.startedAt
-    ? calculateRemainingDays(progress.startedAt, metadata.days)
+    ? calculateRemainingDays(progress.startedAt, windows[stageOrder].end)
     : undefined;
 
 

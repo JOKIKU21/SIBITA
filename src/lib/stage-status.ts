@@ -9,8 +9,6 @@ export interface StageWindow {
   end: number;
 }
 
-const TIMELINE_START = new Date(2026, 5, 29);
-
 export function computeStageWindows(
   stages?: Array<{ n: number; days?: number }>
 ): Record<number, StageWindow> {
@@ -25,10 +23,14 @@ export function computeStageWindows(
   return windows;
 }
 
-export function formatStageDate(dayOffset: number): string {
-  const date = new Date(TIMELINE_START);
-  date.setDate(date.getDate() + dayOffset);
-  return date.toLocaleDateString("id-ID", {
+/**
+ * Formats a date from `startedAt` + a day offset into a locale-formatted string.
+ * Uses the API-provided startedAt instead of a hardcoded TIMELINE_START.
+ */
+export function formatStageDate(dayOffset: number, startedAt?: string | Date): string {
+  const base = startedAt ? new Date(startedAt) : new Date();
+  base.setDate(base.getDate() + dayOffset);
+  return base.toLocaleDateString("id-ID", {
     day: "numeric",
     month: "long",
     year: "numeric",

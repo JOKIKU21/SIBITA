@@ -22,9 +22,12 @@ export function TimelineList() {
       {stages.map((stage) => {
         const status = getStageStatus(stage.n, completedStages);
         const isOngoing = status === "berlangsung";
+
+        // Use the accumulated end day from the stage window as the deadline offset
+        // so remainingDays = startedAt + accumulated days to end of this stage - now
         const remainingDays =
           isOngoing && progress?.startedAt
-            ? calculateRemainingDays(progress.startedAt, stage.days)
+            ? calculateRemainingDays(progress.startedAt, windows[stage.n].end)
             : undefined;
 
         return (
@@ -34,6 +37,7 @@ export function TimelineList() {
             status={status}
             window={windows[stage.n]}
             remainingDays={remainingDays}
+            startedAt={progress?.startedAt}
           />
         );
       })}
