@@ -28,6 +28,7 @@ export function AdminSidebar() {
   const isDosenActive = pathname.startsWith("/dashboard/admin/manajemen-dosen");
   const isMahasiswaActive = pathname.startsWith("/dashboard/admin/manajemen-mahasiswa");
   const isRegistrasiActive = pathname.startsWith("/dashboard/admin/registrasi");
+  const isPembayaranActive = pathname.startsWith("/dashboard/admin/pembayaran");
   const isReferensiActive = pathname.startsWith("/dashboard/admin/referensi");
   const isProfilActive = pathname === "/dashboard/admin/profil";
 
@@ -71,6 +72,13 @@ export function AdminSidebar() {
             <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           Registrasi
+        </Link>
+
+        <Link href="/dashboard/admin/pembayaran" className={linkClass(isPembayaranActive)}>
+          <svg viewBox="0 0 24 24" fill="none" className={iconClass(isPembayaranActive)}>
+            <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Pembayaran
         </Link>
 
         <Link href="/dashboard/admin/manajemen-dosen" className={linkClass(isDosenActive)}>

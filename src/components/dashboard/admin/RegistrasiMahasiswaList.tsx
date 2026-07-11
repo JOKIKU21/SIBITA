@@ -7,169 +7,264 @@ interface UserInfo {
   name: string;
   email: string;
   image: string | null;
+  role?: string;
 }
 
 interface StudentDetail {
   userId: string;
-  campus: string;
   nim: string;
   studyProgram: string;
-  title: string | null;
-  education: string;
-  status: "active" | "nonactive" | "ended";
+  campus: string;
   user: UserInfo;
 }
 
 interface FileItem {
   id: string;
+  registrationId: string;
   name: string;
   url: string;
-  size: string;
+  key: string;
+  createdAt: string;
 }
 
 interface PaymentItem {
   id: string;
+  registrationId: string;
+  installment: number;
   amount: number;
-  method: string;
-  date: string;
+  status: "paid" | "pending";
+  paidAt: string | null;
+  files: any[];
 }
 
 interface RegistrationItem {
   id: string;
   studentId: string;
-  paymentOption: "full" | "installment";
   status: "pending" | "approved" | "rejected";
+  totalAmount: number;
+  paymentOption: "installment" | "full";
+  createdAt: string;
   approvedBy: string | null;
   approvedAt: string | null;
   rejectedReason?: string | null;
-  createdAt: string;
   student: StudentDetail;
+  approver?: {
+    id: string;
+    name: string;
+    email: string;
+  } | null;
   files: FileItem[];
   payments: PaymentItem[];
 }
 
 const INITIAL_REGISTRATIONS: RegistrationItem[] = [
   {
-    id: "reg-1",
-    studentId: "student-1",
-    paymentOption: "full",
+    id: "registration-uuid-111",
+    studentId: "student-uuid-1234",
     status: "pending",
+    totalAmount: 5000000,
+    paymentOption: "installment",
+    createdAt: "2026-07-11T01:23:45.000Z",
     approvedBy: null,
     approvedAt: null,
-    createdAt: "2026-07-09T14:02:11.120Z",
     student: {
-      userId: "student-1",
-      campus: "UIN Mataram",
-      nim: "210101099",
-      studyProgram: "Sistem Informasi",
-      title: null,
-      education: "S1",
-      status: "nonactive",
+      userId: "student-uuid-1234",
+      nim: "12345678",
+      studyProgram: "Teknik Informatika",
+      campus: "Kampus Utama",
       user: {
-        id: "student-1",
+        id: "student-uuid-1234",
         name: "Ahmad Maulana",
         email: "ahmad.maulana@uin-mataram.ac.id",
-        image: null,
-      },
+        image: null
+      }
     },
     files: [
-      { id: "f-1", name: "Bukti_Pembayaran_Registrasi_Ahmad.pdf", url: "#", size: "1.4 MB" },
-      { id: "f-2", name: "KRS_Semester_Ganjil_Ahmad.pdf", url: "#", size: "850 KB" }
+      {
+        id: "file-uuid-999",
+        registrationId: "registration-uuid-111",
+        name: "KRS_Semester_Akhir.pdf",
+        url: "#",
+        key: "krs.pdf",
+        createdAt: "2026-07-11T01:23:45.000Z"
+      },
+      {
+        id: "file-uuid-998",
+        registrationId: "registration-uuid-111",
+        name: "Bukti_Cicilan_1.jpg",
+        url: "#",
+        key: "bukti1.jpg",
+        createdAt: "2026-07-11T01:23:45.000Z"
+      }
     ],
     payments: [
-      { id: "p-1", amount: 3000000, method: "Transfer BNI Syariah", date: "2026-07-09" }
+      {
+        id: "payment-uuid-222",
+        registrationId: "registration-uuid-111",
+        installment: 1,
+        amount: 2500000,
+        status: "paid",
+        paidAt: "2026-07-11T01:23:45.000Z",
+        files: []
+      },
+      {
+        id: "payment-uuid-333",
+        registrationId: "registration-uuid-111",
+        installment: 2,
+        amount: 2500000,
+        status: "pending",
+        paidAt: null,
+        files: []
+      }
     ]
   },
   {
-    id: "reg-2",
-    studentId: "student-2",
-    paymentOption: "installment",
+    id: "registration-uuid-222",
+    studentId: "student-uuid-5678",
     status: "pending",
+    totalAmount: 5000000,
+    paymentOption: "full",
+    createdAt: "2026-07-10T09:15:30.000Z",
     approvedBy: null,
     approvedAt: null,
-    createdAt: "2026-07-10T09:15:30.000Z",
     student: {
-      userId: "student-2",
-      campus: "UIN Mataram",
+      userId: "student-uuid-5678",
       nim: "210101105",
-      studyProgram: "Teknik Informatika",
-      title: null,
-      education: "S1",
-      status: "nonactive",
+      studyProgram: "Sistem Informasi",
+      campus: "Kampus Utama",
       user: {
-        id: "student-2",
+        id: "student-uuid-5678",
         name: "Fina Indriani",
         email: "fina.indri@uin-mataram.ac.id",
-        image: null,
-      },
+        image: null
+      }
     },
     files: [
-      { id: "f-3", name: "Bukti_Cicilan_Registrasi_Fina.jpg", url: "#", size: "980 KB" },
-      { id: "f-4", name: "Transkrip_Nilai_Fina.pdf", url: "#", size: "1.2 MB" }
+      {
+        id: "file-uuid-777",
+        registrationId: "registration-uuid-222",
+        name: "Bukti_Pembayaran_Lunas.pdf",
+        url: "#",
+        key: "bukti_lunas.pdf",
+        createdAt: "2026-07-10T09:15:30.000Z"
+      }
     ],
     payments: [
-      { id: "p-2", amount: 1500000, method: "Transfer Bank Syariah Indonesia", date: "2026-07-10" }
+      {
+        id: "payment-uuid-444",
+        registrationId: "registration-uuid-222",
+        installment: 1,
+        amount: 5000000,
+        status: "paid",
+        paidAt: "2026-07-10T09:15:30.000Z",
+        files: []
+      }
     ]
   },
   {
-    id: "reg-3",
-    studentId: "student-3",
-    paymentOption: "full",
+    id: "registration-uuid-333",
+    studentId: "student-uuid-9999",
     status: "approved",
+    totalAmount: 5000000,
+    paymentOption: "installment",
+    createdAt: "2026-07-08T11:02:11.000Z",
     approvedBy: "admin-uuid-5678",
     approvedAt: "2026-07-10T08:12:02.000Z",
-    createdAt: "2026-07-08T11:02:11.000Z",
+    approver: {
+      id: "admin-uuid-5678",
+      name: "Admin SIBITA",
+      email: "admin@sibita.com"
+    },
     student: {
-      userId: "student-3",
-      campus: "UIN Mataram",
+      userId: "student-uuid-9999",
       nim: "210101067",
-      studyProgram: "Sistem Informasi",
-      title: "Penerapan Metode Agile Pada Pengembangan SIBITA",
-      education: "S1",
-      status: "active",
+      studyProgram: "Teknik Informatika",
+      campus: "Kampus Utama",
       user: {
-        id: "student-3",
+        id: "student-uuid-9999",
         name: "Dewi Lestari",
         email: "dewi@mail.com",
-        image: null,
-      },
+        image: null
+      }
     },
     files: [
-      { id: "f-5", name: "Bukti_Pembayaran_Lunas_Dewi.pdf", url: "#", size: "1.8 MB" }
+      {
+        id: "file-uuid-666",
+        registrationId: "registration-uuid-333",
+        name: "KRS_Approved.pdf",
+        url: "#",
+        key: "krs_approved.pdf",
+        createdAt: "2026-07-08T11:02:11.000Z"
+      }
     ],
     payments: [
-      { id: "p-3", amount: 3000000, method: "Transfer Bank NTB Syariah", date: "2026-07-08" }
+      {
+        id: "payment-uuid-555",
+        registrationId: "registration-uuid-333",
+        installment: 1,
+        amount: 2500000,
+        status: "paid",
+        paidAt: "2026-07-08T11:02:11.000Z",
+        files: []
+      },
+      {
+        id: "payment-uuid-556",
+        registrationId: "registration-uuid-333",
+        installment: 2,
+        amount: 2500000,
+        status: "pending",
+        paidAt: null,
+        files: []
+      }
     ]
   },
   {
-    id: "reg-4",
-    studentId: "student-4",
-    paymentOption: "installment",
+    id: "registration-uuid-444",
+    studentId: "student-uuid-4444",
     status: "rejected",
+    totalAmount: 5000000,
+    paymentOption: "installment",
+    createdAt: "2026-07-07T10:00:00.000Z",
     approvedBy: "admin-uuid-5678",
     approvedAt: "2026-07-08T15:30:00.000Z",
     rejectedReason: "Bukti transfer tidak terbaca (gambar terlalu blur). Mohon upload ulang bukti pembayaran yang jelas.",
-    createdAt: "2026-07-07T10:00:00.000Z",
+    approver: {
+      id: "admin-uuid-5678",
+      name: "Admin SIBITA",
+      email: "admin@sibita.com"
+    },
     student: {
-      userId: "student-4",
-      campus: "UIN Mataram",
+      userId: "student-uuid-4444",
       nim: "210101041",
       studyProgram: "Teknik Informatika",
-      title: null,
-      education: "S1",
-      status: "nonactive",
+      campus: "Kampus Utama",
       user: {
-        id: "student-4",
+        id: "student-uuid-4444",
         name: "Hafiz Rahmat",
         email: "hafiz@mail.com",
-        image: null,
-      },
+        image: null
+      }
     },
     files: [
-      { id: "f-6", name: "Bukti_Cicilan_1_Hafiz.jpg", url: "#", size: "450 KB" }
+      {
+        id: "file-uuid-333",
+        registrationId: "registration-uuid-444",
+        name: "KRS_Hafiz.pdf",
+        url: "#",
+        key: "krs_hafiz.pdf",
+        createdAt: "2026-07-07T10:00:00.000Z"
+      }
     ],
     payments: [
-      { id: "p-4", amount: 1500000, method: "Transfer Bank Mandiri", date: "2026-07-07" }
+      {
+        id: "payment-uuid-111",
+        registrationId: "registration-uuid-444",
+        installment: 1,
+        amount: 2500000,
+        status: "pending",
+        paidAt: null,
+        files: []
+      }
     ]
   }
 ];
@@ -192,12 +287,13 @@ export function RegistrasiMahasiswaList() {
         if (reg.id === id) {
           return {
             ...reg,
-            status: "approved",
+            status: "approved" as const,
             approvedBy: "admin-uuid-5678",
             approvedAt: new Date().toISOString(),
-            student: {
-              ...reg.student,
-              status: "active"
+            approver: {
+              id: "admin-uuid-5678",
+              name: "Admin SIBITA",
+              email: "admin@sibita.com"
             }
           };
         }
@@ -206,7 +302,17 @@ export function RegistrasiMahasiswaList() {
     );
     // If modal is open, update its selection view
     if (selectedReg?.id === id) {
-      setSelectedReg(prev => prev ? { ...prev, status: "approved", student: { ...prev.student, status: "active" } } : null);
+      setSelectedReg(prev => prev ? {
+        ...prev,
+        status: "approved" as const,
+        approvedBy: "admin-uuid-5678",
+        approvedAt: new Date().toISOString(),
+        approver: {
+          id: "admin-uuid-5678",
+          name: "Admin SIBITA",
+          email: "admin@sibita.com"
+        }
+      } : null);
     }
   };
 
@@ -218,10 +324,15 @@ export function RegistrasiMahasiswaList() {
         if (reg.id === selectedReg.id) {
           return {
             ...reg,
-            status: "rejected",
+            status: "rejected" as const,
             approvedBy: "admin-uuid-5678",
             approvedAt: new Date().toISOString(),
-            rejectedReason: rejectReasonInput
+            rejectedReason: rejectReasonInput,
+            approver: {
+              id: "admin-uuid-5678",
+              name: "Admin SIBITA",
+              email: "admin@sibita.com"
+            }
           };
         }
         return reg;
@@ -254,7 +365,7 @@ export function RegistrasiMahasiswaList() {
   return (
     <div className="flex flex-col gap-6">
       {/* Tabs */}
-      <div className="bg-white border border-neutral-border rounded-3.5 p-5 flex flex-wrap gap-4 items-center justify-start">
+      <div className="bg-white border border-neutral-border rounded-3.5 p-5 flex flex-wrap gap-4 items-center justify-start shadow-sm">
         <div className="flex gap-1.5 bg-neutral-bg p-1.25 rounded-2.75">
           {(["pending", "approved", "rejected"] as const).map((tab) => {
             const count = registrations.filter(r => r.status === tab).length;
@@ -284,7 +395,7 @@ export function RegistrasiMahasiswaList() {
       </div>
 
       {/* Main List */}
-      <div className="bg-white border border-neutral-border rounded-3.5 overflow-hidden">
+      <div className="bg-white border border-neutral-border rounded-3.5 overflow-hidden shadow-sm">
         <div className="px-6 pt-5 pb-4 flex items-center justify-between">
           <h3 className="font-display text-[15px] font-extrabold text-neutral-text">
             Daftar Registrasi Mahasiswa
@@ -299,7 +410,7 @@ export function RegistrasiMahasiswaList() {
                 <th className="py-3 px-4 text-[12px] font-bold text-neutral-muted uppercase tracking-wide">Prodi</th>
                 <th className="py-3 px-4 text-[12px] font-bold text-neutral-muted uppercase tracking-wide">Tanggal Pengajuan</th>
                 <th className="py-3 px-4 text-[12px] font-bold text-neutral-muted uppercase tracking-wide">Metode Pembayaran</th>
-                <th className="py-3 px-4 text-[12px] font-bold text-neutral-muted uppercase tracking-wide">Jumlah Pembayaran</th>
+                <th className="py-3 px-4 text-[12px] font-bold text-neutral-muted uppercase tracking-wide">Total Pembayaran</th>
                 {activeTab === "rejected" && (
                   <th className="py-3 px-4 text-[12px] font-bold text-neutral-muted uppercase tracking-wide">Alasan Penolakan</th>
                 )}
@@ -348,7 +459,7 @@ export function RegistrasiMahasiswaList() {
 
                   {/* Jumlah Pembayaran */}
                   <td className="py-3.5 px-4 text-[13px] font-bold text-neutral-text">
-                    {formatRupiah(reg.payments[0]?.amount || 0)}
+                    {formatRupiah(reg.totalAmount)}
                   </td>
 
                   {/* Rejected Reason */}
@@ -477,10 +588,6 @@ export function RegistrasiMahasiswaList() {
                         <div className="text-[13.5px] font-semibold text-neutral-text">{selectedReg.student.campus}</div>
                       </div>
                       <div>
-                        <div className="text-[12px] text-neutral-muted">Pendidikan</div>
-                        <div className="text-[13.5px] font-semibold text-neutral-text">{selectedReg.student.education}</div>
-                      </div>
-                      <div>
                         <div className="text-[12px] text-neutral-muted">Email</div>
                         <div className="text-[13.5px] font-semibold text-neutral-text">{selectedReg.student.user.email}</div>
                       </div>
@@ -490,7 +597,7 @@ export function RegistrasiMahasiswaList() {
                   {/* Payment Details Section */}
                   <div className="border-t border-neutral-border pt-4.5">
                     <h4 className="text-[12px] font-bold text-neutral-muted uppercase tracking-wider mb-2.5">Rincian Pembayaran</h4>
-                    <div className="grid grid-cols-2 gap-y-3.5 gap-x-5 max-[500px]:grid-cols-1">
+                    <div className="grid grid-cols-2 gap-y-3.5 gap-x-5 max-[500px]:grid-cols-1 mb-4">
                       <div>
                         <div className="text-[12px] text-neutral-muted">Pilihan Metode</div>
                         <div className="text-[13.5px] font-bold text-neutral-text">
@@ -512,13 +619,29 @@ export function RegistrasiMahasiswaList() {
                         </div>
                       </div>
                       <div>
-                        <div className="text-[12px] text-neutral-muted">Jumlah yang Dibayar</div>
-                        <div className="text-[13.5px] font-bold text-brand">{formatRupiah(selectedReg.payments[0]?.amount || 0)}</div>
+                        <div className="text-[12px] text-neutral-muted">Total Biaya Registrasi</div>
+                        <div className="text-[13.5px] font-bold text-brand">{formatRupiah(selectedReg.totalAmount)}</div>
                       </div>
-                      <div>
-                        <div className="text-[12px] text-neutral-muted">Metode Bank / Transfer</div>
-                        <div className="text-[13.5px] font-semibold text-neutral-text">{selectedReg.payments[0]?.method}</div>
-                      </div>
+                    </div>
+                    
+                    <div className="text-[12.5px] font-bold text-neutral-muted mb-2">Riwayat Termin Pembayaran:</div>
+                    <div className="flex flex-col gap-2">
+                      {selectedReg.payments.map((p) => (
+                        <div key={p.id} className="flex justify-between items-center bg-neutral-bg/50 p-2.5 rounded-2 text-[12.5px] border border-neutral-border">
+                          <div>
+                            <span className="font-bold text-neutral-text">Termin #{p.installment}</span>
+                            <span className="text-neutral-muted ml-2">({formatRupiah(p.amount)})</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className={`inline-flex items-center text-[10.5px] font-bold py-0.5 px-2 rounded-md ${
+                              p.status === "paid" ? "bg-success-bg text-success" : "bg-warning-bg text-warning"
+                            }`}>
+                              {p.status === "paid" ? "Lunas" : "Belum Bayar"}
+                            </span>
+                            {p.paidAt && <span className="text-[11px] text-neutral-muted">{formatDate(p.paidAt)}</span>}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
 
@@ -537,7 +660,6 @@ export function RegistrasiMahasiswaList() {
                               <path d="M14 2v6h6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                             <span className="text-[13px] font-semibold text-neutral-text truncate">{file.name}</span>
-                            <span className="text-[11.5px] text-neutral-muted shrink-0">({file.size})</span>
                           </div>
                           <a
                             href={file.url}
@@ -562,6 +684,11 @@ export function RegistrasiMahasiswaList() {
                         <div className="text-[11px] uppercase tracking-wider font-extrabold mb-1 opacity-75">Alasan Penolakan:</div>
                         {selectedReg.rejectedReason}
                       </div>
+                      {selectedReg.approver && (
+                        <div className="text-[11.5px] text-neutral-muted mt-2 text-right">
+                          Ditolak oleh: <strong>{selectedReg.approver.name}</strong> ({selectedReg.approver.email})
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -572,6 +699,11 @@ export function RegistrasiMahasiswaList() {
                       <div className="p-3.5 bg-success-bg/40 border border-success/10 text-success rounded-2.5 text-[13px] font-medium">
                         Disetujui pada {formatDate(selectedReg.approvedAt)}
                       </div>
+                      {selectedReg.approver && (
+                        <div className="text-[11.5px] text-neutral-muted mt-2 text-right">
+                          Disetujui oleh: <strong>{selectedReg.approver.name}</strong> ({selectedReg.approver.email})
+                        </div>
+                      )}
                     </div>
                   )}
                 </>

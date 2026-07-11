@@ -1,49 +1,95 @@
-# SIBITA API Documentation (Admin & Superadmin)
+# SIBITA API Documentation (Admin)
 
-Dokumentasi ini menjelaskan endpoints API untuk peran **Admin** dan **Superadmin**.
+Dokumentasi ini menjelaskan endpoints API untuk pengelolaan sistem SIBITA dari perspektif **Admin**. Fitur ini digunakan untuk mengelola pendaftaran mahasiswa baru, memantau pembayaran, menugaskan dosen pembimbing, serta memantau status dan progres bimbingan mahasiswa.
 
 > [!NOTE]
-> Seluruh endpoint di bawah memerlukan autentikasi dengan peran (`role`) **`admin`** atau **`superadmin`** dan memiliki prefix route `/api/admin/*`.
+> Seluruh endpoint di bawah ini memerlukan autentikasi dengan peran (`role`) **`admin`** dan memiliki prefix route `/api/admin/*`.
 
 ---
 
-## 🛡️ Fitur Admin
+## 📊 Ringkasan Statistik (Summary)
 
-### 1. Ambil Ringkasan Statistik (Admin Summary)
-Mendapatkan statistik ringkas sistem seperti total dosen, total mahasiswa, total bimbingan berjalan (aktif), dan total bimbingan secara keseluruhan.
+### 1. Dapatkan Ringkasan Statistik
+Mendapatkan jumlah statistik ringkas mengenai total dosen, total mahasiswa, bimbingan yang sedang berjalan, dan total seluruh bimbingan.
 
 * **Endpoint:** `GET /api/admin/summary`
-* **Autentikasi:** Wajib (Role: `admin`, `superadmin`)
+* **Autentikasi:** Wajib (Role: `admin`)
 
 #### Contoh Response (200 OK)
 ```json
 {
-  "totalDosen": 1,
-  "totalMahasiswa": 1,
-  "totalBimbinganBerjalan": 1,
-  "totalBimbingan": 1
+  "totalDosen": 5,
+  "totalMahasiswa": 12,
+  "totalBimbinganBerjalan": 8,
+  "totalBimbingan": 10
 }
 ```
 
+#### Respon Kesalahan (Error Responses)
+* **500 Internal Server Error:** Terjadi kesalahan pada server saat mengambil ringkasan data.
+  ```json
+  {
+    "error": "Internal Server Error",
+    "message": "Failed to retrieve summary"
+  }
+  ```
+
 ---
 
-### 2. Ambil Daftar Seluruh Dosen
-Mendapatkan daftar semua dosen beserta departemen, total mahasiswa bimbingan aktif, email, dan nomor HP.
+## 📝 Pengelolaan Pendaftaran (Registrations)
 
-* **Endpoint:** `GET /api/admin/lecturers`
-* **Autentikasi:** Wajib (Role: `admin`, `superadmin`)
+### 1. Daftar Pendaftaran Mahasiswa (List Registrations)
+Menampilkan daftar seluruh pendaftaran mahasiswa yang masuk, diurutkan dari yang terbaru (`createdAt` desc). Mendukung pemfilteran berdasarkan status pendaftaran.
+
+* **Endpoint:** `GET /api/admin/registrations`
+* **Autentikasi:** Wajib (Role: `admin`)
+* **Query Parameters:**
+  * `status` (string, opsional): Memfilter berdasarkan status pendaftaran. Pilihan nilai: `pending`, `approved`, `rejected`.
 
 #### Contoh Response (200 OK)
 ```json
 {
-  "lecturers": [
+  "registrations": [
     {
-      "id": "lecturer-uuid-5678",
-      "name": "Dosen SIBITA",
-      "email": "lecturer@sibita.com",
-      "phoneNumber": "081234567890",
-      "department": "Teknik Informatika",
-      "activeAdviseeCount": 1
+      "id": "registration-uuid-111",
+      "studentId": "student-uuid-1234",
+      "status": "pending",
+      "totalAmount": 5000000,
+      "paymentOption": "installment",
+      "createdAt": "2026-07-11T01:23:45.000Z",
+      "student": {
+        "userId": "student-uuid-1234",
+        "nim": "12345678",
+        "studyProgram": "Teknik Informatika",
+        "campus": "Kampus Utama",
+        "user": {
+          "id": "student-uuid-1234",
+          "name": "Mahasiswa SIBITA",
+          "email": "student@sibita.com",
+          "image": "https://lh3.googleusercontent.com/a/acds12"
+        }
+      },
+      "files": [
+        {
+          "id": "file-uuid-999",
+          "registrationId": "registration-uuid-111",
+          "name": "KRS_Semester_Akhir.pdf",
+          "url": "https://storage.sibita.com/files/krs.pdf",
+          "key": "krs.pdf",
+          "createdAt": "2026-07-11T01:23:45.000Z"
+        }
+      ],
+      "payments": [
+        {
+          "id": "payment-uuid-222",
+          "registrationId": "registration-uuid-111",
+          "installment": 1,
+          "amount": 2500000,
+          "status": "paid",
+          "paidAt": "2026-07-11T01:23:45.000Z",
+          "files": []
+        }
+      ]
     }
   ]
 }
@@ -51,11 +97,254 @@ Mendapatkan daftar semua dosen beserta departemen, total mahasiswa bimbingan akt
 
 ---
 
-### 3. Ambil Daftar Seluruh Mahasiswa
-Menampilkan daftar seluruh mahasiswa beserta identitas, email, no HP, status bimbingan, persentase progres bimbingan, dan nama dosen pembimbing yang ditugaskan.
+### 2. Detail Pendaftaran Mahasiswa (Get Registration Detail)
+Mendapatkan rincian informasi satu pendaftaran mahasiswa secara lengkap termasuk berkas terlampir, pembayaran, dan informasi penyetuju (approver) jika sudah diproses.
+
+* **Endpoint:** `GET /api/admin/registrations/:id`
+* **Autentikasi:** Wajib (Role: `admin`)
+* **Path Parameters:**
+  * `id` (string): ID pendaftaran.
+
+#### Contoh Response (200 OK)
+```json
+{
+  "registration": {
+    "id": "registration-uuid-111",
+    "studentId": "student-uuid-1234",
+    "status": "approved",
+    "totalAmount": 5000000,
+    "paymentOption": "installment",
+    "createdAt": "2026-07-11T01:23:45.000Z",
+    "approvedBy": "admin-uuid-5678",
+    "approvedAt": "2026-07-11T02:00:00.000Z",
+    "student": {
+      "userId": "student-uuid-1234",
+      "nim": "12345678",
+      "studyProgram": "Teknik Informatika",
+      "campus": "Kampus Utama",
+      "user": {
+        "id": "student-uuid-1234",
+        "name": "Mahasiswa SIBITA",
+        "email": "student@sibita.com",
+        "image": "https://lh3.googleusercontent.com/a/acds12",
+        "role": "student"
+      }
+    },
+    "approver": {
+      "id": "admin-uuid-5678",
+      "name": "Admin SIBITA",
+      "email": "admin@sibita.com"
+    },
+    "files": [
+      {
+        "id": "file-uuid-999",
+        "registrationId": "registration-uuid-111",
+        "name": "KRS_Semester_Akhir.pdf",
+        "url": "https://storage.sibita.com/files/krs.pdf"
+      }
+    ],
+    "payments": [
+      {
+        "id": "payment-uuid-222",
+        "registrationId": "registration-uuid-111",
+        "installment": 1,
+        "amount": 2500000,
+        "status": "paid",
+        "paidAt": "2026-07-11T01:23:45.000Z",
+        "files": []
+      }
+    ]
+  }
+}
+```
+
+#### Respon Kesalahan (Error Responses)
+* **400 Bad Request:** Terjadi jika parameter ID tidak disertakan.
+  ```json
+  { "error": "Missing registration id" }
+  ```
+* **404 Not Found:** Pendaftaran tidak ditemukan.
+  ```json
+  { "error": "Registration not found" }
+  ```
+
+---
+
+### 3. Setujui atau Tolak Pendaftaran (Update Registration Status)
+Memproses persetujuan pendaftaran mahasiswa.
+
+> [!IMPORTANT]
+> - Jika status diubah menjadi **`approved`**, maka profil mahasiswa akan diaktifkan secara otomatis (`status` menjadi `active`) dan sistem akan membuat rekaman kemajuan bimbingan pertama untuk mahasiswa tersebut.
+> - Hanya pendaftaran berstatus **`pending`** yang dapat diperbarui statusnya.
+
+* **Endpoint:** `PATCH /api/admin/registrations/:id`
+* **Autentikasi:** Wajib (Role: `admin`)
+* **Path Parameters:**
+  * `id` (string): ID pendaftaran.
+* **Request Body (JSON):**
+  * `status` (string, wajib): Status persetujuan baru. Pilihan nilai: `"approved"` atau `"rejected"`.
+
+#### Contoh Request Body
+```json
+{
+  "status": "approved"
+}
+```
+
+#### Contoh Response (200 OK)
+Mengembalikan data pendaftaran yang telah diperbarui (format sama dengan Detail Pendaftaran).
+
+#### Respon Kesalahan (Error Responses)
+* **400 Bad Request:** Format JSON salah, parameter ID kosong, atau validasi input gagal.
+  ```json
+  {
+    "error": "Validation failed",
+    "details": [
+      {
+        "code": "invalid_enum_value",
+        "options": ["approved", "rejected"],
+        "path": ["status"],
+        "message": "Invalid enum value. Expected 'approved' | 'rejected', received 'invalid_status'"
+      }
+    ]
+  }
+  ```
+* **404 Not Found:** Pendaftaran tidak ditemukan.
+  ```json
+  { "error": "Registration not found" }
+  ```
+* **409 Conflict:** Pendaftaran sudah diproses sebelumnya (bukan bertatus `pending`).
+  ```json
+  {
+    "error": "Registration already approved",
+    "message": "Only pending registrations can be approved or rejected"
+  }
+  ```
+
+---
+
+## 💳 Pemantauan Pembayaran (Payments)
+
+### 1. Daftar Status Pembayaran Mahasiswa (List Payments)
+Mendapatkan daftar status keuangan mahasiswa, termasuk total biaya, akumulasi pembayaran yang sudah diverifikasi lunas (`paidAmount`), metode pembayaran, serta rincian setiap termin cicilan.
+
+* **Endpoint:** `GET /api/admin/payments`
+* **Autentikasi:** Wajib (Role: `admin`)
+
+#### Contoh Response (200 OK)
+```json
+{
+  "payments": [
+    {
+      "registrationId": "registration-uuid-111",
+      "studentId": "student-uuid-1234",
+      "studentName": "Mahasiswa SIBITA",
+      "totalAmount": 5000000,
+      "paidAmount": 2500000,
+      "paymentOption": "installment",
+      "status": "approved",
+      "payments": [
+        {
+          "id": "payment-uuid-222",
+          "installment": 1,
+          "amount": 2500000,
+          "status": "paid",
+          "paidAt": "2026-07-11T01:23:45.000Z"
+        },
+        {
+          "id": "payment-uuid-333",
+          "installment": 2,
+          "amount": 2500000,
+          "status": "pending",
+          "paidAt": null
+        }
+      ]
+    }
+  ]
+}
+```
+
+---
+
+### 2. ACC / Ubah Status Pembayaran Cicilan (Update Payment Status)
+Memperbarui status pembayaran termin/cicilan tertentu (misalnya dari `processing` menjadi `paid` untuk menyetujui pembayaran cicilan).
+
+> [!NOTE]
+> Jika status diubah menjadi **`paid`**, kolom `paidAt` secara otomatis akan diisi dengan waktu saat ini. Jika diubah ke status lainnya, `paidAt` akan diatur kembali ke `null`.
+
+* **Endpoint:** `PATCH /api/admin/payments/:paymentId`
+* **Autentikasi:** Wajib (Role: `admin`)
+* **Path Parameters:**
+  * `paymentId` (string): ID transaksi/pembayaran cicilan (`registration_payment.id`).
+* **Request Body (JSON):**
+  * `status` (string, wajib): Status pembayaran baru. Pilihan nilai: `"processing"`, `"paid"`, `"rejected"`.
+  * `note` (string, opsional): Catatan admin untuk pembayaran tersebut.
+
+#### Contoh Request Body
+```json
+{
+  "status": "paid",
+  "note": "Pembayaran termin 1 telah diterima dan dikonfirmasi."
+}
+```
+
+#### Contoh Response (200 OK)
+```json
+{
+  "payment": {
+    "id": "payment-uuid-222",
+    "registrationId": "registration-uuid-111",
+    "installment": 1,
+    "amount": 2500000,
+    "status": "paid",
+    "paidAt": "2026-07-11T05:58:30.000Z",
+    "note": "Pembayaran termin 1 telah diterima dan dikonfirmasi.",
+    "createdAt": "2026-07-11T01:23:45.000Z"
+  }
+}
+```
+
+#### Respon Kesalahan (Error Responses)
+* **400 Bad Request:** Format JSON salah, `paymentId` kosong, atau validasi nilai status salah.
+* **404 Not Found:** Rekaman pembayaran cicilan tidak ditemukan.
+  ```json
+  { "error": "Payment record not found" }
+  ```
+
+---
+
+## 👥 Pengelolaan Pengguna (Lecturers & Students)
+
+
+### 1. Daftar Dosen Pembimbing (List Lecturers)
+Menampilkan daftar seluruh dosen pembimbing beserta informasi departemen/jurusan dan jumlah mahasiswa aktif bimbingannya (`activeAdviseeCount`).
+
+* **Endpoint:** `GET /api/admin/lecturers`
+* **Autentikasi:** Wajib (Role: `admin`)
+
+#### Contoh Response (200 OK)
+```json
+{
+  "lecturers": [
+    {
+      "id": "lecturer-uuid-5678",
+      "name": "Dosen SIBITA, M.T.",
+      "email": "dosen@sibita.com",
+      "phoneNumber": "08123456789",
+      "department": "Teknik Informatika",
+      "activeAdviseeCount": 3
+    }
+  ]
+}
+```
+
+---
+
+### 2. Daftar Mahasiswa (List Students)
+Menampilkan daftar mahasiswa bimbingan beserta NIM, program studi, nomor telepon, kampus, status keaktifan, nama pembimbing, dan persentase progres bimbingan.
 
 * **Endpoint:** `GET /api/admin/students`
-* **Autentikasi:** Wajib (Role: `admin`, `superadmin`)
+* **Autentikasi:** Wajib (Role: `admin`)
 
 #### Contoh Response (200 OK)
 ```json
@@ -65,13 +354,13 @@ Menampilkan daftar seluruh mahasiswa beserta identitas, email, no HP, status bim
       "id": "student-uuid-1234",
       "name": "Mahasiswa SIBITA",
       "email": "student@sibita.com",
-      "campus": "Universitas SIBITA",
-      "nim": "10115001",
+      "campus": "Kampus Utama",
+      "nim": "12345678",
       "studyProgram": "Teknik Informatika",
-      "phoneNumber": "081234567890",
+      "phoneNumber": "08987654321",
       "status": "active",
-      "progressPercentage": 18,
-      "advisorName": "Dosen SIBITA"
+      "progressPercentage": 25,
+      "advisorName": "Dosen SIBITA, M.T."
     }
   ]
 }
@@ -79,17 +368,22 @@ Menampilkan daftar seluruh mahasiswa beserta identitas, email, no HP, status bim
 
 ---
 
-### 4. Tugaskan Dosen Pembimbing ke Mahasiswa
-Menugaskan dosen pembimbing (dengan peran `lecturer`) ke mahasiswa tertentu.
+### 3. Tentukan Dosen Pembimbing (Assign Advisor)
+Menetapkan dosen pembimbing bagi mahasiswa tertentu. Jika profil mahasiswa belum ada, sistem akan membuat profil baru secara otomatis.
 
 * **Endpoint:** `PATCH /api/admin/students/:studentId/advisor`
-* **Autentikasi:** Wajib (Role: `admin`, `superadmin`)
-* **Request Body:**
-  ```json
-  {
-    "advisorId": "lecturer-uuid-5678"
-  }
-  ```
+* **Autentikasi:** Wajib (Role: `admin`)
+* **Path Parameters:**
+  * `studentId` (string): ID pengguna mahasiswa.
+* **Request Body (JSON):**
+  * `advisorId` (string, wajib): ID pengguna dosen pembimbing.
+
+#### Contoh Request Body
+```json
+{
+  "advisorId": "lecturer-uuid-5678"
+}
+```
 
 #### Contoh Response (200 OK)
 ```json
@@ -98,211 +392,77 @@ Menugaskan dosen pembimbing (dengan peran `lecturer`) ke mahasiswa tertentu.
     "id": "student-uuid-1234",
     "name": "Mahasiswa SIBITA",
     "email": "student@sibita.com",
-    "image": null,
+    "image": "https://lh3.googleusercontent.com/a/acds12",
     "role": "student",
     "studentProfile": {
-      "campus": "Universitas SIBITA",
-      "nim": "10115001",
+      "campus": "Kampus Utama",
+      "nim": "12345678",
       "studyProgram": "Teknik Informatika",
-      "title": "Analisis Performa Model Bahasa Besar pada Dataset Lokal",
-      "education": "S1",
+      "title": null,
+      "education": null,
       "status": "active",
       "advisorId": "lecturer-uuid-5678",
       "advisor": {
         "id": "lecturer-uuid-5678",
-        "name": "Dosen SIBITA",
-        "email": "lecturer@sibita.com"
+        "name": "Dosen SIBITA, M.T.",
+        "email": "dosen@sibita.com"
       }
     }
   }
 }
 ```
 
+#### Respon Kesalahan (Error Responses)
+* **400 Bad Request:** Format JSON salah, `advisorId` kosong, pengguna target bukan berstatus `student`, atau pembimbing terpilih bukan dosen (`role !== "lecturer"`).
+  ```json
+  { "error": "Advisor must have lecturer role" }
+  ```
+* **404 Not Found:** Mahasiswa atau Dosen Pembimbing tidak ditemukan.
+  ```json
+  { "error": "Advisor not found" }
+  ```
+
 ---
 
-### 5. Perbarui Status Bimbingan Mahasiswa
-Memperbarui status bimbingan mahasiswa (`active`, `nonactive`, atau `ended`). Jika status diubah menjadi `active`, sistem secara otomatis akan menginisiasi draf 17 tahapan bimbingan.
+### 4. Ubah Status Keaktifan Mahasiswa (Update Student Status)
+Mengubah status keaktifan bimbingan mahasiswa secara manual.
+
+> [!IMPORTANT]
+> Jika status diubah menjadi **`active`**, maka sistem secara otomatis menginisialisasi kemajuan bimbingan (progres dan catatan tahapan bimbingan).
 
 * **Endpoint:** `PATCH /api/admin/students/:studentId/status`
-* **Autentikasi:** Wajib (Role: `admin`, `superadmin`)
-* **Request Body:**
+* **Autentikasi:** Wajib (Role: `admin`)
+* **Path Parameters:**
+  * `studentId` (string): ID pengguna mahasiswa.
+* **Request Body (JSON):**
+  * `status` (string, wajib): Status baru mahasiswa. Pilihan nilai: `"active"`, `"nonactive"`, `"ended"`.
+
+#### Contoh Request Body
+```json
+{
+  "status": "nonactive"
+}
+```
+
+#### Contoh Response (200 OK)
+Mengembalikan data mahasiswa yang telah diperbarui (format sama dengan respon Tentukan Dosen Pembimbing).
+
+#### Respon Kesalahan (Error Responses)
+* **400 Bad Request:** Format JSON salah, `status` salah (tidak terdaftar dalam enum), atau pengguna target bukan berstatus `student`.
   ```json
   {
-    "status": "active"
+    "error": "Validation failed",
+    "details": [
+      {
+        "code": "invalid_enum_value",
+        "options": ["active", "nonactive", "ended"],
+        "path": ["status"],
+        "message": "Invalid enum value. Expected 'active' | 'nonactive' | 'ended', received 'graduated'"
+      }
+    ]
   }
   ```
-
-#### Contoh Response (200 OK)
-```json
-{
-  "student": {
-    "id": "student-uuid-1234",
-    "name": "Mahasiswa SIBITA",
-    "email": "student@sibita.com",
-    "image": null,
-    "role": "student",
-    "studentProfile": {
-      "campus": "Universitas SIBITA",
-      "nim": "10115001",
-      "studyProgram": "Teknik Informatika",
-      "title": "Analisis Performa Model Bahasa Besar pada Dataset Lokal",
-      "education": "S1",
-      "status": "active",
-      "advisorId": "lecturer-uuid-5678",
-      "advisor": {
-        "id": "lecturer-uuid-5678",
-        "name": "Dosen SIBITA",
-        "email": "lecturer@sibita.com"
-      }
-    }
-  }
-}
-```
-
----
-
-### 6. Ambil Daftar Pengajuan Pendaftaran
-Menampilkan data pendaftaran mahasiswa baru. Dapat difilter menggunakan query `status` (`pending`, `approved`, atau `rejected`).
-
-* **Endpoint:** `GET /api/admin/registrations?status=pending`
-* **Autentikasi:** Wajib (Role: `admin`, `superadmin`)
-
-#### Contoh Response (200 OK)
-```json
-{
-  "registrations": [
-    {
-      "id": "registration-uuid-1234",
-      "studentId": "student-uuid-1234",
-      "paymentOption": "full",
-      "status": "pending",
-      "approvedBy": null,
-      "approvedAt": null,
-      "createdAt": "2026-07-09T14:02:11.120Z",
-      "updatedAt": "2026-07-09T14:02:11.120Z",
-      "student": {
-        "userId": "student-uuid-1234",
-        "campus": "Universitas SIBITA",
-        "nim": "10115001",
-        "studyProgram": "Teknik Informatika",
-        "title": null,
-        "education": "S1",
-        "status": "nonactive",
-        "advisorId": null,
-        "createdAt": "2026-07-09T14:02:11.120Z",
-        "updatedAt": "2026-07-09T14:02:11.120Z",
-        "user": {
-          "id": "student-uuid-1234",
-          "name": "Mahasiswa SIBITA",
-          "email": "student@sibita.com",
-          "image": null
-        }
-      },
-      "files": [],
-      "payments": []
-    }
-  ]
-}
-```
-
----
-
-### 7. Ambil Detail Pengajuan Pendaftaran
-Mendapatkan detail pendaftaran lengkap, termasuk berkas pendukung dan data cicilan pembayaran.
-
-* **Endpoint:** `GET /api/admin/registrations/:id`
-* **Autentikasi:** Wajib (Role: `admin`, `superadmin`)
-
-#### Contoh Response (200 OK)
-```json
-{
-  "registration": {
-    "id": "registration-uuid-1234",
-    "studentId": "student-uuid-1234",
-    "paymentOption": "full",
-    "status": "pending",
-    "approvedBy": null,
-    "approvedAt": null,
-    "createdAt": "2026-07-09T14:02:11.120Z",
-    "updatedAt": "2026-07-09T14:02:11.120Z",
-    "student": {
-      "userId": "student-uuid-1234",
-      "campus": "Universitas SIBITA",
-      "nim": "10115001",
-      "studyProgram": "Teknik Informatika",
-      "title": null,
-      "education": "S1",
-      "status": "nonactive",
-      "advisorId": null,
-      "createdAt": "2026-07-09T14:02:11.120Z",
-      "updatedAt": "2026-07-09T14:02:11.120Z",
-      "user": {
-        "id": "student-uuid-1234",
-        "name": "Mahasiswa SIBITA",
-        "email": "student@sibita.com",
-        "image": null,
-        "role": "student"
-      }
-    },
-    "approver": null,
-    "files": [],
-    "payments": []
-  }
-}
-```
-
----
-
-### 8. Setujui atau Tolak Pendaftaran Mahasiswa Baru
-Menerima atau menolak pendaftaran. Jika pendaftaran disetujui (status = `approved`), profil mahasiswa diaktifkan secara otomatis dan tahapan bimbingan dimulai.
-
-* **Endpoint:** `PATCH /api/admin/registrations/:id`
-* **Autentikasi:** Wajib (Role: `admin`, `superadmin`)
-* **Request Body:**
+* **404 Not Found:** Mahasiswa tidak ditemukan.
   ```json
-  {
-    "status": "approved"
-  }
+  { "error": "Student not found" }
   ```
-
-#### Contoh Response (200 OK)
-```json
-{
-  "registration": {
-    "id": "registration-uuid-1234",
-    "studentId": "student-uuid-1234",
-    "paymentOption": "full",
-    "status": "approved",
-    "approvedBy": "admin-uuid-5678",
-    "approvedAt": "2026-07-10T08:12:02.000Z",
-    "createdAt": "2026-07-09T14:02:11.120Z",
-    "updatedAt": "2026-07-10T08:12:02.000Z",
-    "student": {
-      "userId": "student-uuid-1234",
-      "campus": "Universitas SIBITA",
-      "nim": "10115001",
-      "studyProgram": "Teknik Informatika",
-      "title": null,
-      "education": "S1",
-      "status": "active",
-      "advisorId": null,
-      "createdAt": "2026-07-09T14:02:11.120Z",
-      "updatedAt": "2026-07-10T08:12:02.000Z",
-      "user": {
-        "id": "student-uuid-1234",
-        "name": "Mahasiswa SIBITA",
-        "email": "student@sibita.com",
-        "image": null,
-        "role": "student"
-      }
-    },
-    "approver": {
-      "id": "admin-uuid-5678",
-      "name": "Admin SIBITA",
-      "email": "admin@sibita.com"
-    },
-    "files": [],
-    "payments": []
-  }
-}
-```
