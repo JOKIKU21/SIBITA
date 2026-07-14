@@ -6,8 +6,9 @@ import FormInput from "@/components/FormInput";
 import Button from "@/components/Button";
 import FileDropzone from "./FileDropzone";
 import { Download, User, Building, Info, ArrowRight, BookUser, Phone, GraduationCap } from "lucide-react";
-import { apiFetch } from "@/lib/api-client";
+import { apiFetch, apiUpload } from "@/lib/api-client";
 import { useToast } from "@/components/providers/ToastProvider";
+import { studentService } from "@/services/student";
 
 const STEPS = ["Data Diri", "Pembayaran", "Kontrak"];
 
@@ -28,6 +29,91 @@ export default function RegistrationFlow() {
     education: "S1",
     title: "",
   });
+
+  // State for uploaded files metadata
+  const [uktFile, setUktFile] = useState<any>(null);
+  const [paymentFile, setPaymentFile] = useState<any>(null);
+  const [contractFile, setContractFile] = useState<any>(null);
+
+  // Loading states for each file uploader
+  const [isUploadingUkt, setIsUploadingUkt] = useState(false);
+  const [isUploadingPayment, setIsUploadingPayment] = useState(false);
+  const [isUploadingContract, setIsUploadingContract] = useState(false);
+
+  // Helper to map UI payment options to database schema enum values
+  const mapPaymentOption = (opt: string) => {
+    switch (opt) {
+      case "langsung-lunas": return "full";
+      case "cicil-2x": return "installment_2x";
+      case "cicil-3x": return "installment_3x";
+      case "cicil-4x": return "installment_4x";
+      case "bayar-diakhir": return "pay_at_end";
+      default: return "full";
+    }
+  };
+
+  const handleUploadUkt = async (file: File) => {
+    setIsUploadingUkt(true);
+    try {
+      const uploadRes = await apiUpload(file, "registrations");
+      const res = await studentService.uploadRegistrationFile({
+        type: "ukt",
+        fileName: uploadRes.fileName,
+        fileUrl: uploadRes.fileUrl,
+        fileType: uploadRes.fileType,
+        fileSize: uploadRes.fileSize,
+      });
+      setUktFile(res.file);
+      toast.success("Dokumen UKT berhasil diunggah!");
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Gagal mengunggah berkas UKT", { description: err.message || "Silakan coba lagi." });
+    } finally {
+      setIsUploadingUkt(false);
+    }
+  };
+
+  const handleUploadPayment = async (file: File) => {
+    setIsUploadingPayment(true);
+    try {
+      const uploadRes = await apiUpload(file, "registrations");
+      const res = await studentService.uploadRegistrationFile({
+        type: "payment_proof",
+        fileName: uploadRes.fileName,
+        fileUrl: uploadRes.fileUrl,
+        fileType: uploadRes.fileType,
+        fileSize: uploadRes.fileSize,
+      });
+      setPaymentFile(res.file);
+      toast.success("Bukti transfer berhasil diunggah!");
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Gagal mengunggah bukti transfer", { description: err.message || "Silakan coba lagi." });
+    } finally {
+      setIsUploadingPayment(false);
+    }
+  };
+
+  const handleUploadContract = async (file: File) => {
+    setIsUploadingContract(true);
+    try {
+      const uploadRes = await apiUpload(file, "registrations");
+      const res = await studentService.uploadRegistrationFile({
+        type: "contract",
+        fileName: uploadRes.fileName,
+        fileUrl: uploadRes.fileUrl,
+        fileType: uploadRes.fileType,
+        fileSize: uploadRes.fileSize,
+      });
+      setContractFile(res.file);
+      toast.success("Kontrak final berhasil diunggah!");
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Gagal mengunggah kontrak bimbingan", { description: err.message || "Silakan coba lagi." });
+    } finally {
+      setIsUploadingContract(false);
+    }
+  };
 
   const handleNext = async () => {
     if (currentStep === 0) {
@@ -65,8 +151,36 @@ export default function RegistrationFlow() {
         setLoading(false);
       }
     } else if (currentStep === 1) {
-      setCurrentStep(2);
+      if (!uktFile) {
+        toast.warning("Silakan unggah file UKT terlebih dahulu.");
+        return;
+      }
+      if (!paymentFile) {
+        toast.warning("Silakan unggah bukti transfer terlebih dahulu.");
+        return;
+      }
+
+      setLoading(true);
+      try {
+        // Save chosen payment option to the student's registration
+        await apiFetch("/api/student/registration", {
+          method: "POST",
+          body: JSON.stringify({
+            paymentOption: mapPaymentOption(formData.pembayaran),
+          }),
+        });
+        setCurrentStep(2);
+      } catch (err: any) {
+        console.error(err);
+        toast.error("Gagal menyimpan pilihan pembayaran", { description: err.message || "Silakan coba lagi." });
+      } finally {
+        setLoading(false);
+      }
     } else if (currentStep === 2) {
+      if (!contractFile) {
+        toast.warning("Silakan unggah kontrak final bimbingan terlebih dahulu.");
+        return;
+      }
       setLoading(true);
       setTimeout(() => {
         setLoading(false);
@@ -274,6 +388,11 @@ export default function RegistrationFlow() {
               <FileDropzone
                 label={<span>Upload File UKT <span className="text-danger">*</span></span> as any}
                 subLabel="Format PDF, Maksimal 5MB"
+                accept=".pdf"
+                files={uktFile ? [{ id: uktFile.id, fileName: uktFile.fileName, fileSize: uktFile.fileSize }] : []}
+                onFileSelect={handleUploadUkt}
+                onDeleteFile={() => setUktFile(null)}
+                isLoading={isUploadingUkt}
               />
               
               <div className="mb-2 text-left">
@@ -303,6 +422,11 @@ export default function RegistrationFlow() {
               <FileDropzone
                 label={<span>Upload Bukti Transfer <span className="text-danger">*</span></span> as any}
                 subLabel="Format JPG/PNG/PDF, Maksimal 5MB"
+                accept=".jpg,.jpeg,.png,.pdf"
+                files={paymentFile ? [{ id: paymentFile.id, fileName: paymentFile.fileName, fileSize: paymentFile.fileSize }] : []}
+                onFileSelect={handleUploadPayment}
+                onDeleteFile={() => setPaymentFile(null)}
+                isLoading={isUploadingPayment}
               />
             </div>
           </div>
@@ -337,6 +461,11 @@ export default function RegistrationFlow() {
               <FileDropzone
                 label={<span>Upload Kontrak Final <span className="text-danger">*</span></span> as any}
                 subLabel="Format PDF berisi kontrak yang sudah ditandatangani"
+                accept=".pdf"
+                files={contractFile ? [{ id: contractFile.id, fileName: contractFile.fileName, fileSize: contractFile.fileSize }] : []}
+                onFileSelect={handleUploadContract}
+                onDeleteFile={() => setContractFile(null)}
+                isLoading={isUploadingContract}
               />
             </div>
           </div>

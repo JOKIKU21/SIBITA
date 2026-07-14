@@ -8,6 +8,8 @@ import { useCreateNote, useUpdateNote, useCreateFile, useDeleteFile } from "@/ho
 import Button from "@/components/Button";
 import Input from "@/components/Input";
 import { useToast } from "@/components/providers/ToastProvider";
+import FileUploader from "@/components/FileUploader";
+import { apiUpload } from "@/lib/api-client";
 
 interface StageFormProps {
   stage: Omit<Stage, "icon">;
@@ -32,6 +34,7 @@ export function StageForm({
   const updateNoteMut = useUpdateNote();
   const createFileMut = useCreateFile();
   const deleteFileMut = useDeleteFile();
+  const [isUploading, setIsUploading] = useState(false);
 
   const loading = createNoteMut.isPending || updateNoteMut.isPending;
 
@@ -97,28 +100,38 @@ export function StageForm({
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleUploadFile = async (file: File) => {
     if (!file || !stageId) return;
 
-    createFileMut.mutate({
-      stageId,
-      payload: {
-        fileName: file.name,
-        fileUrl: `https://storage.sibita.com/files/${Date.now()}_${encodeURIComponent(file.name)}`,
-        fileType: file.type || "application/octet-stream",
-        fileSize: file.size,
-      },
-    }, {
-      onSuccess: () => {
-        toast.success("File berhasil diunggah!");
-      },
-      onError: (err) => {
-        toast.error("Gagal mengunggah file", {
-          description: err instanceof Error ? err.message : undefined,
-        });
-      }
-    });
+    setIsUploading(true);
+    try {
+      const uploadRes = await apiUpload(file, "stages");
+
+      createFileMut.mutate({
+        stageId,
+        payload: {
+          fileName: uploadRes.fileName,
+          fileUrl: uploadRes.fileUrl,
+          fileType: uploadRes.fileType,
+          fileSize: uploadRes.fileSize,
+        },
+      }, {
+        onSuccess: () => {
+          toast.success("File berhasil diunggah!");
+        },
+        onError: (err) => {
+          toast.error("Gagal menyimpan metadata file", {
+            description: err instanceof Error ? err.message : undefined,
+          });
+        }
+      });
+    } catch (err: any) {
+      toast.error("Gagal mengunggah file", {
+        description: err instanceof Error ? err.message : "Terjadi kesalahan saat mengunggah file.",
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleDeleteFile = (fileId: string) => {
@@ -168,69 +181,19 @@ export function StageForm({
 
                   {field.type === "file" ? (
                     <div className="flex flex-col gap-3">
-                      {!isFormDisabled && (
-                        <label className="border-[1.5px] border-dashed border-[#C7CCE0] bg-neutral-bg rounded-2 py-7 px-3.5 text-center text-[13.5px] text-neutral-muted cursor-pointer transition-[background,border-color] duration-200 hover:bg-[#ECEEF7] hover:border-brand-light block">
-                          Choose a file or drag & drop it here
-                          <input
-                            type="file"
-                            className="hidden"
-                            onChange={handleFileChange}
-                            disabled={createFileMut.isPending}
-                          />
-                        </label>
-                      )}
-
-                      {createFileMut.isPending && (
-                        <div className="text-[12.5px] text-neutral-muted italic">Mengunggah file...</div>
-                      )}
-
-                      {studentFiles.length > 0 && (
-                        <div className="mt-2 flex flex-col gap-2">
-                          {studentFiles.map((file) => (
-                            <div
-                              key={file.id}
-                              className="flex items-center justify-between bg-neutral-bg border border-neutral-border rounded-2 p-3"
-                            >
-                              <div className="flex items-center gap-2 min-w-0">
-                                <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-brand shrink-0">
-                                  <path
-                                    d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6ZM14 2v6h6"
-                                    stroke="currentColor"
-                                    strokeWidth="1.8"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                  />
-                                </svg>
-                                <div className="min-w-0">
-                                  <a
-                                    href={file.fileUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-[13px] font-semibold text-brand hover:underline block truncate max-w-60"
-                                  >
-                                    {file.fileName}
-                                  </a>
-                                  <span className="text-[11px] text-neutral-muted block">
-                                    {file.fileSize
-                                      ? (file.fileSize / 1024).toFixed(1) + " KB"
-                                      : "Unknown size"}
-                                  </span>
-                                </div>
-                              </div>
-                              {!isFormDisabled && (
-                                <button
-                                  type="button"
-                                  onClick={() => handleDeleteFile(file.id)}
-                                  disabled={deleteFileMut.isPending}
-                                  className="text-danger hover:text-danger-dark text-[12px] font-semibold bg-transparent border-none cursor-pointer disabled:opacity-50"
-                                >
-                                  Hapus
-                                </button>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                      <FileUploader
+                        id={`stage-file-${field.key}`}
+                        subLabel="Unggah file bimbingan (Format PDF, DOCX, ZIP, maksimal 10MB)"
+                        accept=".pdf,.docx,.doc,.zip"
+                        disabled={isFormDisabled}
+                        hideDropzone={isFormDisabled}
+                        isLoading={createFileMut.isPending || isUploading}
+                        files={studentFiles}
+                        onFileSelect={handleUploadFile}
+                        onDeleteFile={handleDeleteFile}
+                        isDeleting={deleteFileMut.isPending}
+                        maxSizeMB={10}
+                      />
                     </div>
                   ) : field.type === "textarea" ? (
                     <textarea

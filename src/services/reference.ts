@@ -30,4 +30,29 @@ export const referenceService = {
       method: "GET",
     });
   },
+
+  /** Create a new reference file */
+  createReferenceFile(payload: {
+    title: string;
+    description: string;
+    type: string;
+    fileName: string;
+    fileUrl: string;
+    fileType: string;
+    fileSize: number;
+    author: string;
+  }) {
+    return apiFetch<{ referenceFile: ReferenceFile }>("/api/reference-files", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  },
+
+  /** Delete an existing reference file */
+  deleteReferenceFile(id: string) {
+    return apiFetch<{ message: string }>(`/api/reference-files/${id}`, {
+      method: "DELETE",
+    });
+  },
 };
+

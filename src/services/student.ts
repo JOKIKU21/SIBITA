@@ -186,12 +186,28 @@ export const studentService = {
     });
   },
 
+  /** Upload and persist a registration file */
+  uploadRegistrationFile(payload: {
+    type: "ukt" | "contract" | "payment_proof";
+    fileName: string;
+    fileUrl: string;
+    fileType: string;
+    fileSize: number;
+    registrationPaymentId?: string | null;
+  }) {
+    return apiFetch<{ file: { id: string; registrationId: string; type: string; fileName: string; fileUrl: string; fileSize?: number; createdAt: string } }>("/api/student/registration/files", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  },
+
   /** Delete a file from a stage. */
   deleteFile(stageId: string, fileId: string) {
     return apiFetch<{ message: string }>(`/api/student/bimbingan/${stageId}/files/${fileId}`, {
       method: "DELETE",
     });
   },
+
 
   /** Fetch chat messages for a specific stage. */
   getChatMessages(stageId: string) {

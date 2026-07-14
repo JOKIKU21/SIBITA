@@ -1,4 +1,4 @@
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { referenceService } from "@/services/reference";
 
 export const referenceKeys = {
@@ -14,3 +14,35 @@ export function useReferenceFiles(type?: string, search?: string) {
     placeholderData: keepPreviousData,
   });
 }
+
+/** Hook to create a new reference file */
+export function useCreateReferenceFile() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: {
+      title: string;
+      description: string;
+      type: string;
+      fileName: string;
+      fileUrl: string;
+      fileType: string;
+      fileSize: number;
+      author: string;
+    }) => referenceService.createReferenceFile(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: referenceKeys.all });
+    },
+  });
+}
+
+/** Hook to delete a reference file */
+export function useDeleteReferenceFile() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => referenceService.deleteReferenceFile(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: referenceKeys.all });
+    },
+  });
+}
+

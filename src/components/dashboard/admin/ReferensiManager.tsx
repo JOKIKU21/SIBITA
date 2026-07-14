@@ -1,8 +1,15 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { useReferenceFiles } from "@/hooks/useReferenceFiles";
+import { useState, useEffect } from "react";
+import { 
+  useReferenceFiles, 
+  useCreateReferenceFile, 
+  useDeleteReferenceFile 
+} from "@/hooks/useReferenceFiles";
 import { useDebounce } from "@/hooks/useDebounce";
+import FileUploader from "@/components/FileUploader";
+import { apiUpload } from "@/lib/api-client";
+import { useToast } from "@/components/providers/ToastProvider";
 
 interface ReferensiItem {
   id: string;
@@ -21,12 +28,15 @@ export function ReferensiManager() {
     typeFilter === "All" ? undefined : typeFilter,
     debouncedSearch
   );
+  const createRefMut = useCreateReferenceFile();
+  const deleteRefMut = useDeleteReferenceFile();
+  const [isUploading, setIsUploading] = useState(false);
+  const toast = useToast();
+
   const [referensiList, setReferensiList] = useState<ReferensiItem[]>([]);
   const [judul, setJudul] = useState("");
   const [deskripsi, setDeskripsi] = useState("");
-  const [fileName, setFileName] = useState("");
-  const [isDragging, setIsDragging] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // Sync API reference files to local state so user can interactively add/remove locally
   useEffect(() => {
@@ -42,46 +52,59 @@ export function ReferensiManager() {
     }
   }, [data]);
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) setFileName(file.name);
-  }
-
-  function handleDrop(e: React.DragEvent) {
-    e.preventDefault();
-    setIsDragging(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file) setFileName(file.name);
-  }
-
-  function handleUpload() {
-    if (!judul || !deskripsi || !fileName) {
-      alert("Lengkapi semua field yang wajib diisi.");
+  async function handleUpload() {
+    if (!judul || !deskripsi || !selectedFile) {
+      toast.warning("Lengkapi semua field yang wajib diisi.");
       return;
     }
-    const newRef: ReferensiItem = {
-      id: `ref-${Date.now()}`,
-      judul,
-      deskripsi,
-      namaFile: fileName,
-      ukuran: "1.2 MB",
-    };
-    setReferensiList([newRef, ...referensiList]);
-    setJudul("");
-    setDeskripsi("");
-    setFileName("");
-    if (fileRef.current) fileRef.current.value = "";
+
+    setIsUploading(true);
+    try {
+      // 1. Upload binary file to VPS via POST /api/upload
+      const uploadRes = await apiUpload(selectedFile, "references");
+
+      // 2. Persist metadata to database via POST /api/reference-files
+      await createRefMut.mutateAsync({
+        title: judul,
+        description: deskripsi,
+        type: typeFilter === "All" ? "guideline" : typeFilter,
+        fileName: uploadRes.fileName,
+        fileUrl: uploadRes.fileUrl,
+        fileType: uploadRes.fileType,
+        fileSize: uploadRes.fileSize,
+        author: "Admin SIBITA",
+      });
+
+      setJudul("");
+      setDeskripsi("");
+      setSelectedFile(null);
+      toast.success("Referensi berhasil diunggah!");
+    } catch (err: any) {
+      toast.error("Gagal mengunggah referensi", {
+        description: err.message || "Terjadi kesalahan.",
+      });
+    } finally {
+      setIsUploading(false);
+    }
   }
 
-  function handleDelete(id: string) {
-    setReferensiList(referensiList.filter((r) => r.id !== id));
+  async function handleDelete(id: string) {
+    if (confirm("Apakah Anda yakin ingin menghapus referensi ini?")) {
+      try {
+        await deleteRefMut.mutateAsync(id);
+        toast.success("Referensi berhasil dihapus!");
+      } catch (err: any) {
+        toast.error("Gagal menghapus referensi", {
+          description: err.message || "Terjadi kesalahan.",
+        });
+      }
+    }
   }
 
   function handleBatal() {
     setJudul("");
     setDeskripsi("");
-    setFileName("");
-    if (fileRef.current) fileRef.current.value = "";
+    setSelectedFile(null);
   }
 
   return (
@@ -118,37 +141,17 @@ export function ReferensiManager() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[12.5px] font-semibold text-neutral-muted">
-              Dokumen <span className="text-danger">*</span>
-            </label>
-            <div
-              className={`border-2 border-dashed rounded-3 py-8 px-4 text-center cursor-pointer transition-colors duration-200 ${
-                isDragging ? "border-brand bg-brand-bg/50" : "border-neutral-border hover:border-brand-light hover:bg-neutral-bg/50"
-              }`}
-              onClick={() => fileRef.current?.click()}
-              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-              onDragLeave={() => setIsDragging(false)}
-              onDrop={handleDrop}
-            >
-              <input
-                ref={fileRef}
-                type="file"
-                accept=".pdf,.docx,.doc,.zip"
-                className="hidden"
-                onChange={handleFileChange}
-              />
-              <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8 text-neutral-light mx-auto mb-2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              {fileName ? (
-                <div className="text-[13px] font-bold text-brand">{fileName}</div>
-              ) : (
-                <>
-                  <div className="text-[13px] text-neutral-muted font-medium">Pilih file atau drag & drop di sini</div>
-                  <div className="text-[11.5px] text-neutral-light mt-1">PDF, DOCX, maksimal 10MB</div>
-                </>
-              )}
-            </div>
+            <FileUploader
+              id="referensi-file-uploader"
+              label={<span>Dokumen <span className="text-danger">*</span></span>}
+              subLabel="PDF, DOCX, ZIP, maksimal 10MB"
+              accept=".pdf,.docx,.doc,.zip"
+              files={selectedFile ? [{ id: "temp-selected", fileName: selectedFile.name, fileSize: selectedFile.size }] : []}
+              onFileSelect={(file) => setSelectedFile(file)}
+              onDeleteFile={() => setSelectedFile(null)}
+              isLoading={isUploading || createRefMut.isPending}
+              maxSizeMB={10}
+            />
           </div>
         </div>
 

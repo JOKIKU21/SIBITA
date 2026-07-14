@@ -1,42 +1,59 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Upload } from "lucide-react";
 import type { StageFile } from "@/services/student";
+import FileUploader from "@/components/FileUploader";
+import { apiUpload } from "@/lib/api-client";
+import { useToast } from "@/components/providers/ToastProvider";
 
 interface DosenFileUploadProps {
   existingFiles?: StageFile[];
+  studentId?: string;
+  stageId?: string;
 }
 
-export function DosenFileUpload({ existingFiles = [] }: DosenFileUploadProps) {
-  const [isDragging, setIsDragging] = useState(false);
+export function DosenFileUpload({ existingFiles = [], studentId, stageId }: DosenFileUploadProps) {
   const [files, setFiles] = useState<StageFile[]>(existingFiles);
+  const [isUploading, setIsUploading] = useState(false);
+  const toast = useToast();
 
   // Synchronise files with prop when it loads/changes
   useEffect(() => {
     setFiles(existingFiles);
   }, [existingFiles]);
 
-  const handleUpload = (file: File) => {
-    const newFile: StageFile = {
-      id: Math.random().toString(),
-      studentId: "",
-      stageOrder: 0,
-      uploadedById: "lecturer",
-      fileName: file.name,
-      fileUrl: "#",
-      fileSize: file.size,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    setFiles((prev) => [...prev, newFile]);
-    alert(`File berhasil diunggah: ${file.name}`);
+  const handleUpload = async (file: File) => {
+    setIsUploading(true);
+    try {
+      const uploadRes = await apiUpload(file, "stages");
+      const newFile: StageFile = {
+        id: Math.random().toString(),
+        studentId: studentId || "",
+        stageOrder: stageId ? parseInt(stageId, 10) : 0,
+        uploadedById: "lecturer",
+        fileName: uploadRes.fileName,
+        fileUrl: uploadRes.fileUrl,
+        fileType: uploadRes.fileType || file.type || "application/octet-stream",
+        fileSize: uploadRes.fileSize || file.size,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      setFiles((prev) => [...prev, newFile]);
+      toast.success(`File berhasil diunggah: ${file.name}`);
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Gagal mengunggah file", {
+        description: err.message || "Terjadi kesalahan.",
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleDelete = (fileId: string) => {
     if (confirm("Apakah Anda yakin ingin menghapus file lampiran ini?")) {
       setFiles((prev) => prev.filter((f) => f.id !== fileId));
-      alert("File berhasil dihapus!");
+      toast.success("File berhasil dihapus!");
     }
   };
 
@@ -46,95 +63,18 @@ export function DosenFileUpload({ existingFiles = [] }: DosenFileUploadProps) {
         Unggah File (Dosen)
       </div>
       <div className="p-6">
-        <p className="text-[12.5px] text-neutral-muted mb-4">
-          Unggah file revisi, referensi, atau dokumen lain untuk mahasiswa (Max 10MB).
-        </p>
-        <label
-          className={`border-[1.5px] border-dashed rounded-2.5 p-6 flex flex-col items-center justify-center gap-3 transition-colors duration-200 cursor-pointer ${
-            isDragging ? "border-brand bg-brand-bg" : "border-[#C7CCE0] bg-neutral-bg hover:bg-[#ECEEF7] hover:border-brand-light"
-          } block`}
-          onDragOver={(e) => {
-            e.preventDefault();
-            setIsDragging(true);
-          }}
-          onDragLeave={() => setIsDragging(false)}
-          onDrop={(e) => {
-            e.preventDefault();
-            setIsDragging(false);
-            const file = e.dataTransfer.files[0];
-            if (file) {
-              handleUpload(file);
-            }
-          }}
-        >
-          <input
-            type="file"
-            className="hidden"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) {
-                handleUpload(file);
-              }
-            }}
-          />
-          <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm mx-auto">
-            <Upload size={20} className="text-brand" />
-          </div>
-          <div className="text-center">
-            <span className="text-[13.5px] font-bold text-brand">Pilih File</span>
-            <span className="text-[13.5px] text-neutral-muted"> atau drag & drop ke sini</span>
-          </div>
-        </label>
-
-        {/* List of uploaded files */}
-        {files.length > 0 && (
-          <div className="mt-4.5 flex flex-col gap-2">
-            <div className="text-[12px] font-bold text-neutral-muted uppercase tracking-wider mb-1">
-              File Lampiran Anda:
-            </div>
-            {files.map((file) => (
-              <div
-                key={file.id}
-                className="flex items-center justify-between bg-neutral-bg border border-neutral-border rounded-2 p-3"
-              >
-                <div className="flex items-center gap-2 min-w-0">
-                  <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-brand shrink-0">
-                    <path
-                      d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6ZM14 2v6h6"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  <div className="min-w-0">
-                    <a
-                      href={file.fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[13px] font-semibold text-brand hover:underline block truncate max-w-60"
-                    >
-                      {file.fileName}
-                    </a>
-                    <span className="text-[11px] text-neutral-muted block">
-                      {file.fileSize
-                        ? (file.fileSize / 1024).toFixed(1) + " KB"
-                        : "Unknown size"}
-                    </span>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleDelete(file.id)}
-                  className="text-danger hover:text-danger-dark text-[12px] font-semibold bg-transparent border-none cursor-pointer"
-                >
-                  Hapus
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
+        <FileUploader
+          id="dosen-file-uploader"
+          subLabel="Unggah file revisi, referensi, atau dokumen lain untuk mahasiswa (Max 10MB)."
+          files={files}
+          onFileSelect={handleUpload}
+          onDeleteFile={handleDelete}
+          isLoading={isUploading}
+          maxSizeMB={10}
+        />
       </div>
     </div>
   );
 }
+
+

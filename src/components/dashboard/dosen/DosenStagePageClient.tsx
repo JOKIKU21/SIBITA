@@ -104,7 +104,7 @@ export function DosenStagePageClient({ userId, stageId: urlStageId }: DosenStage
               stageName={metadata.name}
             />
             <DosenNoteInput initialNote={existingNote?.comment || ""} />
-            <DosenFileUpload existingFiles={lecturerFiles} />
+            <DosenFileUpload existingFiles={lecturerFiles} studentId={userId} stageId={urlStageId} />
             <ApprovalCheckbox initialApproved={isApproved} />
           </div>
 
