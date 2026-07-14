@@ -201,6 +201,76 @@ export const studentService = {
     });
   },
 
+  /** Fetch the student's registration progress and files */
+  getRegistration() {
+    return apiFetch<{
+      registration: {
+        id: string;
+        studentId: string;
+        paymentOption: string;
+        totalAmount: number;
+        status: string;
+        approvedBy: string | null;
+        approvedAt: string | null;
+        createdAt: string;
+        updatedAt: string;
+        files: Array<{
+          id: string;
+          registrationId: string;
+          registrationPaymentId: string | null;
+          type: string;
+          fileName: string;
+          fileUrl: string;
+          fileType?: string;
+          fileSize?: number;
+          createdAt: string;
+        }>;
+        payments: Array<{
+          id: string;
+          registrationId: string;
+          installment: number;
+          amount: number;
+          status: string;
+          paidAt: string | null;
+          note: string | null;
+          createdAt: string;
+          files: any[];
+        }>;
+      };
+    }>("/api/student/registration", { method: "GET" });
+  },
+
+  /** Create a new registration pengajuan */
+  createRegistration(payload: { paymentOption: string; totalAmount?: number }) {
+    return apiFetch<{
+      registration: {
+        id: string;
+        studentId: string;
+        paymentOption: string;
+        totalAmount: number;
+        status: string;
+        approvedBy: string | null;
+        approvedAt: string | null;
+        createdAt: string;
+        updatedAt: string;
+        payments: Array<{
+          id: string;
+          registrationId: string;
+          installment: number;
+          amount: number;
+          status: string;
+          paidAt: string | null;
+          note: string | null;
+          createdAt: string;
+          files: any[];
+        }>;
+      };
+    }>("/api/student/registration", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  },
+
   /** Delete a file from a stage. */
   deleteFile(stageId: string, fileId: string) {
     return apiFetch<{ message: string }>(`/api/student/bimbingan/${stageId}/files/${fileId}`, {

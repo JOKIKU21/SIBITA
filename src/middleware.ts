@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   const isDashboardPath = pathname.startsWith("/dashboard");
   const isAuthPath = ["/masuk", "/daftar", "/verifikasi"].includes(pathname);
+  const isOnboardingPath = pathname === "/registrasi" || pathname.startsWith("/registrasi/");
 
-  if (isDashboardPath || isAuthPath) {
+  if (isDashboardPath || isAuthPath || isOnboardingPath) {
     const cookieHeader = request.headers.get("cookie") || "";
     const apiURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
@@ -39,6 +40,11 @@ export async function proxy(request: NextRequest) {
           return NextResponse.redirect(new URL(targetPath, request.url));
         }
 
+        // If they are visiting /registrasi but they are NOT a student, redirect to their role's dashboard
+        if (isOnboardingPath && role !== "student") {
+          return NextResponse.redirect(new URL(targetPath, request.url));
+        }
+
         // Redirect root dashboard path to role-specific dashboard
         if (pathname === "/dashboard" || pathname === "/dashboard/") {
           return NextResponse.redirect(new URL(targetPath, request.url));
@@ -60,13 +66,13 @@ export async function proxy(request: NextRequest) {
           }
         }
       } else {
-        if (isDashboardPath) {
+        if (isDashboardPath || isOnboardingPath) {
           return NextResponse.redirect(new URL("/masuk", request.url));
         }
       }
     } catch (error) {
-      console.error("Auth proxy session check failed:", error);
-      if (isDashboardPath) {
+      console.error("Auth middleware session check failed:", error);
+      if (isDashboardPath || isOnboardingPath) {
         return NextResponse.redirect(new URL("/masuk", request.url));
       }
     }
@@ -75,12 +81,14 @@ export async function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
-export const proxyConfig = {
+export const config = {
   matcher: [
     "/dashboard",
     "/dashboard/:path*",
     "/masuk",
     "/daftar",
     "/verifikasi",
+    "/registrasi",
+    "/registrasi/:path*",
   ],
 };

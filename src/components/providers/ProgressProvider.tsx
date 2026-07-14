@@ -10,11 +10,12 @@ import {
   useMemo,
   useState,
 } from "react";
+import { useRouter } from "next/navigation";
 
-import { useStudentBimbingan } from "@/hooks/useStudent";
+import { useStudentBimbingan, useStudentProfile } from "@/hooks/useStudent";
 import { STAGES, getStageMetadata } from "@/lib/stages";
 import type { Stage } from "@/lib/stages";
-import type { StudentProgress } from "@/services/student";
+import type { StudentProgress, StudentProfile } from "@/services/student";
 
 export interface MergedStage extends Stage {
   name: string;
@@ -37,6 +38,14 @@ const STORAGE_KEY = "sibita.completed-stages";
 export function ProgressProvider({ children }: { children: React.ReactNode }) {
   const [localCompleted, setLocalCompleted] = useState<Set<number>>(() => new Set());
   const { data: bimbinganData, isLoading } = useStudentBimbingan();
+  const { data: profile } = useStudentProfile() as { data: StudentProfile | undefined };
+  const router = useRouter();
+
+  useEffect(() => {
+    if (profile && profile.status !== "active") {
+      router.push("/registrasi");
+    }
+  }, [profile, router]);
 
   useEffect(() => {
     try {
