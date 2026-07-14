@@ -19,9 +19,14 @@ export interface GetReferenceFilesResponse {
 }
 
 export const referenceService = {
-  /** Fetch references files for students */
-  getReferenceFiles() {
-    return apiFetch<GetReferenceFilesResponse>("/api/reference-files", {
+  /** Fetch references files with optional type filter and search query */
+  getReferenceFiles(type?: string, search?: string) {
+    const params = new URLSearchParams();
+    if (type) params.append("type", type);
+    if (search) params.append("search", search);
+    const queryString = params.toString();
+    const url = queryString ? `/api/reference-files?${queryString}` : "/api/reference-files";
+    return apiFetch<GetReferenceFilesResponse>(url, {
       method: "GET",
     });
   },

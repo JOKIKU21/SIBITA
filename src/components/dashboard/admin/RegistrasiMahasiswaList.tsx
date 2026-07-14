@@ -3,10 +3,14 @@
 import { useState } from "react";
 import { useAdminRegistrations, useUpdateRegistrationStatus } from "@/hooks/useAdmin";
 import type { RegistrationItem, RegistrationDetailItem } from "@/services/admin";
+import { useDebounce } from "@/hooks/useDebounce";
 
 
 export function RegistrasiMahasiswaList() {
-  const { data, isLoading, error, refetch } = useAdminRegistrations();
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 300);
+
+  const { data, isLoading, error, refetch } = useAdminRegistrations(undefined, debouncedSearch);
   const updateStatus = useUpdateRegistrationStatus();
 
   const [activeTab, setActiveTab] = useState<"pending" | "approved" | "rejected">("pending");
@@ -70,8 +74,8 @@ export function RegistrasiMahasiswaList() {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Tabs */}
-      <div className="bg-white border border-neutral-border rounded-3.5 p-5 flex flex-wrap gap-4 items-center justify-start shadow-sm">
+      {/* Tabs & Search */}
+      <div className="bg-white border border-neutral-border rounded-3.5 p-5 flex flex-wrap gap-4 items-center justify-between shadow-sm">
         <div className="flex gap-1.5 bg-neutral-bg p-1.25 rounded-2.75">
           {(["pending", "approved", "rejected"] as const).map((tab) => {
             const count = registrations.filter(r => r.status === tab).length;
@@ -97,6 +101,23 @@ export function RegistrasiMahasiswaList() {
               </button>
             );
           })}
+        </div>
+
+        {/* Search Bar */}
+        <div className="relative w-full max-w-[320px] max-[600px]:max-w-full">
+          <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-neutral-muted">
+            <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </span>
+          <input
+            type="text"
+            placeholder="Cari mahasiswa, email, metode..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full bg-neutral-bg border border-neutral-border rounded-2.5 py-2.25 pl-10 pr-4 text-[13.5px] outline-none font-sans focus:border-brand-light transition-[border-color] duration-200 text-neutral-text placeholder-neutral-muted font-semibold"
+          />
         </div>
       </div>
 
@@ -161,9 +182,9 @@ export function RegistrasiMahasiswaList() {
                 <tr>
                   <td
                     colSpan={activeTab === "rejected" ? 7 : 6}
-                    className="py-12 text-center text-[13.5px] text-neutral-muted"
+                    className="py-12 text-center text-[13.5px] text-neutral-muted font-medium"
                   >
-                    Tidak ada pendaftaran dengan status ini.
+                    {search ? "Tidak ditemukan registrasi yang cocok dengan kata kunci." : "Tidak ada pendaftaran dengan status ini."}
                   </td>
                 </tr>
               ) : (

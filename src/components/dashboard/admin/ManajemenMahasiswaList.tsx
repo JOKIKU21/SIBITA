@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useAdminStudents, useAdminLecturers, useAssignAdvisor, useUpdateStudentStatus } from "@/hooks/useAdmin";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const AVATAR_COLORS = [
   "from-[#818CF8] to-[#6366F1]",
@@ -18,7 +19,10 @@ function getAvatarColor(name: string) {
 }
 
 export function ManajemenMahasiswaList() {
-  const { data: studentsData, isLoading: isStudentsLoading, error: studentsError, refetch: refetchStudents } = useAdminStudents();
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 300);
+
+  const { data: studentsData, isLoading: isStudentsLoading, error: studentsError, refetch: refetchStudents } = useAdminStudents(debouncedSearch);
   const { data: lecturersData, isLoading: isLecturersLoading } = useAdminLecturers();
 
   const assignAdvisor = useAssignAdvisor();
@@ -48,8 +52,8 @@ export function ManajemenMahasiswaList() {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Filters */}
-      <div className="bg-white border border-neutral-border rounded-3.5 p-5 flex flex-wrap gap-4 items-center justify-start shadow-sm">
+      {/* Filters & Search */}
+      <div className="bg-white border border-neutral-border rounded-3.5 p-5 flex flex-wrap gap-4 items-center justify-between shadow-sm">
         <div className="flex items-center gap-3.5 flex-wrap">
           {/* Prodi Filter */}
           <div className="flex flex-col gap-1">
@@ -77,6 +81,23 @@ export function ManajemenMahasiswaList() {
               <option value="ended">Selesai</option>
             </select>
           </div>
+        </div>
+
+        {/* Search Bar */}
+        <div className="relative w-full max-w-[280px] max-[600px]:max-w-full">
+          <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-neutral-muted">
+            <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </span>
+          <input
+            type="text"
+            placeholder="Cari mahasiswa, NIM, prodi..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full bg-neutral-bg border border-neutral-border rounded-2.5 py-2.5 pl-9 pr-4 text-[13.5px] outline-none font-sans focus:border-brand-light transition-[border-color] duration-200 text-neutral-text placeholder-neutral-muted font-semibold"
+          />
         </div>
       </div>
 
@@ -133,8 +154,8 @@ export function ManajemenMahasiswaList() {
                 </tr>
               ) : filteredMahasiswa.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-[13.5px] text-neutral-muted">
-                    Tidak ada data mahasiswa yang cocok dengan kriteria filter Anda.
+                  <td colSpan={6} className="py-12 text-center text-[13.5px] text-neutral-muted font-medium">
+                    {search ? "Tidak ditemukan mahasiswa yang cocok dengan kata kunci." : "Tidak ada data mahasiswa yang cocok dengan kriteria filter Anda."}
                   </td>
                 </tr>
               ) : (

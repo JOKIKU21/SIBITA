@@ -1,9 +1,9 @@
-# SIBITA API Documentation (Admin)
+# SIBITA API Documentation (Admin & Reference Files)
 
-Dokumentasi ini menjelaskan endpoints API untuk pengelolaan sistem SIBITA dari perspektif **Admin**. Fitur ini digunakan untuk mengelola pendaftaran mahasiswa baru, memantau pembayaran, menugaskan dosen pembimbing, serta memantau status dan progres bimbingan mahasiswa.
+Dokumentasi ini menjelaskan endpoints API untuk pengelolaan sistem SIBITA dari perspektif **Admin** (beserta pengelolaan berkas referensi). Fitur ini digunakan untuk mengelola pendaftaran mahasiswa baru, memantau pembayaran, menugaskan dosen pembimbing, memantau status/progres bimbingan, serta mengakses berkas acuan/referensi.
 
 > [!NOTE]
-> Seluruh endpoint di bawah ini memerlukan autentikasi dengan peran (`role`) **`admin`** dan memiliki prefix route `/api/admin/*`.
+> Sebagian besar endpoint di bawah ini memerlukan autentikasi dengan peran (`role`) **`admin`** atau **`superadmin`** dan memiliki prefix route `/api/admin/*`, kecuali endpoint **File Referensi** yang dapat diakses oleh semua peran pengguna yang terautentikasi.
 
 ---
 
@@ -13,7 +13,7 @@ Dokumentasi ini menjelaskan endpoints API untuk pengelolaan sistem SIBITA dari p
 Mendapatkan jumlah statistik ringkas mengenai total dosen, total mahasiswa, bimbingan yang sedang berjalan, dan total seluruh bimbingan.
 
 * **Endpoint:** `GET /api/admin/summary`
-* **Autentikasi:** Wajib (Role: `admin`)
+* **Autentikasi:** Wajib (Role: `admin` / `superadmin`)
 
 #### Contoh Response (200 OK)
 ```json
@@ -39,12 +39,17 @@ Mendapatkan jumlah statistik ringkas mengenai total dosen, total mahasiswa, bimb
 ## 📝 Pengelolaan Pendaftaran (Registrations)
 
 ### 1. Daftar Pendaftaran Mahasiswa (List Registrations)
-Menampilkan daftar seluruh pendaftaran mahasiswa yang masuk, diurutkan dari yang terbaru (`createdAt` desc). Mendukung pemfilteran berdasarkan status pendaftaran.
+Menampilkan daftar seluruh pendaftaran mahasiswa yang masuk, diurutkan dari yang terbaru (`createdAt` desc). Mendukung pemfilteran berdasarkan status pendaftaran serta pencarian teks.
 
 * **Endpoint:** `GET /api/admin/registrations`
-* **Autentikasi:** Wajib (Role: `admin`)
+* **Autentikasi:** Wajib (Role: `admin` / `superadmin`)
 * **Query Parameters:**
   * `status` (string, opsional): Memfilter berdasarkan status pendaftaran. Pilihan nilai: `pending`, `approved`, `rejected`.
+  * `search` atau `q` (string, opsional): Kata kunci pencarian. Mencari kecocokan secara case-insensitive pada kolom:
+    * Nama mahasiswa (`student.user.name`)
+    * Email mahasiswa (`student.user.email`)
+    * Opsi pembayaran (`paymentOption`)
+    * Status registrasi (`status`)
 
 #### Contoh Response (200 OK)
 ```json
@@ -55,7 +60,7 @@ Menampilkan daftar seluruh pendaftaran mahasiswa yang masuk, diurutkan dari yang
       "studentId": "student-uuid-1234",
       "status": "pending",
       "totalAmount": 5000000,
-      "paymentOption": "installment",
+      "paymentOption": "installment_2x",
       "createdAt": "2026-07-11T01:23:45.000Z",
       "student": {
         "userId": "student-uuid-1234",
@@ -101,7 +106,7 @@ Menampilkan daftar seluruh pendaftaran mahasiswa yang masuk, diurutkan dari yang
 Mendapatkan rincian informasi satu pendaftaran mahasiswa secara lengkap termasuk berkas terlampir, pembayaran, dan informasi penyetuju (approver) jika sudah diproses.
 
 * **Endpoint:** `GET /api/admin/registrations/:id`
-* **Autentikasi:** Wajib (Role: `admin`)
+* **Autentikasi:** Wajib (Role: `admin` / `superadmin`)
 * **Path Parameters:**
   * `id` (string): ID pendaftaran.
 
@@ -113,7 +118,7 @@ Mendapatkan rincian informasi satu pendaftaran mahasiswa secara lengkap termasuk
     "studentId": "student-uuid-1234",
     "status": "approved",
     "totalAmount": 5000000,
-    "paymentOption": "installment",
+    "paymentOption": "installment_2x",
     "createdAt": "2026-07-11T01:23:45.000Z",
     "approvedBy": "admin-uuid-5678",
     "approvedAt": "2026-07-11T02:00:00.000Z",
@@ -178,7 +183,7 @@ Memproses persetujuan pendaftaran mahasiswa.
 > - Hanya pendaftaran berstatus **`pending`** yang dapat diperbarui statusnya.
 
 * **Endpoint:** `PATCH /api/admin/registrations/:id`
-* **Autentikasi:** Wajib (Role: `admin`)
+* **Autentikasi:** Wajib (Role: `admin` / `superadmin`)
 * **Path Parameters:**
   * `id` (string): ID pendaftaran.
 * **Request Body (JSON):**
@@ -226,10 +231,15 @@ Mengembalikan data pendaftaran yang telah diperbarui (format sama dengan Detail 
 ## 💳 Pemantauan Pembayaran (Payments)
 
 ### 1. Daftar Status Pembayaran Mahasiswa (List Payments)
-Mendapatkan daftar status keuangan mahasiswa, termasuk total biaya, akumulasi pembayaran yang sudah diverifikasi lunas (`paidAmount`), metode pembayaran, serta rincian setiap termin cicilan.
+Mendapatkan daftar status keuangan mahasiswa, termasuk total biaya, akumulasi pembayaran yang sudah diverifikasi lunas (`paidAmount`), metode pembayaran, rincian setiap termin cicilan, serta mendukung pencarian teks.
 
 * **Endpoint:** `GET /api/admin/payments`
-* **Autentikasi:** Wajib (Role: `admin`)
+* **Autentikasi:** Wajib (Role: `admin` / `superadmin`)
+* **Query Parameters:**
+  * `search` atau `q` (string, opsional): Kata kunci pencarian. Mencari kecocokan secara case-insensitive pada kolom:
+    * Nama mahasiswa (`studentName`)
+    * Opsi pembayaran (`paymentOption`)
+    * Status registrasi/pembayaran utama (`status`)
 
 #### Contoh Response (200 OK)
 ```json
@@ -241,7 +251,7 @@ Mendapatkan daftar status keuangan mahasiswa, termasuk total biaya, akumulasi pe
       "studentName": "Mahasiswa SIBITA",
       "totalAmount": 5000000,
       "paidAmount": 2500000,
-      "paymentOption": "installment",
+      "paymentOption": "installment_2x",
       "status": "approved",
       "payments": [
         {
@@ -273,7 +283,7 @@ Memperbarui status pembayaran termin/cicilan tertentu (misalnya dari `processing
 > Jika status diubah menjadi **`paid`**, kolom `paidAt` secara otomatis akan diisi dengan waktu saat ini. Jika diubah ke status lainnya, `paidAt` akan diatur kembali ke `null`.
 
 * **Endpoint:** `PATCH /api/admin/payments/:paymentId`
-* **Autentikasi:** Wajib (Role: `admin`)
+* **Autentikasi:** Wajib (Role: `admin` / `superadmin`)
 * **Path Parameters:**
   * `paymentId` (string): ID transaksi/pembayaran cicilan (`registration_payment.id`).
 * **Request Body (JSON):**
@@ -315,12 +325,17 @@ Memperbarui status pembayaran termin/cicilan tertentu (misalnya dari `processing
 
 ## 👥 Pengelolaan Pengguna (Lecturers & Students)
 
-
 ### 1. Daftar Dosen Pembimbing (List Lecturers)
-Menampilkan daftar seluruh dosen pembimbing beserta informasi departemen/jurusan dan jumlah mahasiswa aktif bimbingannya (`activeAdviseeCount`).
+Menampilkan daftar seluruh dosen pembimbing beserta informasi departemen/jurusan dan jumlah mahasiswa aktif bimbingannya (`activeAdviseeCount`). Mendukung pencarian kata kunci.
 
 * **Endpoint:** `GET /api/admin/lecturers`
-* **Autentikasi:** Wajib (Role: `admin`)
+* **Autentikasi:** Wajib (Role: `admin` / `superadmin`)
+* **Query Parameters:**
+  * `search` atau `q` (string, opsional): Kata kunci pencarian. Mencari kecocokan secara case-insensitive pada kolom:
+    * Nama dosen (`name`)
+    * Email dosen (`email`)
+    * Nomor telepon dosen (`phoneNumber`)
+    * Departemen/jurusan dosen (`department`)
 
 #### Contoh Response (200 OK)
 ```json
@@ -341,10 +356,20 @@ Menampilkan daftar seluruh dosen pembimbing beserta informasi departemen/jurusan
 ---
 
 ### 2. Daftar Mahasiswa (List Students)
-Menampilkan daftar mahasiswa bimbingan beserta NIM, program studi, nomor telepon, kampus, status keaktifan, nama pembimbing, dan persentase progres bimbingan.
+Menampilkan daftar mahasiswa bimbingan beserta profil lengkap dan persentase progres. Mendukung pencarian kata kunci multi-kolom.
 
 * **Endpoint:** `GET /api/admin/students`
-* **Autentikasi:** Wajib (Role: `admin`)
+* **Autentikasi:** Wajib (Role: `admin` / `superadmin`)
+* **Query Parameters:**
+  * `search` atau `q` (string, opsional): Kata kunci pencarian. Mencari kecocokan secara case-insensitive pada kolom:
+    * Nama mahasiswa (`name`)
+    * Email mahasiswa (`email`)
+    * NIM (`nim`)
+    * Program studi (`studyProgram`)
+    * Kampus (`campus`)
+    * Nomor telepon (`phoneNumber`)
+    * Status keaktifan bimbingan (`status`)
+    * Nama dosen pembimbing (`advisorName`)
 
 #### Contoh Response (200 OK)
 ```json
@@ -372,7 +397,7 @@ Menampilkan daftar mahasiswa bimbingan beserta NIM, program studi, nomor telepon
 Menetapkan dosen pembimbing bagi mahasiswa tertentu. Jika profil mahasiswa belum ada, sistem akan membuat profil baru secara otomatis.
 
 * **Endpoint:** `PATCH /api/admin/students/:studentId/advisor`
-* **Autentikasi:** Wajib (Role: `admin`)
+* **Autentikasi:** Wajib (Role: `admin` / `superadmin`)
 * **Path Parameters:**
   * `studentId` (string): ID pengguna mahasiswa.
 * **Request Body (JSON):**
@@ -431,7 +456,7 @@ Mengubah status keaktifan bimbingan mahasiswa secara manual.
 > Jika status diubah menjadi **`active`**, maka sistem secara otomatis menginisialisasi kemajuan bimbingan (progres dan catatan tahapan bimbingan).
 
 * **Endpoint:** `PATCH /api/admin/students/:studentId/status`
-* **Autentikasi:** Wajib (Role: `admin`)
+* **Autentikasi:** Wajib (Role: `admin` / `superadmin`)
 * **Path Parameters:**
   * `studentId` (string): ID pengguna mahasiswa.
 * **Request Body (JSON):**
@@ -466,3 +491,41 @@ Mengembalikan data mahasiswa yang telah diperbarui (format sama dengan respon Te
   ```json
   { "error": "Student not found" }
   ```
+
+---
+
+## 📂 File Referensi (Reference Files)
+
+### 1. Daftar File Referensi (List Reference Files)
+Menampilkan daftar seluruh file referensi / acuan penulisan bimbingan akademis (misal template jurnal, panduan TA, dsb).
+
+* **Endpoint:** `GET /api/reference-files`
+* **Autentikasi:** Wajib (Semua Peran / Authenticated User)
+* **Query Parameters:**
+  * `type` (string, opsional): Memfilter file berdasarkan kategori. Pilihan nilai: `guideline`, `template`, `example`.
+  - `search` atau `q` (string, opsional): Kata kunci pencarian. Mencari kecocokan secara case-insensitive pada kolom:
+    * Judul referensi (`title`)
+    * Deskripsi referensi (`description`)
+    * Nama file fisik (`fileName`)
+    * Pembuat/penulis file (`author`)
+
+#### Contoh Response (200 OK)
+```json
+{
+  "referenceFiles": [
+    {
+      "id": "ref-uuid-000",
+      "title": "Panduan Tugas Akhir S1",
+      "description": "Dokumen panduan tata cara penulisan skripsi/tugas akhir edisi terbaru.",
+      "type": "guideline",
+      "fileName": "panduan_ta_s1_2026.pdf",
+      "fileUrl": "https://storage.sibita.com/references/panduan_ta_s1_2026.pdf",
+      "fileType": "application/pdf",
+      "fileSize": 1548234,
+      "author": "Tim Akademik",
+      "createdAt": "2026-07-11T01:23:45.000Z",
+      "updatedAt": "2026-07-11T01:23:45.000Z"
+    }
+  ]
+}
+```

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useDebounce } from "@/hooks/useDebounce";
 
 interface InstallmentItem {
   id: string;
@@ -24,7 +25,10 @@ interface PaymentRecord {
 import { useAdminPayments, useUpdatePaymentStatus } from "@/hooks/useAdmin";
 
 export function PembayaranManager() {
-  const { data, isLoading, error, refetch } = useAdminPayments();
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 300);
+
+  const { data, isLoading, error, refetch } = useAdminPayments(debouncedSearch);
   const updatePayment = useUpdatePaymentStatus();
 
   const [selectedRegId, setSelectedRegId] = useState<string | null>(null);
@@ -154,10 +158,27 @@ export function PembayaranManager() {
 
       {/* Main Table List */}
       <div className="bg-white border border-neutral-border rounded-3.5 overflow-hidden shadow-sm">
-        <div className="px-6 pt-5 pb-4 flex items-center justify-between">
+        <div className="px-6 pt-5 pb-4 flex items-center justify-between gap-4 flex-wrap max-[600px]:flex-col max-[600px]:items-stretch">
           <h3 className="font-display text-[15px] font-extrabold text-neutral-text">
             Daftar Keuangan Mahasiswa
           </h3>
+
+          {/* Search Bar */}
+          <div className="relative w-full max-w-[280px] max-[600px]:max-w-full">
+            <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-neutral-muted">
+              <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </span>
+            <input
+              type="text"
+              placeholder="Cari mahasiswa, metode..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full bg-neutral-bg border border-neutral-border rounded-2.5 py-2 pl-9 pr-4 text-[13px] outline-none font-sans focus:border-brand-light transition-[border-color] duration-200 text-neutral-text placeholder-neutral-muted font-semibold"
+            />
+          </div>
         </div>
 
         <div className="overflow-x-auto">
@@ -211,8 +232,8 @@ export function PembayaranManager() {
                 </tr>
               ) : paymentsList.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-[13.5px] text-neutral-muted">
-                    Tidak ada data keuangan mahasiswa.
+                  <td colSpan={8} className="py-12 text-center text-[13.5px] text-neutral-muted font-medium">
+                    {search ? "Tidak ditemukan data keuangan yang cocok dengan kata kunci." : "Tidak ada data keuangan mahasiswa."}
                   </td>
                 </tr>
               ) : (

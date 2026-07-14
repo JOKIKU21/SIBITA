@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useReferenceFiles } from "@/hooks/useReferenceFiles";
+import { useDebounce } from "@/hooks/useDebounce";
 
 interface ReferensiItem {
   id: string;
@@ -12,7 +13,14 @@ interface ReferensiItem {
 }
 
 export function ReferensiManager() {
-  const { data, isLoading, error, refetch } = useReferenceFiles();
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 300);
+  const [typeFilter, setTypeFilter] = useState("All");
+
+  const { data, isLoading, error, refetch } = useReferenceFiles(
+    typeFilter === "All" ? undefined : typeFilter,
+    debouncedSearch
+  );
   const [referensiList, setReferensiList] = useState<ReferensiItem[]>([]);
   const [judul, setJudul] = useState("");
   const [deskripsi, setDeskripsi] = useState("");
@@ -163,8 +171,39 @@ export function ReferensiManager() {
       </div>
 
       {/* Referensi list */}
-      <div>
-        <h3 className="font-display text-[15px] font-extrabold text-neutral-text mb-4">Referensi Tersedia</h3>
+      <div className="flex flex-col gap-4">
+        <h3 className="font-display text-[15px] font-extrabold text-neutral-text">Referensi Tersedia</h3>
+
+        {/* Search & Filter Controls */}
+        <div className="flex gap-2 max-[600px]:flex-col">
+          <div className="relative flex-1">
+            <span className="absolute inset-y-0 left-0 flex-1 flex items-center pl-3 pointer-events-none text-neutral-muted">
+              <svg viewBox="0 0 24 24" fill="none" className="w-3.5 h-3.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </span>
+            <input
+              type="text"
+              placeholder="Cari referensi, deskripsi..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full bg-white border border-neutral-border rounded-2.25 py-2 pl-9 pr-3 text-[12.5px] outline-none font-sans focus:border-brand-light transition-[border-color] duration-200 text-neutral-text placeholder-neutral-muted font-semibold"
+            />
+          </div>
+
+          <select
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+            className="bg-white border border-neutral-border rounded-2.25 py-2 px-3 text-[12.5px] outline-none font-sans focus:border-brand-light cursor-pointer font-semibold text-neutral-text"
+          >
+            <option value="All">Semua Kategori</option>
+            <option value="guideline">Panduan</option>
+            <option value="template">Template</option>
+            <option value="example">Contoh</option>
+          </select>
+        </div>
+
         <div className="flex flex-col gap-3.5">
           {isLoading ? (
             [1, 2, 3].map((n) => (
@@ -186,7 +225,9 @@ export function ReferensiManager() {
               </button>
             </div>
           ) : referensiList.length === 0 ? (
-            <div className="text-center py-10 text-[13px] text-neutral-muted">Belum ada referensi yang diunggah.</div>
+            <div className="text-center py-10 text-[13px] text-neutral-muted font-medium">
+              {search || typeFilter !== "All" ? "Tidak ditemukan referensi yang cocok." : "Belum ada referensi yang diunggah."}
+            </div>
           ) : (
             referensiList.map((ref) => (
               <div key={ref.id} className="bg-white border border-neutral-border rounded-3 p-5 transition-shadow duration-200 hover:shadow-[0_4px_18px_rgba(43,59,175,0.06)]">

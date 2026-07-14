@@ -1,17 +1,17 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { adminService } from "@/services/admin";
 
 /** Centralised query keys for admin data — keeps invalidation typo-proof. */
 export const adminKeys = {
   all: ["admin"] as const,
   summary: () => [...adminKeys.all, "summary"] as const,
-  registrations: (status?: string) => [...adminKeys.all, "registrations", status || "all"] as const,
+  registrations: (status?: string, search?: string) => [...adminKeys.all, "registrations", status || "all", search || ""] as const,
   registrationDetail: (id: string) => [...adminKeys.all, "registration", id] as const,
-  payments: () => [...adminKeys.all, "payments"] as const,
-  lecturers: () => [...adminKeys.all, "lecturers"] as const,
-  students: () => [...adminKeys.all, "students"] as const,
+  payments: (search?: string) => [...adminKeys.all, "payments", search || ""] as const,
+  lecturers: (search?: string) => [...adminKeys.all, "lecturers", search || ""] as const,
+  students: (search?: string) => [...adminKeys.all, "students", search || ""] as const,
 };
 
 /** Fetch summary stats. */
@@ -23,10 +23,11 @@ export function useAdminSummary() {
 }
 
 /** Fetch student registrations. */
-export function useAdminRegistrations(status?: "pending" | "approved" | "rejected") {
+export function useAdminRegistrations(status?: "pending" | "approved" | "rejected", search?: string) {
   return useQuery({
-    queryKey: adminKeys.registrations(status),
-    queryFn: () => adminService.getRegistrations(status),
+    queryKey: adminKeys.registrations(status, search),
+    queryFn: () => adminService.getRegistrations(status, search),
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -56,10 +57,11 @@ export function useUpdateRegistrationStatus() {
 }
 
 /** Fetch all payment records. */
-export function useAdminPayments() {
+export function useAdminPayments(search?: string) {
   return useQuery({
-    queryKey: adminKeys.payments(),
-    queryFn: () => adminService.getPayments(),
+    queryKey: adminKeys.payments(search),
+    queryFn: () => adminService.getPayments(search),
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -84,18 +86,19 @@ export function useUpdatePaymentStatus() {
 }
 
 /** Fetch list of all lecturers. */
-export function useAdminLecturers() {
+export function useAdminLecturers(search?: string) {
   return useQuery({
-    queryKey: adminKeys.lecturers(),
-    queryFn: () => adminService.getLecturers(),
+    queryKey: adminKeys.lecturers(search),
+    queryFn: () => adminService.getLecturers(search),
+    placeholderData: keepPreviousData,
   });
 }
 
-/** Fetch list of all students. */
-export function useAdminStudents() {
+export function useAdminStudents(search?: string) {
   return useQuery({
-    queryKey: adminKeys.students(),
-    queryFn: () => adminService.getStudents(),
+    queryKey: adminKeys.students(search),
+    queryFn: () => adminService.getStudents(search),
+    placeholderData: keepPreviousData,
   });
 }
 

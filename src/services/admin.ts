@@ -191,9 +191,13 @@ export const adminService = {
     });
   },
 
-  /** List student registrations with optional status filter. */
-  getRegistrations(status?: "pending" | "approved" | "rejected") {
-    const url = status ? `/api/admin/registrations?status=${status}` : "/api/admin/registrations";
+  /** List student registrations with optional status filter and search query. */
+  getRegistrations(status?: "pending" | "approved" | "rejected", search?: string) {
+    const params = new URLSearchParams();
+    if (status) params.append("status", status);
+    if (search) params.append("search", search);
+    const queryString = params.toString();
+    const url = queryString ? `/api/admin/registrations?${queryString}` : "/api/admin/registrations";
     return apiFetch<GetRegistrationsResponse>(url, {
       method: "GET",
     });
@@ -214,9 +218,10 @@ export const adminService = {
     });
   },
 
-  /** Fetch all payment records for admin management. */
-  getPayments() {
-    return apiFetch<GetAdminPaymentsResponse>("/api/admin/payments", {
+  /** Fetch all payment records with optional search query for admin management. */
+  getPayments(search?: string) {
+    const url = search ? `/api/admin/payments?search=${encodeURIComponent(search)}` : "/api/admin/payments";
+    return apiFetch<GetAdminPaymentsResponse>(url, {
       method: "GET",
     });
   },
@@ -229,16 +234,18 @@ export const adminService = {
     });
   },
 
-  /** List all lecturers. */
-  getLecturers() {
-    return apiFetch<GetLecturersResponse>("/api/admin/lecturers", {
+  /** List all lecturers with optional search query. */
+  getLecturers(search?: string) {
+    const url = search ? `/api/admin/lecturers?search=${encodeURIComponent(search)}` : "/api/admin/lecturers";
+    return apiFetch<GetLecturersResponse>(url, {
       method: "GET",
     });
   },
 
-  /** List all students. */
-  getStudents() {
-    return apiFetch<GetStudentsResponse>("/api/admin/students", {
+  /** List all students with optional search query. */
+  getStudents(search?: string) {
+    const url = search ? `/api/admin/students?search=${encodeURIComponent(search)}` : "/api/admin/students";
+    return apiFetch<GetStudentsResponse>(url, {
       method: "GET",
     });
   },
