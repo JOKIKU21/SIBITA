@@ -10,7 +10,7 @@ export async function middleware(request: NextRequest) {
 
   if (isDashboardPath || isAuthPath || isOnboardingPath) {
     const cookieHeader = request.headers.get("cookie") || "";
-    const apiURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+    const apiURL = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
     try {
       const res = await fetch(`${apiURL}/api/auth/get-session`, {
@@ -18,7 +18,6 @@ export async function middleware(request: NextRequest) {
           cookie: cookieHeader,
         },
         credentials: "include",
-        cache: "no-store",
       });
 
       const session = res.ok ? await res.json() : null;
