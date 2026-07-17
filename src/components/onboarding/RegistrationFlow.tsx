@@ -5,12 +5,12 @@ import { useRouter } from "next/navigation";
 import FormInput from "@/components/FormInput";
 import Button from "@/components/Button";
 import FileDropzone from "./FileDropzone";
-import { Download, User, Building, Info, ArrowRight, BookUser, Phone, GraduationCap } from "lucide-react";
+import { Download, User, Building, Info, ArrowRight, BookUser, Phone, GraduationCap, Coins } from "lucide-react";
 import { apiFetch, apiUpload } from "@/lib/api-client";
 import { useToast } from "@/components/providers/ToastProvider";
 import { studentService } from "@/services/student";
 
-const STEPS = ["Data Diri", "Pembayaran", "Kontrak"];
+const STEPS = ["Data Diri", "UKT & Pembayaran", "Kontrak & Bukti Bayar"];
 
 export default function RegistrationFlow() {
   const router = useRouter();
@@ -29,6 +29,7 @@ export default function RegistrationFlow() {
     phoneNumber: "",
     education: "S1",
     title: "",
+    jumlahUkt: "2000000",
   });
 
   // State for active registration loaded from API
@@ -84,7 +85,11 @@ export default function RegistrationFlow() {
               else if (reg.paymentOption === "installment_4x") pembayaranVal = "cicil-4x";
               else if (reg.paymentOption === "pay_at_end") pembayaranVal = "bayar-diakhir";
               
-              setFormData((prev) => ({ ...prev, pembayaran: pembayaranVal }));
+              setFormData((prev) => ({ 
+                ...prev, 
+                pembayaran: pembayaranVal,
+                jumlahUkt: reg.totalAmount ? String(reg.totalAmount) : "2000000"
+              }));
 
               const ukt = reg.files?.find((f: any) => f.type === "ukt");
               const payment = reg.files?.find((f: any) => f.type === "payment_proof");
@@ -96,13 +101,10 @@ export default function RegistrationFlow() {
 
               if (contract) {
                 setCurrentStep(3); // Registration completed
+              } else if (ukt) {
+                setCurrentStep(2); // UKT file exists -> move to step 3 (index 2) for Contract & Payment Proof
               } else {
-                const isPaymentRequired = reg.paymentOption !== "pay_at_end";
-                if (ukt && (!isPaymentRequired || payment)) {
-                  setCurrentStep(2); // UKT and Payment (if required) uploaded -> move to Contract step
-                } else {
-                  setCurrentStep(1); // files missing
-                }
+                setCurrentStep(1); // UKT file missing
               }
             } else {
               setCurrentStep(1);
@@ -160,7 +162,7 @@ export default function RegistrationFlow() {
       const uploadRes = await apiUpload(file, "registrations");
       if (activeRegistration) {
         // If registration already exists, get the payment record ID
-        const firstInstallment = activeRegistration.payments?.find((p: any) => p.installment === 1);
+        const firstInstallment = activeRegistration.payments?.find((p: any) => p.installment === 1) || activeRegistration.payments?.[0];
         if (!firstInstallment) {
           throw new Error("Data pembayaran cicilan pertama tidak ditemukan.");
         }
@@ -257,65 +259,58 @@ export default function RegistrationFlow() {
         setLoading(false);
       }
     } else if (currentStep === 1) {
-      const paymentOpt = mapPaymentOption(formData.pembayaran);
-      const isPaymentRequired = paymentOpt !== "pay_at_end";
+      const uktAmount = Number(formData.jumlahUkt);
+
+      if (isNaN(uktAmount) || uktAmount <= 0) {
+        toast.warning("Silakan masukkan jumlah UKT yang valid.");
+        return;
+      }
 
       if (!uktFile) {
         toast.warning("Silakan unggah file UKT terlebih dahulu.");
         return;
       }
-      if (isPaymentRequired && !paymentFile) {
-        toast.warning("Silakan unggah bukti transfer terlebih dahulu.");
-        return;
-      }
 
       setLoading(true);
       try {
+        const paymentOpt = mapPaymentOption(formData.pembayaran);
         let registration = activeRegistration;
 
         // 1. Create registration if it does not exist
         if (!registration) {
-          await studentService.createRegistration({
+          const res = await studentService.createRegistration({
             paymentOption: paymentOpt,
+            totalAmount: uktAmount,
+            uktFile: uktFile && uktFile.isTemp ? {
+              fileName: uktFile.fileName,
+              fileUrl: uktFile.fileUrl,
+              fileSize: uktFile.fileSize,
+              fileType: uktFile.fileType,
+            } : undefined,
           });
-          // Call GET to retrieve the full registration with generated payments
-          const fullRes = await studentService.getRegistration();
-          registration = fullRes.registration;
+          registration = res.registration;
           setActiveRegistration(registration);
-        } else if (!registration.payments || registration.payments.length === 0) {
-          // If for some reason activeRegistration doesn't have payments, fetch it
-          const fullRes = await studentService.getRegistration();
-          registration = fullRes.registration;
-          setActiveRegistration(registration);
-        }
-
-        // 2. Link UKT file if it was uploaded as temporary
-        if (uktFile && uktFile.isTemp) {
-          const res = await studentService.uploadRegistrationFile({
-            type: "ukt",
-            fileName: uktFile.fileName,
-            fileUrl: uktFile.fileUrl,
-            fileType: uktFile.fileType,
-            fileSize: uktFile.fileSize,
-          });
-          setUktFile(res.file);
-        }
-
-        // 3. Link Payment Proof file if temporary and required
-        if (isPaymentRequired && paymentFile && paymentFile.isTemp) {
-          const firstInstallment = registration.payments?.find((p: any) => p.installment === 1) || registration.payments?.[0];
-          if (!firstInstallment) {
-            throw new Error("Data pembayaran cicilan pertama tidak ditemukan.");
+          
+          if (uktFile && uktFile.isTemp) {
+            // Retrieve full registration state
+            const fullRes = await studentService.getRegistration();
+            registration = fullRes.registration;
+            setActiveRegistration(registration);
+            const ukt = registration.files?.find((f: any) => f.type === "ukt");
+            if (ukt) setUktFile(ukt);
           }
-          const res = await studentService.uploadRegistrationFile({
-            type: "payment_proof",
-            fileName: paymentFile.fileName,
-            fileUrl: paymentFile.fileUrl,
-            fileType: paymentFile.fileType,
-            fileSize: paymentFile.fileSize,
-            registrationPaymentId: firstInstallment.id,
-          });
-          setPaymentFile(res.file);
+        } else {
+          // If registration already exists, link UKT if it was uploaded as temp
+          if (uktFile && uktFile.isTemp) {
+            const res = await studentService.uploadRegistrationFile({
+              type: "ukt",
+              fileName: uktFile.fileName,
+              fileUrl: uktFile.fileUrl,
+              fileType: uktFile.fileType,
+              fileSize: uktFile.fileSize,
+            });
+            setUktFile(res.file);
+          }
         }
 
         setCurrentStep(2);
@@ -327,14 +322,52 @@ export default function RegistrationFlow() {
       }
     } else if (currentStep === 2) {
       if (!contractFile) {
-        toast.warning("Silakan unggah kontrak final bimbingan terlebih dahulu.");
+        toast.warning("Silakan unggah kontrak bimbingan terlebih dahulu.");
         return;
       }
+
       setLoading(true);
-      setTimeout(() => {
+      try {
+        let registration = activeRegistration;
+        if (!registration) {
+          throw new Error("Data pendaftaran tidak ditemukan. Silakan kembali ke langkah sebelumnya.");
+        }
+
+        // 1. Link Contract file if temporary
+        if (contractFile && contractFile.isTemp) {
+          const res = await studentService.uploadRegistrationFile({
+            type: "contract",
+            fileName: contractFile.fileName,
+            fileUrl: contractFile.fileUrl,
+            fileType: contractFile.fileType,
+            fileSize: contractFile.fileSize,
+          });
+          setContractFile(res.file);
+        }
+
+        // 2. Link Payment Proof file if uploaded and temporary
+        if (paymentFile && paymentFile.isTemp) {
+          const firstInstallment = registration.payments?.find((p: any) => p.installment === 1) || registration.payments?.[0];
+          if (firstInstallment) {
+            const res = await studentService.uploadRegistrationFile({
+              type: "payment_proof",
+              fileName: paymentFile.fileName,
+              fileUrl: paymentFile.fileUrl,
+              fileType: paymentFile.fileType,
+              fileSize: paymentFile.fileSize,
+              registrationPaymentId: firstInstallment.id,
+            });
+            setPaymentFile(res.file);
+          }
+        }
+
+        setCurrentStep(3); // Onboarding complete!
+      } catch (err: any) {
+        console.error(err);
+        toast.error("Gagal memproses berkas pendaftaran", { description: err.message || "Silakan coba lagi." });
+      } finally {
         setLoading(false);
-        setCurrentStep(3); // Show success/waiting state
-      }, 800);
+      }
     }
   };
 
@@ -529,12 +562,23 @@ export default function RegistrationFlow() {
         {currentStep === 1 && (
           <div className="animate-[fadeIn_0.3s_ease] text-left">
             <div className="flex items-center gap-2.5 mb-5 text-[15.5px] text-[#0B1536] font-extrabold">
-              <BookUser size={18} className="text-brand" />
-              Informasi Pembayaran
+              <Coins size={18} className="text-brand" />
+              Tagihan UKT & Pilihan Pembayaran
             </div>
             <div className="h-px bg-neutral-border w-full mb-8" />
 
             <div className="flex flex-col gap-6">
+              <FormInput
+                id="jumlahUkt"
+                label={<span>Jumlah UKT (Rp) <span className="text-danger">*</span></span> as any}
+                type="number"
+                placeholder="Masukkan nominal UKT Anda (contoh: 2000000)"
+                leftIcon={<Coins size={18} className="text-neutral-muted" />}
+                className="bg-[#f8fafc] border-none py-3.5 h-12.5 shadow-sm rounded-2.5"
+                value={formData.jumlahUkt}
+                onChange={(e) => setFormData({ ...formData, jumlahUkt: e.target.value })}
+              />
+
               <FileDropzone
                 label={<span>Upload File UKT <span className="text-danger">*</span></span> as any}
                 subLabel="Format PDF, Maksimal 5MB"
@@ -568,28 +612,16 @@ export default function RegistrationFlow() {
                   </div>
                 </div>
               </div>
-
-              {formData.pembayaran !== "bayar-diakhir" && (
-                <FileDropzone
-                  label={<span>Upload Bukti Transfer <span className="text-danger">*</span></span> as any}
-                  subLabel="Format PDF, Maksimal 5MB"
-                  accept=".pdf"
-                  files={paymentFile ? [{ id: paymentFile.id, fileName: paymentFile.fileName, fileSize: paymentFile.fileSize }] : []}
-                  onFileSelect={handleUploadPayment}
-                  onDeleteFile={() => setPaymentFile(null)}
-                  isLoading={isUploadingPayment}
-                />
-              )}
             </div>
           </div>
         )}
 
-        {/* Step 3: Kontrak */}
+        {/* Step 3: Kontrak & Bukti Bayar */}
         {currentStep === 2 && (
           <div className="animate-[fadeIn_0.3s_ease] text-left">
             <div className="flex items-center gap-2.5 mb-5 text-[15.5px] text-[#0B1536] font-extrabold">
               <BookUser size={18} className="text-brand" />
-              Kontrak Bimbingan
+              Kontrak Bimbingan & Bukti Pembayaran
             </div>
             <div className="h-px bg-neutral-border w-full mb-8" />
 
@@ -619,6 +651,18 @@ export default function RegistrationFlow() {
                 onDeleteFile={() => setContractFile(null)}
                 isLoading={isUploadingContract}
               />
+
+              {formData.pembayaran !== "bayar-diakhir" && (
+                <FileDropzone
+                  label={<span>Upload Bukti Pembayaran Cicilan Pertama / Lunas <span className="text-[12px] text-neutral-muted font-normal ml-1">(Opsional)</span></span> as any}
+                  subLabel="Format PDF, Maksimal 5MB"
+                  accept=".pdf"
+                  files={paymentFile ? [{ id: paymentFile.id, fileName: paymentFile.fileName, fileSize: paymentFile.fileSize }] : []}
+                  onFileSelect={handleUploadPayment}
+                  onDeleteFile={() => setPaymentFile(null)}
+                  isLoading={isUploadingPayment}
+                />
+              )}
             </div>
           </div>
         )}

@@ -241,7 +241,16 @@ export const studentService = {
   },
 
   /** Create a new registration pengajuan */
-  createRegistration(payload: { paymentOption: string; totalAmount?: number }) {
+  createRegistration(payload: { 
+    paymentOption: string; 
+    totalAmount?: number;
+    uktFile?: {
+      fileName: string;
+      fileUrl: string;
+      fileType?: string;
+      fileSize?: number;
+    };
+  }) {
     return apiFetch<{
       registration: {
         id: string;

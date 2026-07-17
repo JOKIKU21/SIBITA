@@ -38,14 +38,20 @@ const STORAGE_KEY = "sibita.completed-stages";
 export function ProgressProvider({ children }: { children: React.ReactNode }) {
   const [localCompleted, setLocalCompleted] = useState<Set<number>>(() => new Set());
   const { data: bimbinganData, isLoading } = useStudentBimbingan();
-  const { data: profile } = useStudentProfile() as { data: StudentProfile | undefined };
+  const { data: profile, isLoading: profileLoading, error: profileError } = useStudentProfile() as {
+    data: StudentProfile | undefined;
+    isLoading: boolean;
+    error: any;
+  };
   const router = useRouter();
 
   useEffect(() => {
-    if (profile && profile.status !== "active") {
-      router.push("/registrasi");
+    if (!profileLoading) {
+      if (profileError || (profile && (profile.status !== "active" || !profile.advisor))) {
+        router.push("/registrasi");
+      }
     }
-  }, [profile, router]);
+  }, [profile, profileLoading, profileError, router]);
 
   useEffect(() => {
     try {

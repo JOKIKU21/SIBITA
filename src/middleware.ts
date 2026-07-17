@@ -45,6 +45,28 @@ export async function middleware(request: NextRequest) {
           return NextResponse.redirect(new URL(targetPath, request.url));
         }
 
+        // If they are a student visiting /registrasi, redirect to dashboard if profile is already active and they have an advisor
+        if (isOnboardingPath && role === "student") {
+          try {
+            const profileRes = await fetch(`${apiURL}/api/student/profile`, {
+              headers: {
+                cookie: cookieHeader,
+              },
+              credentials: "include",
+              cache: "no-store",
+            });
+
+            if (profileRes.ok) {
+              const profile = await profileRes.json();
+              if (profile && profile.status === "active" && profile.advisor) {
+                return NextResponse.redirect(new URL(targetPath, request.url));
+              }
+            }
+          } catch (e) {
+            console.error("Auth middleware profile check on onboarding path failed:", e);
+          }
+        }
+
         // Redirect root dashboard path to role-specific dashboard
         if (pathname === "/dashboard" || pathname === "/dashboard/") {
           return NextResponse.redirect(new URL(targetPath, request.url));
@@ -62,6 +84,32 @@ export async function middleware(request: NextRequest) {
           if (pathname === rule.prefix || pathname.startsWith(rule.prefix + "/")) {
             if (role !== rule.allowedRole) {
               return NextResponse.redirect(new URL(targetPath, request.url));
+            }
+
+            // Students must have an active profile AND an assigned advisor to access the dashboard
+            if (role === "student") {
+              try {
+                const profileRes = await fetch(`${apiURL}/api/student/profile`, {
+                  headers: {
+                    cookie: cookieHeader,
+                  },
+                  credentials: "include",
+                  cache: "no-store",
+                });
+
+                if (!profileRes.ok) {
+                  // Profile doesn't exist (e.g. 404) or fetch failed
+                  return NextResponse.redirect(new URL("/registrasi", request.url));
+                }
+
+                const profile = await profileRes.json();
+                if (!profile || profile.status !== "active" || !profile.advisor) {
+                  return NextResponse.redirect(new URL("/registrasi", request.url));
+                }
+              } catch (e) {
+                console.error("Auth middleware student profile check failed:", e);
+                return NextResponse.redirect(new URL("/registrasi", request.url));
+              }
             }
           }
         }

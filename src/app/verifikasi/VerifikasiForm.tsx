@@ -77,6 +77,27 @@ export default function VerifikasiForm() {
     return () => clearTimeout(timer);
   }, [resendCooldown]);
 
+  const autoSentRef = useRef(false);
+
+  // Automatically send verification OTP on mount if email is provided
+  useEffect(() => {
+    if (email && !autoSentRef.current) {
+      autoSentRef.current = true;
+      setError("");
+      setResendCooldown(RESEND_COOLDOWN);
+      authService.resendOtp(email)
+        .then(() => {
+          setSuccess("Kode OTP telah dikirim ke email Anda");
+          setTimeout(() => setSuccess(""), 5000);
+        })
+        .catch((err) => {
+          setError(err instanceof Error ? err.message : "Gagal mengirim kode OTP.");
+          setResendCooldown(0);
+        });
+    }
+  }, [email]);
+
+
   const handleInputChange = useCallback((index: number, value: string) => {
     if (!/^\d*$/.test(value)) return; // digits only
 
