@@ -10,8 +10,8 @@ This ledger tracks the progress of the SIBITA project optimization using Subagen
 - [x] Task 4: DRY Layout Auth Guards — Extract Shared Utility
 - [x] Task 5: React Query Hooks — `staleTime`, Missing Hooks, Query Key Consistency
 - [x] Task 6: Metadata & SEO — `metadataBase`, OG Images, `robots.txt`, `sitemap.xml`
-- [ ] Task 7: Loading States — `loading.tsx` untuk Semua Route Segments
-- [ ] Task 8: Code Quality — Fix `any` Types dan `dangerouslySetInnerHTML`
+- [x] Task 7: Loading States — `loading.tsx` untuk Semua Route Segments
+- [x] Task 8: Code Quality — Fix `any` Types dan `dangerouslySetInnerHTML`
 - [ ] Task 9: Performance — Memoize Computed Values dan Extract Module-level Constants
 - [ ] Task 10: Accessibility Quick Wins
 - [ ] Task 11: Next.js Config Enhancement
@@ -26,4 +26,7 @@ Task 3: complete (commits 707025b..cd22abb, review clean)
 Task 4: complete (commit 344f122, review clean)
 Task 5: complete (commits 289bb20..1ab1ec4, review clean)
 Task 6: complete (commit afcf01f, review clean)
+Task 7: complete (commits 3fe5623..44feae1, review clean)
+Task 8: complete (commits 44feae1..62ef0b5, review clean)
+
 
