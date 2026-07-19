@@ -18,7 +18,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "SIBITA - Sistem Bimbingan Tugas Akhir",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+  ),
+  title: {
+    default: "SIBITA - Sistem Bimbingan Tugas Akhir",
+    template: "%s | SIBITA",
+  },
   description:
     "Platform terintegrasi yang membantu mahasiswa dan dosen menyelesaikan skripsi dengan proses yang lebih cepat, rapi, dan terstruktur.",
 };
