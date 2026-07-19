@@ -19,6 +19,7 @@ export function useAdminSummary() {
   return useQuery({
     queryKey: adminKeys.summary(),
     queryFn: () => adminService.getSummary(),
+    staleTime: 30_000,
   });
 }
 
@@ -28,6 +29,7 @@ export function useAdminRegistrations(status?: "pending" | "approved" | "rejecte
     queryKey: adminKeys.registrations(status, search),
     queryFn: () => adminService.getRegistrations(status, search),
     placeholderData: keepPreviousData,
+    staleTime: 30_000,
   });
 }
 
@@ -37,6 +39,7 @@ export function useAdminRegistrationDetail(id: string) {
     queryKey: adminKeys.registrationDetail(id),
     queryFn: () => adminService.getRegistrationDetail(id),
     enabled: !!id,
+    staleTime: 30_000,
   });
 }
 
@@ -62,6 +65,7 @@ export function useAdminPayments(search?: string) {
     queryKey: adminKeys.payments(search),
     queryFn: () => adminService.getPayments(search),
     placeholderData: keepPreviousData,
+    staleTime: 30_000,
   });
 }
 
@@ -91,6 +95,7 @@ export function useAdminLecturers(search?: string) {
     queryKey: adminKeys.lecturers(search),
     queryFn: () => adminService.getLecturers(search),
     placeholderData: keepPreviousData,
+    staleTime: 30_000,
   });
 }
 
@@ -99,6 +104,7 @@ export function useAdminStudents(search?: string) {
     queryKey: adminKeys.students(search),
     queryFn: () => adminService.getStudents(search),
     placeholderData: keepPreviousData,
+    staleTime: 30_000,
   });
 }
 

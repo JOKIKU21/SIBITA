@@ -1,3 +1,5 @@
+"use client";
+
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { referenceService } from "@/services/reference";
 
@@ -12,6 +14,7 @@ export function useReferenceFiles(type?: string, search?: string) {
     queryKey: referenceKeys.list(type, search),
     queryFn: () => referenceService.getReferenceFiles(type, search),
     placeholderData: keepPreviousData,
+    staleTime: 5 * 60_000,
   });
 }
 

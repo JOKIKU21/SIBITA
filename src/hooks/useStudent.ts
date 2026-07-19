@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, type UseQueryOptions } from "@tanstack/react-query";
 import {
   studentService,
   type ChangePasswordPayload,
@@ -14,6 +14,8 @@ export const studentKeys = {
   profile: () => [...studentKeys.all, "profile"] as const,
   payments: () => [...studentKeys.all, "payments"] as const,
   paymentDetail: (paymentId: string) => [...studentKeys.all, "payments", paymentId] as const,
+  chats: (stageId?: string) => [...studentKeys.all, "chat", stageId || ""] as const,
+  registration: () => [...studentKeys.all, "registration"] as const,
 };
 
 /** Centralised query keys for student bimbingan data. */
@@ -24,10 +26,11 @@ export const bimbinganKeys = {
 };
 
 /** Read the current student's profile. */
-export function useStudentProfile(options?: any) {
+export function useStudentProfile(options?: Omit<UseQueryOptions<StudentProfile>, "queryKey" | "queryFn">) {
   return useQuery({
     queryKey: studentKeys.profile(),
     queryFn: () => studentService.getProfile(),
+    staleTime: 5 * 60_000,
     ...options,
   });
 }
@@ -64,6 +67,7 @@ export function useStudentBimbingan() {
   return useQuery({
     queryKey: bimbinganKeys.list(),
     queryFn: () => studentService.getBimbingan(),
+    staleTime: 30_000,
   });
 }
 
@@ -73,6 +77,7 @@ export function useStudentBimbinganDetail(stageId?: string) {
     queryKey: bimbinganKeys.detail(stageId || ""),
     queryFn: () => studentService.getBimbinganDetail(stageId!),
     enabled: !!stageId,
+    staleTime: 30_000,
   });
 }
 
@@ -103,6 +108,19 @@ export function useUpdateNote() {
       noteId: string;
       payload: { data?: Record<string, unknown>; completedAt?: string | null };
     }) => studentService.updateNote(stageId, noteId, payload),
+    onSuccess: (_, { stageId }) => {
+      queryClient.invalidateQueries({ queryKey: bimbinganKeys.detail(stageId) });
+    },
+  });
+}
+
+/** Delete an existing stage note. */
+export function useDeleteNote() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ stageId, noteId }: { stageId: string; noteId: string }) =>
+      studentService.deleteNote(stageId, noteId),
     onSuccess: (_, { stageId }) => {
       queryClient.invalidateQueries({ queryKey: bimbinganKeys.detail(stageId) });
     },
@@ -143,9 +161,10 @@ export function useDeleteFile() {
 /** Fetch chat messages for a specific stage. */
 export function useChatMessages(stageId?: string) {
   return useQuery({
-    queryKey: ["student", "chat", stageId || ""],
+    queryKey: studentKeys.chats(stageId),
     queryFn: () => studentService.getChatMessages(stageId!),
     enabled: !!stageId,
+    staleTime: 5_000,
   });
 }
 
@@ -162,7 +181,7 @@ export function useSendChatMessage() {
       payload: { message?: string; fileName?: string; fileUrl?: string; fileType?: string; fileSize?: number };
     }) => studentService.sendChatMessage(stageId, payload),
     onSuccess: (_, { stageId }) => {
-      queryClient.invalidateQueries({ queryKey: ["student", "chat", stageId] });
+      queryClient.invalidateQueries({ queryKey: studentKeys.chats(stageId) });
     },
   });
 }
@@ -172,6 +191,7 @@ export function useStudentPayments() {
   return useQuery({
     queryKey: studentKeys.payments(),
     queryFn: () => studentService.getPayments(),
+    staleTime: 30_000,
   });
 }
 
@@ -181,6 +201,16 @@ export function useStudentPaymentDetail(paymentId?: string) {
     queryKey: studentKeys.paymentDetail(paymentId || ""),
     queryFn: () => studentService.getPaymentDetail(paymentId!),
     enabled: !!paymentId,
+    staleTime: 30_000,
+  });
+}
+
+/** Get student's registration progress and files */
+export function useStudentRegistration() {
+  return useQuery({
+    queryKey: studentKeys.registration(),
+    queryFn: () => studentService.getRegistration(),
+    staleTime: 30_000,
   });
 }
 
@@ -199,6 +229,7 @@ export function useUploadRegistrationFile() {
     }) => studentService.uploadRegistrationFile(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: studentKeys.payments() });
+      queryClient.invalidateQueries({ queryKey: studentKeys.registration() });
     },
   });
 }
@@ -220,6 +251,7 @@ export function useUploadPaymentProof() {
     onSuccess: (_, { paymentId }) => {
       queryClient.invalidateQueries({ queryKey: studentKeys.payments() });
       queryClient.invalidateQueries({ queryKey: studentKeys.paymentDetail(paymentId) });
+      queryClient.invalidateQueries({ queryKey: studentKeys.registration() });
     },
   });
 }
@@ -244,6 +276,7 @@ export function useEditPayment() {
     onSuccess: (_, { paymentId }) => {
       queryClient.invalidateQueries({ queryKey: studentKeys.payments() });
       queryClient.invalidateQueries({ queryKey: studentKeys.paymentDetail(paymentId) });
+      queryClient.invalidateQueries({ queryKey: studentKeys.registration() });
     },
   });
 }
@@ -256,6 +289,7 @@ export function useDeletePayment() {
     mutationFn: (paymentId: string) => studentService.deletePayment(paymentId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: studentKeys.payments() });
+      queryClient.invalidateQueries({ queryKey: studentKeys.registration() });
     },
   });
 }
