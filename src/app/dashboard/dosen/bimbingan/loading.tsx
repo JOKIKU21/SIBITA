@@ -23,7 +23,7 @@ export default function DosenBimbinganLoading() {
               </thead>
               <tbody>
                 {Array.from({ length: 5 }).map((_, idx) => (
-                  <tr key={idx} className="border-b border-neutral-border last:border-b-0 animate-pulse">
+                  <tr key={idx} className="border-b border-neutral-border last:border-b-0">
                     <td className="py-3.5 px-6">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-full bg-neutral-200 shrink-0" />
