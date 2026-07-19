@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { cache } from "react";
 
 export interface User {
   id: string;
@@ -28,8 +29,9 @@ export interface Session {
 /**
  * Get the active session in React Server Components (RSC).
  * Fetches the session from the backend by forwarding the cookies from the incoming request.
+ * Wrapped in React.cache() to deduplicate session fetch calls within the same render pass.
  */
-export async function getServerSession(): Promise<Session | null> {
+export const getServerSession = cache(async (): Promise<Session | null> => {
   try {
     const headersList = await headers();
     const cookieHeader = headersList.get("cookie") || "";
@@ -41,7 +43,6 @@ export async function getServerSession(): Promise<Session | null> {
       headers: {
         cookie: cookieHeader,
       },
-      credentials: "include",
       cache: "no-store",
     });
 
@@ -58,4 +59,5 @@ export async function getServerSession(): Promise<Session | null> {
     console.error("getServerSession failed:", error);
     return null;
   }
-}
+});
+
