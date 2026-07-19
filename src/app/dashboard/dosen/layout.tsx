@@ -1,6 +1,5 @@
 import { Sidebar } from "@/components/dashboard/Sidebar";
-import { getServerSession } from "@/lib/auth-server";
-import { redirect } from "next/navigation";
+import { requireRole } from "@/lib/auth-guard";
 import type { ReactNode } from "react";
 
 export default async function DosenDashboardLayout({
@@ -8,22 +7,7 @@ export default async function DosenDashboardLayout({
 }: {
   children: ReactNode;
 }) {
-  const session = await getServerSession();
-
-  if (!session) {
-    redirect("/masuk");
-  }
-
-  if (session.user.role !== "lecturer") {
-    const rolePaths: Record<string, string> = {
-      student: "/dashboard/mahasiswa",
-      lecturer: "/dashboard/dosen",
-      admin: "/dashboard/admin",
-      superadmin: "/dashboard/superadmin",
-    };
-    const targetPath = rolePaths[session.user.role] || "/dashboard/mahasiswa";
-    redirect(targetPath);
-  }
+  await requireRole("lecturer");
 
   return (
     <div className="flex min-h-screen w-full">
