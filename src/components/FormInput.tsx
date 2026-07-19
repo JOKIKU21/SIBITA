@@ -9,7 +9,7 @@ export default function FormInput({
   ...props
 }: {
   id: string;
-  label?: string;
+  label?: React.ReactNode;
 } & Omit<InputProps, "id" | "label">) {
   return (
     <Input

@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import FileUploader from "@/components/FileUploader";
+import FileUploader, { UploadedFile } from "@/components/FileUploader";
 
 export interface FileDropzoneProps {
   label: React.ReactNode;
   subLabel?: string;
   accept?: string;
-  files?: any[];
+  files?: UploadedFile[];
   onFileSelect?: (file: File) => void;
   onDeleteFile?: () => void;
   isLoading?: boolean;

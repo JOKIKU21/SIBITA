@@ -8,6 +8,7 @@ export interface User {
   role: "student" | "lecturer" | "admin" | "superadmin";
   emailVerified: boolean;
   image?: string;
+  phoneNumber?: string | null;
   createdAt: string;
   updatedAt: string;
 }

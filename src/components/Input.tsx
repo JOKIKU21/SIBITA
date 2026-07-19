@@ -7,7 +7,7 @@ export type InputVariant = "default" | "bordered" | "ghost" | "custom";
 export type InputSize = "sm" | "md" | "lg" | "custom";
 
 export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
-  label?: string;
+  label?: React.ReactNode;
   error?: string;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;

@@ -9,6 +9,20 @@ import { Download, User, Building, Info, ArrowRight, BookUser, Phone, Graduation
 import { apiFetch, apiUpload } from "@/lib/api-client";
 import { useToast } from "@/components/providers/ToastProvider";
 import { studentService } from "@/services/student";
+import { StudentRegistrationDetail, StudentRegistrationFile, StudentRegistrationPayment } from "@/types";
+
+export interface RegistrationFile {
+  id: string;
+  fileName: string;
+  fileUrl: string;
+  fileType?: string;
+  fileSize?: number;
+  isTemp?: boolean;
+  registrationId?: string;
+  registrationPaymentId?: string | null;
+  type?: string;
+  createdAt?: string;
+}
 
 const STEPS = ["Data Diri", "UKT & Pembayaran", "Kontrak & Bukti Bayar"];
 
@@ -33,12 +47,12 @@ export default function RegistrationFlow() {
   });
 
   // State for active registration loaded from API
-  const [activeRegistration, setActiveRegistration] = useState<any>(null);
+  const [activeRegistration, setActiveRegistration] = useState<StudentRegistrationDetail | null>(null);
 
   // State for uploaded files metadata
-  const [uktFile, setUktFile] = useState<any>(null);
-  const [paymentFile, setPaymentFile] = useState<any>(null);
-  const [contractFile, setContractFile] = useState<any>(null);
+  const [uktFile, setUktFile] = useState<RegistrationFile | null>(null);
+  const [paymentFile, setPaymentFile] = useState<RegistrationFile | null>(null);
+  const [contractFile, setContractFile] = useState<RegistrationFile | null>(null);
 
   // Loading states for each file uploader
   const [isUploadingUkt, setIsUploadingUkt] = useState(false);
@@ -91,9 +105,9 @@ export default function RegistrationFlow() {
                 jumlahUkt: reg.totalAmount ? String(reg.totalAmount) : "2000000"
               }));
 
-              const ukt = reg.files?.find((f: any) => f.type === "ukt");
-              const payment = reg.files?.find((f: any) => f.type === "payment_proof");
-              const contract = reg.files?.find((f: any) => f.type === "contract");
+              const ukt = reg.files?.find((f: StudentRegistrationFile) => f.type === "ukt");
+              const payment = reg.files?.find((f: StudentRegistrationFile) => f.type === "payment_proof");
+              const contract = reg.files?.find((f: StudentRegistrationFile) => f.type === "contract");
 
               if (ukt) setUktFile(ukt);
               if (payment) setPaymentFile(payment);
@@ -162,7 +176,7 @@ export default function RegistrationFlow() {
       const uploadRes = await apiUpload(file, "registrations");
       if (activeRegistration) {
         // If registration already exists, get the payment record ID
-        const firstInstallment = activeRegistration.payments?.find((p: any) => p.installment === 1) || activeRegistration.payments?.[0];
+        const firstInstallment = activeRegistration.payments?.find((p: StudentRegistrationPayment) => p.installment === 1) || activeRegistration.payments?.[0];
         if (!firstInstallment) {
           throw new Error("Data pembayaran cicilan pertama tidak ditemukan.");
         }
@@ -296,7 +310,7 @@ export default function RegistrationFlow() {
             const fullRes = await studentService.getRegistration();
             registration = fullRes.registration;
             setActiveRegistration(registration);
-            const ukt = registration.files?.find((f: any) => f.type === "ukt");
+            const ukt = registration.files?.find((f: StudentRegistrationFile) => f.type === "ukt");
             if (ukt) setUktFile(ukt);
           }
         } else {
@@ -306,8 +320,8 @@ export default function RegistrationFlow() {
               type: "ukt",
               fileName: uktFile.fileName,
               fileUrl: uktFile.fileUrl,
-              fileType: uktFile.fileType,
-              fileSize: uktFile.fileSize,
+              fileType: uktFile.fileType || "",
+              fileSize: uktFile.fileSize || 0,
             });
             setUktFile(res.file);
           }
@@ -339,22 +353,22 @@ export default function RegistrationFlow() {
             type: "contract",
             fileName: contractFile.fileName,
             fileUrl: contractFile.fileUrl,
-            fileType: contractFile.fileType,
-            fileSize: contractFile.fileSize,
+            fileType: contractFile.fileType || "",
+            fileSize: contractFile.fileSize || 0,
           });
           setContractFile(res.file);
         }
 
         // 2. Link Payment Proof file if uploaded and temporary
         if (paymentFile && paymentFile.isTemp) {
-          const firstInstallment = registration.payments?.find((p: any) => p.installment === 1) || registration.payments?.[0];
+          const firstInstallment = registration.payments?.find((p: StudentRegistrationPayment) => p.installment === 1) || registration.payments?.[0];
           if (firstInstallment) {
             const res = await studentService.uploadRegistrationFile({
               type: "payment_proof",
               fileName: paymentFile.fileName,
               fileUrl: paymentFile.fileUrl,
-              fileType: paymentFile.fileType,
-              fileSize: paymentFile.fileSize,
+              fileType: paymentFile.fileType || "",
+              fileSize: paymentFile.fileSize || 0,
               registrationPaymentId: firstInstallment.id,
             });
             setPaymentFile(res.file);
@@ -462,7 +476,7 @@ export default function RegistrationFlow() {
             <div className="flex flex-col gap-6">
               <FormInput
                 id="nama"
-                label={<span>Nama Lengkap <span className="text-danger">*</span></span> as any}
+                label={<span>Nama Lengkap <span className="text-danger">*</span></span>}
                 placeholder="Masukkan nama lengkap sesuai ijazah"
                 leftIcon={<BookUser size={18} className="text-neutral-muted" />}
                 className="bg-[#f8fafc] border-none py-3.5 h-12.5 shadow-sm rounded-2.5"
@@ -473,7 +487,7 @@ export default function RegistrationFlow() {
               <div className="grid grid-cols-2 gap-6 max-[600px]:grid-cols-1">
                 <FormInput
                   id="nim"
-                  label={<span>Nomor Induk Mahasiswa (NIM) <span className="text-danger">*</span></span> as any}
+                  label={<span>Nomor Induk Mahasiswa (NIM) <span className="text-danger">*</span></span>}
                   placeholder="Masukkan NIM"
                   className="bg-[#f8fafc] border-none py-3.5 h-12.5 shadow-sm rounded-2.5"
                   value={formData.nim}
@@ -482,7 +496,7 @@ export default function RegistrationFlow() {
                 
                 <FormInput
                   id="prodi"
-                  label={<span>Program Studi <span className="text-danger">*</span></span> as any}
+                  label={<span>Program Studi <span className="text-danger">*</span></span>}
                   placeholder="Contoh: Teknologi Informasi"
                   className="bg-[#f8fafc] border-none py-3.5 h-12.5 shadow-sm rounded-2.5"
                   value={formData.prodi}
@@ -493,7 +507,7 @@ export default function RegistrationFlow() {
               <div className="grid grid-cols-2 gap-6 max-[600px]:grid-cols-1">
                 <FormInput
                   id="phoneNumber"
-                  label={<span>Nomor HP <span className="text-danger">*</span></span> as any}
+                  label={<span>Nomor HP <span className="text-danger">*</span></span>}
                   placeholder="Contoh: 081234567890"
                   leftIcon={<Phone size={18} className="text-neutral-muted" />}
                   className="bg-[#f8fafc] border-none py-3.5 h-12.5 shadow-sm rounded-2.5"
@@ -529,7 +543,7 @@ export default function RegistrationFlow() {
 
               <FormInput
                 id="asalKampus"
-                label={<span>Asal Kampus <span className="text-danger">*</span></span> as any}
+                label={<span>Asal Kampus <span className="text-danger">*</span></span>}
                 placeholder="Contoh: Universitas Mataram"
                 leftIcon={<Building size={18} className="text-neutral-muted" />}
                 className="bg-[#f8fafc] border-none py-3.5 h-12.5 shadow-sm rounded-2.5"
@@ -539,7 +553,7 @@ export default function RegistrationFlow() {
 
               <FormInput
                 id="title"
-                label={<span>Judul Tugas Akhir / Topik</span> as any}
+                label={<span>Judul Tugas Akhir / Topik</span>}
                 placeholder="Masukkan judul tugas akhir / topik skripsi Anda (opsional)"
                 leftIcon={<BookUser size={18} className="text-neutral-muted" />}
                 className="bg-[#f8fafc] border-none py-3.5 h-12.5 shadow-sm rounded-2.5"
@@ -570,7 +584,7 @@ export default function RegistrationFlow() {
             <div className="flex flex-col gap-6">
               <FormInput
                 id="jumlahUkt"
-                label={<span>Jumlah UKT (Rp) <span className="text-danger">*</span></span> as any}
+                label={<span>Jumlah UKT (Rp) <span className="text-danger">*</span></span>}
                 type="number"
                 placeholder="Masukkan nominal UKT Anda (contoh: 2000000)"
                 leftIcon={<Coins size={18} className="text-neutral-muted" />}
@@ -580,7 +594,7 @@ export default function RegistrationFlow() {
               />
 
               <FileDropzone
-                label={<span>Upload File UKT <span className="text-danger">*</span></span> as any}
+                label={<span>Upload File UKT <span className="text-danger">*</span></span>}
                 subLabel="Format PDF, Maksimal 5MB"
                 accept=".pdf"
                 files={uktFile ? [{ id: uktFile.id, fileName: uktFile.fileName, fileSize: uktFile.fileSize }] : []}
@@ -643,7 +657,7 @@ export default function RegistrationFlow() {
               </div>
 
               <FileDropzone
-                label={<span>Upload Kontrak Final <span className="text-danger">*</span></span> as any}
+                label={<span>Upload Kontrak Final <span className="text-danger">*</span></span>}
                 subLabel="Format PDF berisi kontrak yang sudah ditandatangani"
                 accept=".pdf"
                 files={contractFile ? [{ id: contractFile.id, fileName: contractFile.fileName, fileSize: contractFile.fileSize }] : []}
@@ -654,7 +668,7 @@ export default function RegistrationFlow() {
 
               {formData.pembayaran !== "bayar-diakhir" && (
                 <FileDropzone
-                  label={<span>Upload Bukti Pembayaran Cicilan Pertama / Lunas <span className="text-[12px] text-neutral-muted font-normal ml-1">(Opsional)</span></span> as any}
+                  label={<span>Upload Bukti Pembayaran Cicilan Pertama / Lunas <span className="text-[12px] text-neutral-muted font-normal ml-1">(Opsional)</span></span>}
                   subLabel="Format PDF, Maksimal 5MB"
                   accept=".pdf"
                   files={paymentFile ? [{ id: paymentFile.id, fileName: paymentFile.fileName, fileSize: paymentFile.fileSize }] : []}

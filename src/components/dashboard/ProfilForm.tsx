@@ -17,6 +17,7 @@ import {
 import { StudentProfile } from "@/services/student";
 import { GetLecturerProfileResponse } from "@/services/lecturer";
 import ProfilLoading from "@/app/dashboard/mahasiswa/profil/loading";
+import { User } from "@/lib/auth-server";
 
 interface ProfilFormProps {
   initialRole?: "student" | "lecturer" | "admin" | "superadmin";
@@ -40,7 +41,7 @@ const EMPTY_PASSWORD_FORM = {
 export default function ProfilForm({ initialRole }: ProfilFormProps = {}) {
   const toast = useToast();
   const { data: session, isPending: isSessionLoading } = authClient.useSession();
-  const user = session?.user as any;
+  const user = session?.user as User | undefined;
 
   const resolvedRole =
     initialRole ||
