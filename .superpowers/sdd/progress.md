@@ -13,7 +13,7 @@ This ledger tracks the progress of the SIBITA project optimization using Subagen
 - [x] Task 7: Loading States — `loading.tsx` untuk Semua Route Segments
 - [x] Task 8: Code Quality — Fix `any` Types dan `dangerouslySetInnerHTML`
 - [x] Task 9: Performance — Memoize Computed Values dan Extract Module-level Constants
-- [ ] Task 10: Accessibility Quick Wins
+- [x] Task 10: Accessibility Quick Wins
 - [ ] Task 11: Next.js Config Enhancement
 - [ ] Task 12: Konsolidasi CSS Design Tokens
 - [ ] Task 13: Hapus/Gate Hardcoded Dummy Data
@@ -29,6 +29,8 @@ Task 6: complete (commit afcf01f, review clean)
 Task 7: complete (commits 3fe5623..44feae1, review clean)
 Task 8: complete (commits 44feae1..62ef0b5, review clean)
 Task 9: complete (commits 9e3ae25..a9831c5, review clean)
+Task 10: complete (commits a14aa1c..b6c7130, review clean)
+
 
 
 
