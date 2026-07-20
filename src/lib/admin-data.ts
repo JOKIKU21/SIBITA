@@ -258,11 +258,4 @@ export const MAHASISWA_LIST: MahasiswaItem[] = [
   },
 ];
 
-// ponytail: derived stats
-export function getAdminStats() {
-  const totalDosen = DOSEN_LIST.length;
-  const totalMahasiswa = 124;
-  const bimbinganBerjalan = DOSEN_LIST.reduce((sum, d) => sum + d.totalBimbingan, 0);
-  const skripsiSelesai = 41;
-  return { totalDosen, totalMahasiswa, bimbinganBerjalan, skripsiSelesai };
-}
+

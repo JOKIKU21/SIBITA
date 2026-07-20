@@ -51,11 +51,14 @@ export const ADMIN_LIST: AdminItem[] = [
 ];
 
 export function getSuperAdminStats() {
-  const totalDosen = 18;
-  const totalMahasiswa = 124;
-  const skripsiSelesai = 41;
-  const bimbinganAktif = 83;
   const adminAktif = ADMIN_LIST.filter((a) => a.status === "aktif").length;
-  const tidakAktif = 7;
-  return { totalDosen, totalMahasiswa, skripsiSelesai, bimbinganAktif, adminAktif, tidakAktif };
+  const adminNonAktif = ADMIN_LIST.filter((a) => a.status === "nonaktif").length;
+  return {
+    totalDosen: 0,
+    totalMahasiswa: 0,
+    skripsiSelesai: 0,
+    bimbinganAktif: 0,
+    adminAktif,
+    tidakAktif: adminNonAktif,
+  };
 }
