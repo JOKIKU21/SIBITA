@@ -1,6 +1,6 @@
 "use client";
 
-import React, { InputHTMLAttributes, forwardRef, useState } from "react";
+import React, { InputHTMLAttributes, forwardRef, useState, useId } from "react";
 import Button from "@/components/Button";
 
 export type InputVariant = "default" | "bordered" | "ghost" | "custom";
@@ -94,6 +94,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     ref
   ) => {
     const [showPassword, setShowPassword] = useState(false);
+    const generatedId = useId();
+    const inputId = id || generatedId;
+    const errorId = `${inputId}-error`;
     const isCheckboxOrRadio = type === "checkbox" || type === "radio";
     const isPassword = type === "password";
 
@@ -102,9 +105,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       return (
         <input
           type={type}
-          id={id}
+          id={inputId}
           ref={ref}
           className={`${checkboxStyles} ${className}`.trim()}
+          aria-invalid={!!error}
+          aria-describedby={props["aria-describedby"] || (error ? errorId : undefined)}
           {...props}
         />
       );
@@ -148,7 +153,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className={`${fullWidth ? "w-full" : ""} flex flex-col gap-1.5 ${wrapperClassName}`.trim()}>
         {label && (
-          <label htmlFor={id} className="block text-[13px] font-semibold text-neutral-text">
+          <label htmlFor={inputId} className="block text-[13px] font-semibold text-neutral-text">
             {label}
           </label>
         )}
@@ -160,9 +165,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           )}
           <input
             type={resolvedType}
-            id={id}
+            id={inputId}
             ref={ref}
             className={combinedInputClasses}
+            aria-invalid={!!error}
+            aria-describedby={props["aria-describedby"] || (error ? errorId : undefined)}
             {...props}
           />
           {finalRightIcon && (
@@ -172,7 +179,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           )}
         </div>
         {error && (
-          <span className="text-2.5 text-danger font-semibold mt-0.5">{error}</span>
+          <span id={errorId} className="text-2.5 text-danger font-semibold mt-0.5">{error}</span>
         )}
       </div>
     );

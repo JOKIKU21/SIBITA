@@ -169,6 +169,9 @@ export default function FileUploader({
       {/* Main Drag-and-Drop Area */}
       {!hideDropzone && (
         <div
+          role="button"
+          tabIndex={disabled ? -1 : 0}
+          aria-label="Unggah atau seret berkas di sini"
           className={`border-2 border-dashed rounded-3 p-7 flex flex-col items-center justify-center gap-3.5 transition-all duration-200 cursor-pointer relative overflow-hidden ${
             disabled 
               ? "border-neutral-border bg-neutral-bg/30 cursor-not-allowed opacity-60" 
@@ -180,6 +183,12 @@ export default function FileUploader({
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           onClick={() => !disabled && !isLoading && fileInputRef.current?.click()}
+          onKeyDown={(e) => {
+            if ((e.key === "Enter" || e.key === " ") && !disabled && !isLoading) {
+              e.preventDefault();
+              fileInputRef.current?.click();
+            }
+          }}
         >
           {/* Hidden File Input */}
           <input

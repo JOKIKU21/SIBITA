@@ -82,7 +82,7 @@ export function Sidebar() {
         </div>
       </div>
 
-      <nav className="pt-4.5 px-3 pb-0 flex-1">
+      <nav className="pt-4.5 px-3 pb-0 flex-1" aria-label="Navigasi Utama">
         <div className="text-2.5 font-bold tracking-widest uppercase text-white/35 px-2.5 mb-1.5 mt-4.5">
           Menu Utama
         </div>
@@ -93,6 +93,7 @@ export function Sidebar() {
               key={item.href}
               href={item.href}
               className={linkClass(isActive)}
+              aria-current={isActive ? "page" : undefined}
             >
               {item.icon(isActive)}
               {item.label}
