@@ -53,6 +53,28 @@ const EYE_CLOSED = (
   </svg>
 );
 
+// Standard styling classes for text/password/email inputs
+const baseStyles = "w-full outline-none transition-all duration-200 font-sans disabled:opacity-60 disabled:cursor-not-allowed text-neutral-text";
+
+const variantStyles: Record<InputVariant, string> = {
+  default: "bg-neutral-bg border-[1.5px] border-transparent rounded-2.5 py-3 px-4 text-3.5 focus:border-brand-light focus:bg-[#f8f9ff] disabled:bg-neutral-bg",
+  bordered: "bg-neutral-bg border-[1.5px] border-neutral-border rounded-2.25 py-2.75 px-3.5 text-3.5 focus:border-brand-light",
+  // ghost: flat, borderless read-only look — same box metrics as `bordered`
+  // (1.5px transparent border + matching padding) so toggling between the
+  // two never shifts layout.
+  ghost: "bg-transparent border-[1.5px] border-transparent rounded-2.25 py-2.75 px-3.5 text-3.5 text-neutral-muted cursor-default",
+  custom: "",
+};
+
+const sizeStyles: Record<InputSize, string> = {
+  sm: "py-2 px-3 text-3.5 rounded-2",
+  md: "py-3 px-4 text-3.5 rounded-2.5",
+  lg: "py-3.5 px-4 text-4 rounded-3",
+  custom: "",
+};
+
+const checkboxStyles = "w-4 h-4 accent-brand cursor-pointer shrink-0";
+
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   (
     {
@@ -74,28 +96,6 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const [showPassword, setShowPassword] = useState(false);
     const isCheckboxOrRadio = type === "checkbox" || type === "radio";
     const isPassword = type === "password";
-
-    // Standard styling classes for text/password/email inputs
-    const baseStyles = "w-full outline-none transition-all duration-200 font-sans disabled:opacity-60 disabled:cursor-not-allowed text-neutral-text";
-
-    const variantStyles: Record<InputVariant, string> = {
-      default: "bg-neutral-bg border-[1.5px] border-transparent rounded-2.5 py-3 px-4 text-3.5 focus:border-brand-light focus:bg-[#f8f9ff] disabled:bg-neutral-bg",
-      bordered: "bg-neutral-bg border-[1.5px] border-neutral-border rounded-2.25 py-2.75 px-3.5 text-3.5 focus:border-brand-light",
-      // ghost: flat, borderless read-only look — same box metrics as `bordered`
-      // (1.5px transparent border + matching padding) so toggling between the
-      // two never shifts layout.
-      ghost: "bg-transparent border-[1.5px] border-transparent rounded-2.25 py-2.75 px-3.5 text-3.5 text-neutral-muted cursor-default",
-      custom: "",
-    };
-
-    const sizeStyles: Record<InputSize, string> = {
-      sm: "py-2 px-3 text-3.5 rounded-2",
-      md: "py-3 px-4 text-3.5 rounded-2.5",
-      lg: "py-3.5 px-4 text-4 rounded-3",
-      custom: "",
-    };
-
-    const checkboxStyles = "w-4 h-4 accent-brand cursor-pointer shrink-0";
 
     // If checkbox or radio
     if (isCheckboxOrRadio) {

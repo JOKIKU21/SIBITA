@@ -1,10 +1,58 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
 import { useReferenceFiles } from "@/hooks/useReferenceFiles";
 import { useDebounce } from "@/hooks/useDebounce";
+
+const formatFileSize = (bytes: number) => {
+  if (!bytes) return "";
+  if (bytes < 1024) return `${bytes} B`;
+  const kb = bytes / 1024;
+  if (kb < 1024) return `${kb.toFixed(1)} KB`;
+  const mb = kb / 1024;
+  return `${mb.toFixed(1)} MB`;
+};
+
+const formatUploadDate = (dateStr: string) => {
+  try {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  } catch {
+    return "";
+  }
+};
+
+const getBadgeStyles = (type: string) => {
+  const t = type?.toLowerCase() || "";
+  if (t === "guideline" || t === "panduan") {
+    return "bg-brand-bg text-brand";
+  }
+  if (t === "book" || t === "buku") {
+    return "bg-emerald-50 text-emerald-700 border border-emerald-200/40";
+  }
+  if (t === "journal" || t === "jurnal") {
+    return "bg-purple-50 text-purple-700 border border-purple-200/40";
+  }
+  if (t === "template" || t === "templat") {
+    return "bg-amber-50 text-amber-700 border border-amber-200/40";
+  }
+  return "bg-neutral-bg text-neutral-text border border-neutral-border/50";
+};
+
+const formatType = (type: string) => {
+  if (!type) return "";
+  if (type.toLowerCase() === "guideline") return "Panduan";
+  if (type.toLowerCase() === "book") return "Buku";
+  if (type.toLowerCase() === "journal") return "Jurnal";
+  if (type.toLowerCase() === "template") return "Templat";
+  return type.charAt(0).toUpperCase() + type.slice(1);
+};
 
 export default function ReferensiClient() {
   const [query, setQuery] = useState("");
@@ -13,62 +61,16 @@ export default function ReferensiClient() {
 
   const referenceFiles = data?.referenceFiles ?? [];
 
-  const filtered = referenceFiles.filter(
-    (r) =>
-      !query ||
-      r.title.toLowerCase().includes(query.toLowerCase()) ||
-      r.description.toLowerCase().includes(query.toLowerCase()) ||
-      r.type.toLowerCase().includes(query.toLowerCase()) ||
-      r.author.toLowerCase().includes(query.toLowerCase()),
-  );
-
-  const formatFileSize = (bytes: number) => {
-    if (!bytes) return "";
-    if (bytes < 1024) return `${bytes} B`;
-    const kb = bytes / 1024;
-    if (kb < 1024) return `${kb.toFixed(1)} KB`;
-    const mb = kb / 1024;
-    return `${mb.toFixed(1)} MB`;
-  };
-
-  const formatUploadDate = (dateStr: string) => {
-    try {
-      const date = new Date(dateStr);
-      return date.toLocaleDateString("id-ID", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      });
-    } catch {
-      return "";
-    }
-  };
-
-  const getBadgeStyles = (type: string) => {
-    const t = type?.toLowerCase() || "";
-    if (t === "guideline" || t === "panduan") {
-      return "bg-brand-bg text-brand";
-    }
-    if (t === "book" || t === "buku") {
-      return "bg-emerald-50 text-emerald-700 border border-emerald-200/40";
-    }
-    if (t === "journal" || t === "jurnal") {
-      return "bg-purple-50 text-purple-700 border border-purple-200/40";
-    }
-    if (t === "template" || t === "templat") {
-      return "bg-amber-50 text-amber-700 border border-amber-200/40";
-    }
-    return "bg-neutral-bg text-neutral-text border border-neutral-border/50";
-  };
-
-  const formatType = (type: string) => {
-    if (!type) return "";
-    if (type.toLowerCase() === "guideline") return "Panduan";
-    if (type.toLowerCase() === "book") return "Buku";
-    if (type.toLowerCase() === "journal") return "Jurnal";
-    if (type.toLowerCase() === "template") return "Templat";
-    return type.charAt(0).toUpperCase() + type.slice(1);
-  };
+  const filtered = useMemo(() => {
+    return referenceFiles.filter(
+      (r) =>
+        !query ||
+        r.title.toLowerCase().includes(query.toLowerCase()) ||
+        r.description.toLowerCase().includes(query.toLowerCase()) ||
+        r.type.toLowerCase().includes(query.toLowerCase()) ||
+        r.author.toLowerCase().includes(query.toLowerCase())
+    );
+  }, [referenceFiles, query]);
 
   return (
     <div className="block">

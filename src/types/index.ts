@@ -19,7 +19,7 @@ export interface StudentRegistrationPayment {
   paidAt: string | null;
   note: string | null;
   createdAt: string;
-  files: any[];
+  files?: StudentRegistrationFile[];
 }
 
 export interface StudentRegistrationDetail {

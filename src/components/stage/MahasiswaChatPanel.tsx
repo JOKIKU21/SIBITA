@@ -49,22 +49,24 @@ export function MahasiswaChatPanel({ stageId, readOnly = false }: MahasiswaChatP
     });
   };
 
-  const chats = messages.map((m) => {
-    const dateObj = new Date(m.createdAt);
-    const timeFormatted = dateObj.toLocaleTimeString("id-ID", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+  const chats = useMemo(() => {
+    return messages.map((m) => {
+      const dateObj = new Date(m.createdAt);
+      const timeFormatted = dateObj.toLocaleTimeString("id-ID", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
 
-    return {
-      id: m.id,
-      text: m.message || "",
-      time: timeFormatted,
-      me: m.senderId === currentUserId,
-      senderName: m.sender?.name || "Pengguna",
-      senderImage: m.sender?.image || "",
-    };
-  });
+      return {
+        id: m.id,
+        text: m.message || "",
+        time: timeFormatted,
+        me: m.senderId === currentUserId,
+        senderName: m.sender?.name || "Pengguna",
+        senderImage: m.sender?.image || "",
+      };
+    });
+  }, [messages, currentUserId]);
 
   const isPending = studentSend.isPending;
 

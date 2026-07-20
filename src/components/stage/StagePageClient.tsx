@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import { STAGES, getStageMetadata, calculateRemainingDays } from "@/lib/stages";
 import { computeStageWindows } from "@/lib/stage-status";
@@ -24,6 +25,15 @@ export function StagePageClient({ stageId: urlStageId }: StagePageClientProps) {
 
   const isLoading = isBimbinganLoading || isDetailLoading;
 
+  // Merge backend stages to compute accumulated windows (memoized)
+  const mergedStages = useMemo(() => {
+    return STAGES.map((sc) => {
+      const bs = bimbinganData?.stages?.find((s) => s.order === sc.n);
+      const m = getStageMetadata(sc.n, bs);
+      return { ...sc, name: m.name, desc: m.desc, days: m.days };
+    });
+  }, [bimbinganData?.stages]);
+
   if (isBimbinganLoading) {
     return (
       <div className="p-7 max-[600px]:p-4">
@@ -46,12 +56,6 @@ export function StagePageClient({ stageId: urlStageId }: StagePageClientProps) {
 
   const metadata = getStageMetadata(stageConfig.n, backendStage);
 
-  // Merge backend stages to compute accumulated windows
-  const mergedStages = STAGES.map((sc) => {
-    const bs = bimbinganData?.stages?.find((s) => s.order === sc.n);
-    const m = getStageMetadata(sc.n, bs);
-    return { ...sc, name: m.name, desc: m.desc, days: m.days };
-  });
   const windows = computeStageWindows(mergedStages);
 
   const progress = bimbinganData?.progress;
