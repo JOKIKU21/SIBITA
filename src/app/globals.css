@@ -39,8 +39,6 @@
   --border: var(--color-neutral-border);
   --radius: 12px;
   --shadow: 0 4px 24px rgba(43, 59, 175, 0.10);
-  --font-display: var(--font-display);
-  --font-body: var(--font-body);
 }
 
 body {
