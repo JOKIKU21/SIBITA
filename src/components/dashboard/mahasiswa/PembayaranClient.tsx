@@ -350,10 +350,10 @@ export function PembayaranClient() {
               <Button
                 variant="brand"
                 size="custom"
+                leftIcon={<Upload size={14} className="shrink-0" />}
                 onClick={handleOpenNewPaymentModal}
-                className="py-1.5 px-4 rounded-full text-[12.5px] font-bold flex items-center gap-2 shadow-xs h-8.5"
+                className="py-1.5 px-4 rounded-full text-[12.5px] font-bold shadow-xs h-8.5"
               >
-                <Upload size={14} className="shrink-0" />
                 Unggah Pembayaran
               </Button>
             )}
@@ -462,45 +462,51 @@ export function PembayaranClient() {
                         <td className="py-4.5 px-6 text-right">
                           <div className="flex justify-end items-center gap-2">
                             {proofFile && (
-                              <a
+                              <Button
                                 href={proofFile.fileUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-[12px] font-bold bg-[#f0f4ff] hover:bg-brand-bg text-brand border border-brand/10 py-1.5 px-3 rounded-1.75 transition-all cursor-pointer h-8.5"
+                                variant="brand-bg"
+                                size="custom"
+                                leftIcon={<Eye size={13} className="shrink-0" />}
+                                className="py-1.5 px-3 rounded-1.75 text-[12px] font-bold border border-brand/10 h-8.5"
                               >
-                                <Eye size={13} className="shrink-0" />
                                 Lihat Bukti
-                              </a>
+                              </Button>
                             )}
                             {payment.status !== "paid" && (
                               <Button
                                 variant="brand"
                                 size="custom"
+                                leftIcon={<Upload size={13} className="shrink-0" />}
                                 className="py-1.5 px-3 rounded-1.75 text-[12px] font-bold shadow-xs h-8.5 mr-1"
                                 onClick={() => handleOpenUploadModal(payment)}
                               >
-                                <Upload size={13} className="shrink-0 mr-1" />
                                 Bayar Cicilan
                               </Button>
                             )}
                             {payment.status !== "paid" && (
                               <>
-                                <button
+                                <Button
+                                  variant="neutral"
+                                  size="icon"
                                   onClick={() => handleOpenEditModal(payment)}
-                                  className="inline-flex items-center justify-center bg-neutral-bg hover:bg-neutral-border/40 text-neutral-text border border-neutral-border w-8.5 h-8.5 rounded-1.75 transition-all cursor-pointer"
+                                  className="w-8.5 h-8.5 rounded-1.75 border border-neutral-border text-neutral-text shrink-0"
                                   title="Edit Pembayaran"
                                   disabled={editMutation.isPending}
                                 >
                                   <Edit size={13} />
-                                </button>
-                                <button
+                                </Button>
+                                <Button
+                                  variant="danger-light"
+                                  size="icon"
                                   onClick={() => handleDelete(payment.id)}
-                                  className="inline-flex items-center justify-center bg-danger/10 hover:bg-danger/20 text-danger border border-danger/15 w-8.5 h-8.5 rounded-1.75 transition-all cursor-pointer"
+                                  className="w-8.5 h-8.5 rounded-1.75 border border-danger/15 text-danger shrink-0"
                                   title="Hapus Pembayaran"
                                   disabled={deleteMutation.isPending}
                                 >
                                   <Trash2 size={13} />
-                                </button>
+                                </Button>
                               </>
                             )}
                             {payment.status === "processing" && !proofFile && (
@@ -534,13 +540,15 @@ export function PembayaranClient() {
                   Konfirmasi Pembayaran Cicilan
                 </h3>
               </div>
-              <button 
+              <Button 
                 type="button" 
+                variant="ghost"
+                size="icon"
                 onClick={handleCloseUploadModal}
-                className="bg-transparent border-none text-neutral-muted hover:text-neutral-text cursor-pointer p-1"
+                className="p-1 hover:text-neutral-text"
               >
                 <X size={16} />
-              </button>
+              </Button>
             </div>
             
             {/* Modal Body */}
@@ -577,13 +585,15 @@ export function PembayaranClient() {
 
               {/* Modal Footer */}
               <div className="flex items-center justify-end gap-2.5 mt-8 border-t border-neutral-border pt-4">
-                <button 
+                <Button 
                   type="button" 
+                  variant="outline-neutral"
+                  size="custom"
                   onClick={handleCloseUploadModal} 
-                  className="bg-transparent border border-neutral-border text-neutral-text text-[12.5px] font-bold py-2.25 px-4.5 rounded-2 cursor-pointer hover:bg-neutral-bg transition-colors"
+                  className="py-2.25 px-4.5 rounded-2 text-[12.5px] font-bold"
                 >
                   Batal
-                </button>
+                </Button>
                 <Button 
                   variant="brand"
                   size="custom"
@@ -614,13 +624,15 @@ export function PembayaranClient() {
                   Ubah Rincian Pembayaran
                 </h3>
               </div>
-              <button 
+              <Button 
                 type="button" 
+                variant="ghost"
+                size="icon"
                 onClick={handleCloseEditModal}
-                className="bg-transparent border-none text-neutral-muted hover:text-neutral-text cursor-pointer p-1"
+                className="p-1 hover:text-neutral-text"
               >
                 <X size={16} />
-              </button>
+              </Button>
             </div>
             
             {/* Modal Body */}
@@ -687,13 +699,15 @@ export function PembayaranClient() {
 
               {/* Modal Footer */}
               <div className="flex items-center justify-end gap-2.5 mt-4 border-t border-neutral-border pt-4">
-                <button 
+                <Button 
                   type="button" 
+                  variant="outline-neutral"
+                  size="custom"
                   onClick={handleCloseEditModal} 
-                  className="bg-transparent border border-neutral-border text-neutral-text text-[12.5px] font-bold py-2.25 px-4.5 rounded-2 cursor-pointer hover:bg-neutral-bg transition-colors"
+                  className="py-2.25 px-4.5 rounded-2 text-[12.5px] font-bold"
                 >
                   Batal
-                </button>
+                </Button>
                 <Button 
                   variant="brand"
                   size="custom"
@@ -724,13 +738,15 @@ export function PembayaranClient() {
                   Unggah Pembayaran Baru
                 </h3>
               </div>
-              <button 
+              <Button 
                 type="button" 
+                variant="ghost"
+                size="icon"
                 onClick={handleCloseNewPaymentModal}
-                className="bg-transparent border-none text-neutral-muted hover:text-neutral-text cursor-pointer p-1"
+                className="p-1 hover:text-neutral-text"
               >
                 <X size={16} />
-              </button>
+              </Button>
             </div>
             
             {/* Modal Body */}
@@ -787,13 +803,15 @@ export function PembayaranClient() {
 
               {/* Modal Footer */}
               <div className="flex items-center justify-end gap-2.5 mt-4 border-t border-neutral-border pt-4">
-                <button 
+                <Button 
                   type="button" 
+                  variant="outline-neutral"
+                  size="custom"
                   onClick={handleCloseNewPaymentModal} 
-                  className="bg-transparent border border-neutral-border text-neutral-text text-[12.5px] font-bold py-2.25 px-4.5 rounded-2 cursor-pointer hover:bg-neutral-bg transition-colors"
+                  className="py-2.25 px-4.5 rounded-2 text-[12.5px] font-bold"
                 >
                   Batal
-                </button>
+                </Button>
                 <Button 
                   variant="brand"
                   size="custom"
