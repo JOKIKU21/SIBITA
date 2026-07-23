@@ -510,7 +510,7 @@ Membuat dokumen pendaftaran dengan opsi pembayaran untuk divalidasi admin.
 * **Endpoint:** `POST /api/student/registration`
 * **Content-Type:** `application/json`
 * **Request Body:**
-  * `paymentOption` (string, wajib) (`"full"` | `"installment_2x"` | `"installment_3x"` | `"installment_4x"` | `"pay_at_end"`), contoh: `"installment_2x"`
+  * `paymentOption` (string, wajib) (`"full"` | `"installment"` | `"pay_at_end"`), contoh: `"installment"`
   * `totalAmount` (integer, opsional), contoh: `2000000`
 * **Respons:**
   * **Status `201`**: Pendaftaran berhasil diajukan.
@@ -948,7 +948,7 @@ Menampilkan daftar status pembayaran registrasi dari seluruh mahasiswa, termasuk
           * `studentName` (string, opsional), contoh: `"Budi Utomo"`
           * `totalAmount` (integer, opsional), contoh: `2000000`
           * `paidAmount` (integer, opsional), contoh: `1000000`
-          * `paymentOption` (string, opsional) (`"full"` | `"installment_2x"` | `"installment_3x"` | `"installment_4x"` | `"pay_at_end"`), contoh: `"installment_2x"`
+          * `paymentOption` (string, opsional) (`"full"` | `"installment"` | `"pay_at_end"`), contoh: `"installment"`
           * `status` (string, opsional) (`"pending"` | `"approved"` | `"rejected"`), contoh: `"approved"`
           * `payments` (array, opsional)
             * Tipe: Array
@@ -1475,7 +1475,7 @@ Berikut adalah struktur data (model) yang dikembalikan atau diterima oleh berbag
 ### Registration
 * `id` (string, opsional), contoh: `"reg-uuid-444"`
 * `studentId` (string, opsional), contoh: `"user-uuid-1234"`
-* `paymentOption` (string, opsional) (`"full"` | `"installment_2x"` | `"installment_3x"` | `"installment_4x"` | `"pay_at_end"`)
+* `paymentOption` (string, opsional) (`"full"` | `"installment"` | `"pay_at_end"`)
 * `totalAmount` (integer, opsional), contoh: `2000000`
 * `status` (string, opsional) (`"pending"` | `"approved"` | `"rejected"`)
 * `approvedBy` (string, opsional)

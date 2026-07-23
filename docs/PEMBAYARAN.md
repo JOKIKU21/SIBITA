@@ -20,7 +20,7 @@ Mendapatkan daftar seluruh riwayat cicilan pembayaran mahasiswa yang bersangkuta
             "studentName": "Budi Utomo",
             "totalAmount": 2000000,
             "paidAmount": 1000000,
-            "paymentOption": "installment_2x",
+            "paymentOption": "installment",
             "status": "approved",
             "payments": [
               {

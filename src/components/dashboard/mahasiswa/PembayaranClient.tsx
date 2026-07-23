@@ -8,7 +8,6 @@ import {
   AlertCircle, 
   Clock, 
   X, 
-  Download, 
   CreditCard,
   Eye,
   Edit,
@@ -54,9 +53,11 @@ export function PembayaranClient() {
   const mapPaymentOptionLabel = (option: string) => {
     switch (option) {
       case "full": return "Langsung Lunas";
-      case "installment_2x": return "Cicilan (2x)";
-      case "installment_3x": return "Cicilan (3x)";
-      case "installment_4x": return "Cicilan (4x)";
+      case "installment": return "Cicilan";
+      case "installment_2x":
+      case "installment_3x":
+      case "installment_4x":
+        return "Cicilan";
       case "pay_at_end": return "Bayar di Akhir";
       default: return option || "-";
     }

@@ -63,9 +63,8 @@ export default function RegistrationFlow() {
   const mapPaymentOption = (opt: string) => {
     switch (opt) {
       case "langsung-lunas": return "full";
-      case "cicil-2x": return "installment_2x";
-      case "cicil-3x": return "installment_3x";
-      case "cicil-4x": return "installment_4x";
+      case "cicilan":
+        return "installment";
       case "bayar-diakhir": return "pay_at_end";
       default: return "full";
     }
@@ -94,9 +93,7 @@ export default function RegistrationFlow() {
               
               let pembayaranVal = "langsung-lunas";
               if (reg.paymentOption === "full") pembayaranVal = "langsung-lunas";
-              else if (reg.paymentOption === "installment_2x") pembayaranVal = "cicil-2x";
-              else if (reg.paymentOption === "installment_3x") pembayaranVal = "cicil-3x";
-              else if (reg.paymentOption === "installment_4x") pembayaranVal = "cicil-4x";
+              else if (reg.paymentOption === "installment" || reg.paymentOption?.startsWith("installment")) pembayaranVal = "cicilan";
               else if (reg.paymentOption === "pay_at_end") pembayaranVal = "bayar-diakhir";
               
               setFormData((prev) => ({ 
@@ -614,9 +611,7 @@ export default function RegistrationFlow() {
                     onChange={(e) => setFormData({ ...formData, pembayaran: e.target.value })}
                   >
                     <option value="langsung-lunas">Langsung Lunas</option>
-                    <option value="cicil-2x">Cicil 2x</option>
-                    <option value="cicil-3x">Cicil 3x</option>
-                    <option value="cicil-4x">Cicil 4x</option>
+                    <option value="cicil">Cicilan</option>
                     <option value="bayar-diakhir">Bayar Di Akhir</option>
                   </select>
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-muted">
