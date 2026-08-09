@@ -23,5 +23,5 @@ export function getApiBaseUrl(): string {
     }
     return apiURL;
   }
-  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+  return process.env.NEXT_PUBLIC_API_URL || "https://api.sibita.id";
 }
