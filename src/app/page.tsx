@@ -188,8 +188,8 @@ export default function Home() {
             <h4 className="font-display text-[13px] font-bold uppercase tracking-widest text-white mb-4">Layanan</h4>
             <ul className="list-none p-0 m-0 flex flex-col gap-2.5">
               <li><a href="#" className="text-white/65 no-underline text-[13.5px] transition-[color,transform] duration-200 inline-block hover:text-white hover:translate-x-1">Pusat Bantuan</a></li>
-              <li><a href="#" className="text-white/65 no-underline text-[13.5px] transition-[color,transform] duration-200 inline-block hover:text-white hover:translate-x-1">Syarat & Ketentuan</a></li>
-              <li><a href="#" className="text-white/65 no-underline text-[13.5px] transition-[color,transform] duration-200 inline-block hover:text-white hover:translate-x-1">Kebijakan Privasi</a></li>
+              <li><a href="/syarat-ketentuan" className="text-white/65 no-underline text-[13.5px] transition-[color,transform] duration-200 inline-block hover:text-white hover:translate-x-1">Syarat &amp; Ketentuan</a></li>
+              <li><a href="/kebijakan-privasi" className="text-white/65 no-underline text-[13.5px] transition-[color,transform] duration-200 inline-block hover:text-white hover:translate-x-1">Kebijakan Privasi</a></li>
               <li><a href="#" className="text-white/65 no-underline text-[13.5px] transition-[color,transform] duration-200 inline-block hover:text-white hover:translate-x-1">Hubungi Admin</a></li>
             </ul>
           </div>
