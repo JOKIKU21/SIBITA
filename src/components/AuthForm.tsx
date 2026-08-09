@@ -2,29 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import FormInput from "@/components/FormInput";
 import Input from "@/components/Input";
 import Button from "@/components/Button";
 import { authService } from "@/services/auth";
 
-const BOOK_ICON = (
-  <svg viewBox="0 0 24 24" fill="none" width="32" height="32">
-    <path
-      d="M4 6.5C4 5.12 5.12 4 6.5 4H17a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6.5A2.5 2.5 0 0 1 4 17.5v-11Z"
-      stroke="#2B3BAF"
-      strokeWidth="1.6"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M4 17.5C4 16.12 5.12 15 6.5 15H18"
-      stroke="#2B3BAF"
-      strokeWidth="1.6"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
 
 const ERROR_ICON = (
   <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
@@ -102,7 +86,7 @@ export default function AuthForm({ mode }: { mode: "masuk" | "daftar" }) {
   return (
     <div className="min-h-screen bg-[#F0F4FF] flex items-center justify-center py-10 px-4">
       <div className="bg-white rounded-5 py-10 px-9 w-full max-w-105 shadow-[0_8px_40px_rgba(43,59,175,0.12)] border-[1.5px] border-[#e0e7ff] text-center">
-        <div className="w-18 h-18 bg-neutral-bg rounded-3.5 mx-auto mb-5 flex items-center justify-center">{BOOK_ICON}</div>
+        <div className="w-18 h-18 bg-neutral-bg rounded-3.5 mx-auto mb-5 flex items-center justify-center"><Image src="/sibita.png" alt="SIBITA" width={34} height={34} className="w-8.5 h-8.5 shrink-0" /></div>
         <h1 className="text-5.5 font-extrabold text-neutral-text mb-7">{isLogin ? "Selamat Datang di SIBITA" : "Daftar Akun SIBITA"}</h1>
 
         {error && (

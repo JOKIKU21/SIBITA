@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -707,29 +708,7 @@ export default function SyaratKetentuanPage() {
           href="/"
           className="flex items-center gap-2.5 text-white font-display font-extrabold text-[19px] tracking-[0.01em] no-underline"
         >
-          <span className="w-8.5 h-8.5 rounded-2.25 bg-white/14 flex items-center justify-center shrink-0">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M4 6.5C4 5.12 5.12 4 6.5 4H17a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6.5A2.5 2.5 0 0 1 4 17.5v-11Z"
-                stroke="white"
-                strokeWidth="1.6"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M4 17.5C4 16.12 5.12 15 6.5 15H18"
-                stroke="white"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M8 8.5h6M8 11.5h4"
-                stroke="white"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-              />
-            </svg>
-          </span>
+          <Image src="/sibita.png" alt="SIBITA" width={34} height={34} className="w-8.5 h-8.5 shrink-0" />
           SIBITA
         </Link>
         <Link
@@ -855,23 +834,7 @@ export default function SyaratKetentuanPage() {
       <footer className="bg-[#0f1430] text-white py-10 px-[5vw] border-t border-white/5">
         <div className="max-w-270 mx-auto flex flex-col items-center gap-4">
           <div className="flex items-center gap-2.5 font-display text-[17px] font-extrabold">
-            <span className="w-8 h-8 rounded-2 bg-white/10 flex items-center justify-center">
-              <svg viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M4 6.5C4 5.12 5.12 4 6.5 4H17a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6.5A2.5 2.5 0 0 1 4 17.5v-11Z"
-                  stroke="white"
-                  strokeWidth="1.6"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M4 17.5C4 16.12 5.12 15 6.5 15H18"
-                  stroke="white"
-                  strokeWidth="1.6"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </span>
+            <Image src="/sibita.png" alt="SIBITA" width={32} height={32} className="w-8 h-8 shrink-0" />
             SIBITA
           </div>
           <p className="text-[13px] text-white/50 text-center">

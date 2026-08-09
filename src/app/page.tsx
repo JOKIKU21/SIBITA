@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import Button from "@/components/Button";
 
 export default function Home() {
@@ -6,13 +7,7 @@ export default function Home() {
     <>
       <nav className="sticky top-0 z-50 bg-brand/97 backdrop-blur-md px-[5vw] h-18 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5 text-white font-display font-extrabold text-[19px] tracking-[0.01em] no-underline">
-          <span className="w-8.5 h-8.5 rounded-2.25 bg-white/14 flex items-center justify-center shrink-0">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4 6.5C4 5.12 5.12 4 6.5 4H17a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6.5A2.5 2.5 0 0 1 4 17.5v-11Z" stroke="white" strokeWidth="1.6" strokeLinejoin="round"/>
-              <path d="M4 17.5C4 16.12 5.12 15 6.5 15H18" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M8 8.5h6M8 11.5h4" stroke="white" strokeWidth="1.6" strokeLinecap="round"/>
-            </svg>
-          </span>
+          <Image src="/sibita.png" alt="SIBITA" width={34} height={34} className="w-8.5 h-8.5 shrink-0" />
           SIBITA
         </Link>
         <Button href="/masuk" variant="white" size="md" className="flex items-center gap-1.5 hover:-translate-y-px hover:shadow-[0_6px_16px_rgba(0,0,0,0.18)]">
@@ -161,12 +156,7 @@ export default function Home() {
         <div className="max-w-300 mx-auto grid grid-cols-[2.2fr_1fr_1fr_1.5fr] gap-8 pb-8 max-[860px]:grid-cols-2 max-[768px]:grid-cols-1 max-[768px]:gap-6">
           <div className="pr-5 max-[768px]:pr-0">
             <div className="flex items-center gap-3 font-display text-5 font-extrabold mb-4">
-              <span className="w-9 h-9 rounded-2.5 bg-linear-to-br from-white/15 to-white/2 border border-white/10 flex items-center justify-center">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <path d="M4 6.5C4 5.12 5.12 4 6.5 4H17a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6.5A2.5 2.5 0 0 1 4 17.5v-11Z" stroke="white" strokeWidth="1.6" strokeLinejoin="round" />
-                  <path d="M4 17.5C4 16.12 5.12 15 6.5 15H18" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </span>
+              <Image src="/sibita.png" alt="SIBITA" width={36} height={36} className="w-9 h-9 shrink-0" />
               SIBITA
             </div>
             <p className="text-[13.5px] text-white/65 leading-[1.6]">

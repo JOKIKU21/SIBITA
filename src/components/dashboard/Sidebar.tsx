@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { authService } from "@/services/auth";
 import { authClient } from "@/lib/auth-client";
@@ -59,23 +60,7 @@ export function Sidebar() {
   return (
     <aside className="w-65 shrink-0 bg-brand-dark flex flex-col p-0 sticky top-0 h-screen overflow-y-auto max-[600px]:hidden">
       <div className="flex items-center gap-2.5 pt-6 px-5 pb-5 border-b border-white/8">
-        <span className="w-9 h-9 rounded-2.5 bg-white/13 flex items-center justify-center shrink-0">
-          <svg viewBox="0 0 24 24" fill="none" className="w-4.75 h-4.75">
-            <path
-              d="M4 6.5C4 5.12 5.12 4 6.5 4H17a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6.5A2.5 2.5 0 0 1 4 17.5v-11Z"
-              stroke="white"
-              strokeWidth="1.7"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M4 17.5C4 16.12 5.12 15 6.5 15H18"
-              stroke="white"
-              strokeWidth="1.7"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </span>
+        <Image src="/sibita.png" alt="SIBITA" width={36} height={36} className="w-9 h-9 shrink-0" />
         <div>
           <div className="font-display font-extrabold text-[17px] text-white">SIBITA</div>
           <div className="text-2.5 text-white/45 font-medium mt-px">Bimbingan Tugas Akhir</div>
