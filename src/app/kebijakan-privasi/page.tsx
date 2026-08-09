@@ -577,7 +577,7 @@ const sections = [
                 strokeLinejoin="round"
               />
             </svg>
-            <span>sibita@google.com</span>
+            <span>jokimu2100@gmail.com</span>
           </div>
           <div className="privacy-contact-row">
             <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4">
@@ -588,7 +588,7 @@ const sections = [
               />
               <circle cx="12" cy="10" r="3" stroke="currentColor" strokeWidth="1.8" />
             </svg>
-            <span>Jl. Kaliurang, Yogyakarta</span>
+            <span>Sukoharjo, Kec. Ngaglik, Kabupaten Sleman, Daerah Istimewa Yogyakarta 55581</span>
           </div>
           <div className="privacy-contact-row">
             <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4">
@@ -598,7 +598,7 @@ const sections = [
                 strokeWidth="1.8"
               />
             </svg>
-            <span>0000000000</span>
+            <span>+62 817 464 655</span>
           </div>
         </div>
         <p>
