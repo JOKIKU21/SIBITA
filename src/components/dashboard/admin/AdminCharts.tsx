@@ -129,7 +129,7 @@ export function AdminCharts({
                     >
                       {/* Floating Tooltip on Hover */}
                       {isHovered && (
-                        <div className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-3.5 py-2.5 rounded-xl text-xs shadow-2xl z-50 pointer-events-none whitespace-nowrap transition-all duration-150">
+                        <div className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-3.5 py-2.5 rounded-xl text-xs shadow-md z-50 pointer-events-none whitespace-nowrap transition-all duration-150">
                           <div className="font-extrabold text-blue-300 flex items-center gap-1.5 mb-1">
                             <span className="bg-blue-500/30 text-blue-200 px-1.5 py-0.5 rounded text-[10px] font-bold">
                               {stage.order === 0 ? "Tahap 0" : `Tahap ${stage.order}`}
@@ -169,8 +169,8 @@ export function AdminCharts({
                       {/* Vertical Bar */}
                       <div className="w-full max-w-[36px] bg-gray-100/70 rounded-t-md flex items-end overflow-hidden h-full">
                         <div
-                          className={`w-full rounded-t-md bg-gradient-to-t ${gradient} transition-all duration-500 ease-out ${
-                            isHovered ? "brightness-110 ring-2 ring-blue-400/50" : ""
+                          className={`w-full rounded-t-md bg-gradient-to-t ${gradient} transition-all duration-300 ease-out ${
+                            isHovered ? "brightness-110" : ""
                           }`}
                           style={{
                             height: stage.count > 0 ? `${Math.max(heightPercent, 4)}%` : "0%",
