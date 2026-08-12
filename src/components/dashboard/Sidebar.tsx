@@ -9,7 +9,7 @@ import { authClient } from "@/lib/auth-client";
 import Button from "@/components/Button";
 import { menuConfig } from "./SidebarMenuConfig";
 
-export function Sidebar({ roleOverride, isDummy }: { roleOverride?: string, isDummy?: boolean } = {}) {
+export function Sidebar({ roleOverride }: { roleOverride?: string } = {}) {
   const pathname = usePathname() || "";
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -94,10 +94,8 @@ export function Sidebar({ roleOverride, isDummy }: { roleOverride?: string, isDu
         )}
         
         {activeMenu.map((item) => {
-          const href = isDummy ? item.href.replace("/dashboard/admin", "/dummy-admin") : item.href;
-          const isActive = isDummy 
-            ? (href === "/dummy-admin" ? pathname === "/dummy-admin" : pathname.startsWith(href))
-            : item.match(pathname);
+          const href = item.href;
+          const isActive = item.match(pathname);
             
           return (
             <Link

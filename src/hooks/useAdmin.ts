@@ -7,6 +7,7 @@ import { adminService } from "@/services/admin";
 export const adminKeys = {
   all: ["admin"] as const,
   summary: () => [...adminKeys.all, "summary"] as const,
+  dashboard: () => [...adminKeys.all, "dashboard"] as const,
   registrations: (status?: string, search?: string) => [...adminKeys.all, "registrations", status || "all", search || ""] as const,
   registrationDetail: (id: string) => [...adminKeys.all, "registration", id] as const,
   payments: (search?: string) => [...adminKeys.all, "payments", search || ""] as const,
@@ -20,6 +21,15 @@ export function useAdminSummary() {
     queryKey: adminKeys.summary(),
     queryFn: () => adminService.getSummary(),
     staleTime: 30_000,
+  });
+}
+
+/** Fetch comprehensive dashboard visualization data. */
+export function useAdminDashboard() {
+  return useQuery({
+    queryKey: adminKeys.dashboard(),
+    queryFn: () => adminService.getDashboard(),
+    staleTime: 60_000,
   });
 }
 

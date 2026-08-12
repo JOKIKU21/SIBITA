@@ -181,12 +181,78 @@ export interface UpdateStudentStatusResponse {
   student: StudentWithProfile;
 }
 
+// --- Dashboard Visualization Types ---
+
+export interface StageGroup {
+  label: string;
+  count: number;
+  percentage: number;
+  color: string;
+}
+
+export interface StageDistribution {
+  totalStudents: number;
+  groups: StageGroup[];
+}
+
+export interface StatusCount {
+  count: number;
+  percentage: number;
+}
+
+export interface RegistrationStatusData {
+  total: number;
+  approved: StatusCount;
+  pending: StatusCount;
+  rejected: StatusCount;
+}
+
+export interface PaymentStatusData {
+  total: number;
+  totalAmount: number;
+  paidAmount: number;
+  paid: StatusCount;
+  processing: StatusCount;
+  pending: StatusCount;
+  rejected: StatusCount;
+}
+
+export interface StudentStageInfo {
+  order: number;
+  status: "completed" | "in_progress" | "pending" | "not_started";
+}
+
+export interface StudentProgressItem {
+  id: string;
+  name: string;
+  nim: string;
+  studyProgram: string;
+  advisorName: string | null;
+  progressPercentage: number;
+  currentStageOrder: number;
+  stages: StudentStageInfo[];
+}
+
+export interface AdminDashboardResponse {
+  stageDistribution: StageDistribution;
+  registrationStatus: RegistrationStatusData;
+  paymentStatus: PaymentStatusData;
+  studentProgress: StudentProgressItem[];
+}
+
 // --- Admin Service Implementation ---
 
 export const adminService = {
   /** Get system summary statistics. */
   getSummary() {
     return apiFetch<AdminSummaryResponse>("/api/admin/summary", {
+      method: "GET",
+    });
+  },
+
+  /** Get comprehensive dashboard visualization data. */
+  getDashboard() {
+    return apiFetch<AdminDashboardResponse>("/api/admin/dashboard", {
       method: "GET",
     });
   },
