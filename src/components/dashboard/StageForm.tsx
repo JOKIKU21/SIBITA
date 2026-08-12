@@ -55,7 +55,17 @@ export function StageForm({
 
   const [isEditing, setIsEditing] = useState(!hasExistingData);
 
-  // Initialize form data and auto-toggle isEditing based on data presence
+  // Initialize form data only when the note data actually changes
+  const noteDataJson = existingNote?.data ? JSON.stringify(existingNote.data) : null;
+  useEffect(() => {
+    if (existingNote?.data) {
+      setFormData(existingNote.data as Record<string, string>);
+    } else {
+      setFormData({});
+    }
+  }, [noteDataJson]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-toggle edit mode based on whether data exists
   useEffect(() => {
     const hasNoteData = !!existingNote?.data && Object.values(existingNote.data).some(
       (val) => val !== undefined && val !== null && String(val).trim() !== ""
@@ -63,12 +73,6 @@ export function StageForm({
     const hasFiles = existingFiles.some((file) => file.uploadedById === file.studentId);
     const hasAnyData = hasNoteData || hasFiles;
 
-    if (existingNote?.data) {
-      setFormData(existingNote.data as Record<string, string>);
-    } else {
-      setFormData({});
-    }
-    
     setIsEditing(!hasAnyData);
   }, [existingNote, existingFiles]);
 
