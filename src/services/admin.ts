@@ -184,14 +184,18 @@ export interface UpdateStudentStatusResponse {
 // --- Dashboard Visualization Types ---
 
 export interface StageGroup {
-  label: string;
+  order: number;
+  name: string;
+  label?: string;
+  durationDays?: number;
   count: number;
   percentage: number;
-  color: string;
+  color?: string;
 }
 
 export interface StageDistribution {
   totalStudents: number;
+  stages?: StageGroup[];
   groups: StageGroup[];
 }
 
