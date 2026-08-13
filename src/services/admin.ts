@@ -132,6 +132,13 @@ export interface GetLecturersResponse {
   lecturers: LecturerItem[];
 }
 
+export interface LecturersSummaryResponse {
+  totalDosen: number;
+  dosenAktif: number;
+  dosenNonaktif: number;
+  totalBimbingan: number;
+}
+
 export interface StudentItem {
   id: string;
   name: string;
@@ -147,6 +154,13 @@ export interface StudentItem {
 
 export interface GetStudentsResponse {
   students: StudentItem[];
+}
+
+export interface StudentsSummaryResponse {
+  totalMahasiswa: number;
+  mahasiswaAktif: number;
+  menungguBimbingan: number;
+  selesaiBimbingan: number;
 }
 
 export interface StudentProfileDetail {
@@ -304,10 +318,24 @@ export const adminService = {
     });
   },
 
+  /** Get lecturer summary statistics. */
+  getLecturersSummary() {
+    return apiFetch<LecturersSummaryResponse>("/api/admin/lecturers/summary", {
+      method: "GET",
+    });
+  },
+
   /** List all lecturers with optional search query. */
   getLecturers(search?: string) {
     const url = search ? `/api/admin/lecturers?search=${encodeURIComponent(search)}` : "/api/admin/lecturers";
     return apiFetch<GetLecturersResponse>(url, {
+      method: "GET",
+    });
+  },
+
+  /** Get student summary statistics. */
+  getStudentsSummary() {
+    return apiFetch<StudentsSummaryResponse>("/api/admin/students/summary", {
       method: "GET",
     });
   },

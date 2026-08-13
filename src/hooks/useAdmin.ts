@@ -12,7 +12,9 @@ export const adminKeys = {
   registrationDetail: (id: string) => [...adminKeys.all, "registration", id] as const,
   payments: (search?: string) => [...adminKeys.all, "payments", search || ""] as const,
   lecturers: (search?: string) => [...adminKeys.all, "lecturers", search || ""] as const,
+  lecturersSummary: () => [...adminKeys.all, "lecturers-summary"] as const,
   students: (search?: string) => [...adminKeys.all, "students", search || ""] as const,
+  studentsSummary: () => [...adminKeys.all, "students-summary"] as const,
 };
 
 /** Fetch summary stats. */
@@ -99,6 +101,15 @@ export function useUpdatePaymentStatus() {
   });
 }
 
+/** Fetch lecturer summary statistics for stat cards. */
+export function useAdminLecturersSummary() {
+  return useQuery({
+    queryKey: adminKeys.lecturersSummary(),
+    queryFn: () => adminService.getLecturersSummary(),
+    staleTime: 30_000,
+  });
+}
+
 /** Fetch list of all lecturers. */
 export function useAdminLecturers(search?: string) {
   return useQuery({
@@ -114,6 +125,15 @@ export function useAdminStudents(search?: string) {
     queryKey: adminKeys.students(search),
     queryFn: () => adminService.getStudents(search),
     placeholderData: keepPreviousData,
+    staleTime: 30_000,
+  });
+}
+
+/** Fetch student summary statistics for stat cards. */
+export function useAdminStudentsSummary() {
+  return useQuery({
+    queryKey: adminKeys.studentsSummary(),
+    queryFn: () => adminService.getStudentsSummary(),
     staleTime: 30_000,
   });
 }

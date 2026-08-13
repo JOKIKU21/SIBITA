@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useAdminStudents, useAdminLecturers, useAssignAdvisor, useUpdateStudentStatus } from "@/hooks/useAdmin";
+import { useAdminStudents, useAdminLecturers, useAssignAdvisor, useUpdateStudentStatus, useAdminStudentsSummary } from "@/hooks/useAdmin";
 import { useDebounce } from "@/hooks/useDebounce";
 
 const AVATAR_COLORS = [
@@ -16,6 +16,130 @@ const AVATAR_COLORS = [
 function getAvatarColor(name: string) {
   const sum = name.split("").reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
   return AVATAR_COLORS[sum % AVATAR_COLORS.length];
+}
+
+// ─── Stat Card Icons ───
+function PersonIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
+  );
+}
+
+function CheckCircleIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+      <polyline points="22 4 12 14.01 9 11.01" />
+    </svg>
+  );
+}
+
+function PauseIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="6" y="4" width="4" height="16" rx="1" />
+      <rect x="14" y="4" width="4" height="16" rx="1" />
+    </svg>
+  );
+}
+
+function GraduationCapIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+      <path d="M6 12v5c0 1.1 2.7 3 6 3s6-1.9 6-3v-5" />
+    </svg>
+  );
+}
+
+// ─── Mahasiswa Stat Cards ───
+function MahasiswaStatCards() {
+  const { data, isLoading } = useAdminStudentsSummary();
+
+  const cards = [
+    {
+      icon: <PersonIcon />,
+      value: data?.totalMahasiswa ?? 0,
+      label: "Total Mahasiswa",
+      subtitle: "Semua mahasiswa terdaftar",
+      iconBg: "bg-[#3B82F6]",
+    },
+    {
+      icon: <CheckCircleIcon />,
+      value: data?.mahasiswaAktif ?? 0,
+      label: "Mahasiswa Aktif",
+      subtitle: "Sedang dalam proses bimbingan",
+      iconBg: "bg-[#22C55E]",
+    },
+    {
+      icon: <PauseIcon />,
+      value: data?.menungguBimbingan ?? 0,
+      label: "Menunggu Bimbingan",
+      subtitle: "Menunggu dosen atau input awal",
+      iconBg: "bg-[#F97316]",
+    },
+    {
+      icon: <GraduationCapIcon />,
+      value: data?.selesaiBimbingan ?? 0,
+      label: "Selesai Bimbingan",
+      subtitle: "Telah menyelesaikan bimbingan",
+      iconBg: "bg-[#8B5CF6]",
+    },
+  ];
+
+  return (
+    <div className="grid grid-cols-4 gap-4 max-[900px]:grid-cols-2 max-[500px]:grid-cols-1">
+      {cards.map((card) => (
+        <div
+          key={card.label}
+          className="relative bg-white border border-neutral-border rounded-3.5 px-5 py-4.5 overflow-hidden transition-shadow duration-200 hover:shadow-[0_4px_20px_rgba(43,59,175,0.07)]"
+        >
+          {/* Decorative bottom-right accent */}
+          <div className={`absolute -bottom-3 -right-3 w-14 h-14 rounded-full ${card.iconBg} opacity-[0.07]`} />
+
+          <div className="flex items-start gap-3.5">
+            {/* Icon */}
+            <div className={`w-11 h-11 rounded-3 ${card.iconBg} flex items-center justify-center text-white shrink-0`}>
+              {isLoading ? (
+                <div className="w-5 h-5 rounded bg-white/30 animate-pulse" />
+              ) : (
+                card.icon
+              )}
+            </div>
+
+            {/* Content */}
+            <div className="min-w-0 flex-1">
+              {isLoading ? (
+                <>
+                  <div className="h-7 bg-neutral-bg rounded w-12 mb-1 animate-pulse" />
+                  <div className="h-3.5 bg-neutral-bg rounded w-20 animate-pulse" />
+                </>
+              ) : (
+                <>
+                  <div className="text-[22px] font-extrabold font-display text-neutral-text leading-tight">
+                    {card.value}
+                  </div>
+                  <div className="text-[12.5px] font-semibold text-neutral-text mt-0.5">
+                    {card.label}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Subtitle */}
+          {!isLoading && (
+            <div className="text-[11.5px] text-neutral-muted mt-2.5">
+              {card.subtitle}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export function ManajemenMahasiswaList() {
@@ -52,6 +176,8 @@ export function ManajemenMahasiswaList() {
 
   return (
     <div className="flex flex-col gap-6">
+      {/* Stat Cards */}
+      <MahasiswaStatCards />
       {/* Filters & Search */}
       <div className="bg-white border border-neutral-border rounded-3.5 p-5 flex flex-wrap gap-4 items-center justify-between shadow-sm">
         <div className="flex items-center gap-3.5 flex-wrap">

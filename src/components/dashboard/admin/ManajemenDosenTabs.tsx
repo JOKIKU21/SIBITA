@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useAdminLecturers } from "@/hooks/useAdmin";
+import { useAdminLecturers, useAdminLecturersSummary } from "@/hooks/useAdmin";
 import { useDebounce } from "@/hooks/useDebounce";
 
 const AVATAR_COLORS = [
@@ -18,8 +18,148 @@ function getAvatarColor(name: string) {
   return AVATAR_COLORS[sum % AVATAR_COLORS.length];
 }
 
+// ─── Stat Card Icons ───
+function PersonIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
+  );
+}
+
+function PersonCheckIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <polyline points="16 11 18 13 22 9" />
+    </svg>
+  );
+}
+
+function PersonXIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <line x1="17" y1="8" x2="22" y2="13" />
+      <line x1="22" y1="8" x2="17" y2="13" />
+    </svg>
+  );
+}
+
+function GraduationIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+      <path d="M6 12v5c0 1.1 2.7 3 6 3s6-1.9 6-3v-5" />
+    </svg>
+  );
+}
+
+// ─── Stat Cards ───
+function DosenStatCards() {
+  const { data, isLoading } = useAdminLecturersSummary();
+
+  const cards = [
+    {
+      icon: <PersonIcon />,
+      value: data?.totalDosen ?? 0,
+      label: "Total Dosen",
+      subtitle: "Semua dosen terdaftar",
+      iconBg: "bg-[#3B82F6]",
+      accentColor: "text-[#3B82F6]",
+    },
+    {
+      icon: <PersonCheckIcon />,
+      value: data?.dosenAktif ?? 0,
+      label: "Dosen Aktif",
+      subtitle: data?.totalDosen
+        ? `${((data.dosenAktif / data.totalDosen) * 100).toFixed(1)}% dari total dosen`
+        : "0% dari total dosen",
+      iconBg: "bg-[#22C55E]",
+      accentColor: "text-[#22C55E]",
+    },
+    {
+      icon: <PersonXIcon />,
+      value: data?.dosenNonaktif ?? 0,
+      label: "Dosen Nonaktif",
+      subtitle: data?.totalDosen
+        ? `${((data.dosenNonaktif / data.totalDosen) * 100).toFixed(1)}% dari total dosen`
+        : "0% dari total dosen",
+      iconBg: "bg-[#EF4444]",
+      accentColor: "text-[#EF4444]",
+    },
+    {
+      icon: <GraduationIcon />,
+      value: data?.totalBimbingan ?? 0,
+      label: "Total Bimbingan",
+      subtitle: "Keseluruhan bimbingan yang ditangani",
+      iconBg: "bg-[#8B5CF6]",
+      accentColor: "text-[#8B5CF6]",
+    },
+  ];
+
+  return (
+    <div className="grid grid-cols-4 gap-4 mb-6 max-[900px]:grid-cols-2 max-[500px]:grid-cols-1">
+      {cards.map((card) => (
+        <div
+          key={card.label}
+          className="relative bg-white border border-neutral-border rounded-3.5 px-5 py-4.5 overflow-hidden transition-shadow duration-200 hover:shadow-[0_4px_20px_rgba(43,59,175,0.07)]"
+        >
+          {/* Decorative bottom-right accent */}
+          <div className={`absolute -bottom-3 -right-3 w-14 h-14 rounded-full ${card.iconBg} opacity-[0.07]`} />
+
+          <div className="flex items-start gap-3.5">
+            {/* Icon */}
+            <div className={`w-11 h-11 rounded-3 ${card.iconBg} flex items-center justify-center text-white shrink-0`}>
+              {isLoading ? (
+                <div className="w-5 h-5 rounded bg-white/30 animate-pulse" />
+              ) : (
+                card.icon
+              )}
+            </div>
+
+            {/* Content */}
+            <div className="min-w-0 flex-1">
+              {isLoading ? (
+                <>
+                  <div className="h-7 bg-neutral-bg rounded w-12 mb-1 animate-pulse" />
+                  <div className="h-3.5 bg-neutral-bg rounded w-20 animate-pulse" />
+                </>
+              ) : (
+                <>
+                  <div className="text-[22px] font-extrabold font-display text-neutral-text leading-tight">
+                    {card.value}
+                  </div>
+                  <div className="text-[12.5px] font-semibold text-neutral-text mt-0.5">
+                    {card.label}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Subtitle */}
+          {!isLoading && (
+            <div className="text-[11.5px] text-neutral-muted mt-2.5">
+              {card.subtitle}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function ManajemenDosenTabs() {
-  return <DaftarDosenTab />;
+  return (
+    <>
+      <DosenStatCards />
+      <DaftarDosenTab />
+    </>
+  );
 }
 
 // ─── Tab 1: Daftar Dosen ───
@@ -130,3 +270,4 @@ function DaftarDosenTab() {
     </div>
   );
 }
+
