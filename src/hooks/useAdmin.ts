@@ -13,7 +13,8 @@ export const adminKeys = {
   payments: (search?: string) => [...adminKeys.all, "payments", search || ""] as const,
   lecturers: (search?: string) => [...adminKeys.all, "lecturers", search || ""] as const,
   lecturersSummary: () => [...adminKeys.all, "lecturers-summary"] as const,
-  students: (search?: string) => [...adminKeys.all, "students", search || ""] as const,
+  students: (search?: string, prodi?: string, status?: string) => [...adminKeys.all, "students", search || "", prodi || "all", status || "all"] as const,
+  studentDetail: (id: string) => [...adminKeys.all, "student-detail", id] as const,
   studentsSummary: () => [...adminKeys.all, "students-summary"] as const,
 };
 
@@ -120,11 +121,21 @@ export function useAdminLecturers(search?: string) {
   });
 }
 
-export function useAdminStudents(search?: string) {
+export function useAdminStudents(search?: string, prodi?: string, status?: string) {
   return useQuery({
-    queryKey: adminKeys.students(search),
-    queryFn: () => adminService.getStudents(search),
+    queryKey: adminKeys.students(search, prodi, status),
+    queryFn: () => adminService.getStudents(search, prodi, status),
     placeholderData: keepPreviousData,
+    staleTime: 30_000,
+  });
+}
+
+/** Fetch detail of a single student with stages and notes. */
+export function useAdminStudentDetail(studentId: string) {
+  return useQuery({
+    queryKey: adminKeys.studentDetail(studentId),
+    queryFn: () => adminService.getStudentDetail(studentId),
+    enabled: !!studentId,
     staleTime: 30_000,
   });
 }
@@ -148,6 +159,7 @@ export function useAssignAdvisor() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.students() });
       queryClient.invalidateQueries({ queryKey: adminKeys.lecturers() });
+      queryClient.invalidateQueries({ queryKey: adminKeys.studentsSummary() });
     },
   });
 }
@@ -161,6 +173,37 @@ export function useUpdateStudentStatus() {
       adminService.updateStudentStatus(studentId, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.students() });
+      queryClient.invalidateQueries({ queryKey: adminKeys.summary() });
+      queryClient.invalidateQueries({ queryKey: adminKeys.studentsSummary() });
+    },
+  });
+}
+
+/** Update a student's profile information. */
+export function useUpdateStudent() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ studentId, data }: { studentId: string; data: Parameters<typeof adminService.updateStudent>[1] }) =>
+      adminService.updateStudent(studentId, data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.students() });
+      queryClient.invalidateQueries({ queryKey: adminKeys.studentDetail(variables.studentId) });
+      queryClient.invalidateQueries({ queryKey: adminKeys.studentsSummary() });
+      queryClient.invalidateQueries({ queryKey: adminKeys.summary() });
+    },
+  });
+}
+
+/** Delete a student account. */
+export function useDeleteStudent() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (studentId: string) => adminService.deleteStudent(studentId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.students() });
+      queryClient.invalidateQueries({ queryKey: adminKeys.studentsSummary() });
       queryClient.invalidateQueries({ queryKey: adminKeys.summary() });
     },
   });

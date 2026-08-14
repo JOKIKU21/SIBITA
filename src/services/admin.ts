@@ -143,13 +143,17 @@ export interface StudentItem {
   id: string;
   name: string;
   email: string;
-  campus: string;
-  nim: string;
-  studyProgram: string;
-  phoneNumber: string;
+  campus: string | null;
+  nim: string | null;
+  studyProgram: string | null;
+  phoneNumber: string | null;
   status: "active" | "nonactive" | "ended";
-  progressPercentage: number;
+  advisorId: string | null;
   advisorName: string | null;
+  currentStageOrder: number;
+  currentStageName: string;
+  guidanceStatus: "Belum Mulai" | "Berlangsung" | "Menunggu" | "Selesai" | "Terlambat";
+  progressPercentage: number;
 }
 
 export interface GetStudentsResponse {
@@ -161,6 +165,77 @@ export interface StudentsSummaryResponse {
   mahasiswaAktif: number;
   menungguBimbingan: number;
   selesaiBimbingan: number;
+}
+
+export interface UpdateStudentPayload {
+  name?: string;
+  email?: string;
+  phoneNumber?: string | null;
+  nim?: string | null;
+  studyProgram?: string | null;
+  campus?: string | null;
+  advisorId?: string | null;
+  status?: "active" | "nonactive" | "ended";
+}
+
+export interface StudentStageDetailItem {
+  order: number;
+  name: string;
+  durationDays: number;
+}
+
+export interface StudentDetailResponse {
+  student: {
+    id: string;
+    name: string;
+    email: string;
+    phoneNumber: string | null;
+    image: string | null;
+    role: string;
+    createdAt: string;
+    studentProfile: {
+      campus: string | null;
+      nim: string | null;
+      studyProgram: string | null;
+      title: string | null;
+      education: string | null;
+      status: "active" | "nonactive" | "ended";
+      advisorId: string | null;
+      advisor?: {
+        id: string;
+        name: string;
+        email: string;
+        phoneNumber: string | null;
+      } | null;
+      notes: Array<{
+        id: string;
+        stageOrder: number;
+        data: any;
+        comment: string | null;
+        status: "pending" | "approved";
+        createdAt: string;
+        completedAt: string | null;
+      }>;
+      files: Array<{
+        id: string;
+        stageOrder: number;
+        fileName: string;
+        fileUrl: string;
+        fileType: string | null;
+        fileSize: number | null;
+        type: string;
+        createdAt: string;
+      }>;
+    } | null;
+  };
+  progress: {
+    studentId: string;
+    currentStageOrder: number | null;
+    startedAt: string;
+    status: string;
+    finishedAt: string | null;
+  } | null;
+  stages: StudentStageDetailItem[];
 }
 
 export interface StudentProfileDetail {
@@ -340,11 +415,38 @@ export const adminService = {
     });
   },
 
-  /** List all students with optional search query. */
-  getStudents(search?: string) {
-    const url = search ? `/api/admin/students?search=${encodeURIComponent(search)}` : "/api/admin/students";
+  /** List all students with optional search query, prodi, and status filter. */
+  getStudents(search?: string, prodi?: string, status?: string) {
+    const params = new URLSearchParams();
+    if (search) params.append("search", search);
+    if (prodi && prodi !== "All") params.append("prodi", prodi);
+    if (status && status !== "All") params.append("status", status);
+    const queryString = params.toString();
+    const url = queryString ? `/api/admin/students?${queryString}` : "/api/admin/students";
     return apiFetch<GetStudentsResponse>(url, {
       method: "GET",
+    });
+  },
+
+  /** Get detail of a single student. */
+  getStudentDetail(studentId: string) {
+    return apiFetch<StudentDetailResponse>(`/api/admin/students/${studentId}`, {
+      method: "GET",
+    });
+  },
+
+  /** Update student information. */
+  updateStudent(studentId: string, data: UpdateStudentPayload) {
+    return apiFetch<{ student: any }>(`/api/admin/students/${studentId}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+  },
+
+  /** Delete student entirely. */
+  deleteStudent(studentId: string) {
+    return apiFetch<{ message: string }>(`/api/admin/students/${studentId}`, {
+      method: "DELETE",
     });
   },
 
