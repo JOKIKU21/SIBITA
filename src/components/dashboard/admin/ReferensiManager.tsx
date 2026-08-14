@@ -186,7 +186,7 @@ export function ReferensiManager() {
               <Input
                 variant="bordered"
                 type="text"
-                placeholder="Contoh: Pedoman Penulisan Skripsi 2026"
+                placeholder="Contoh: Pedoman Penulisan Tugas Akhir 2026"
                 value={judul}
                 onChange={(e) => setJudul(e.target.value)}
                 className="bg-neutral-bg/50 h-10.5 rounded-2.5 text-[13px]"

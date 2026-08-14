@@ -551,7 +551,7 @@ export default function RegistrationFlow() {
               <FormInput
                 id="title"
                 label={<span>Judul Tugas Akhir / Topik</span>}
-                placeholder="Masukkan judul tugas akhir / topik skripsi Anda (opsional)"
+                placeholder="Masukkan judul / topik tugas akhir Anda (opsional)"
                 leftIcon={<BookUser size={18} className="text-neutral-muted" />}
                 className="bg-[#f8fafc] border-none py-3.5 h-12.5 shadow-sm rounded-2.5"
                 value={formData.title}

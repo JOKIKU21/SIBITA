@@ -48,7 +48,7 @@ export function SuperAdminStatCards({ stats }: {
           </div>
           <div>
             <div className="font-display text-6 font-extrabold text-neutral-text leading-none mb-1">{stats.skripsiSelesai}</div>
-            <div className="text-[12.5px] text-neutral-muted font-medium">Skripsi Selesai</div>
+            <div className="text-[12.5px] text-neutral-muted font-medium">Tugas Akhir Selesai</div>
           </div>
         </div>
 

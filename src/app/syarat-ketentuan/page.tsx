@@ -97,7 +97,7 @@ const sections = [
           <h4>&quot;Mahasiswa&quot;</h4>
           <p className="tos-def-text">
             Pengguna terdaftar yang menggunakan Platform untuk mengelola proses
-            bimbingan tugas akhir/skripsi mereka.
+            bimbingan tugas akhir mereka.
           </p>
         </div>
         <div className="privacy-data-card">

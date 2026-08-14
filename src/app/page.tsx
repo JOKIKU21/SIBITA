@@ -19,7 +19,7 @@ export default function Home() {
         <section className="hero relative min-h-[calc(100vh-72px)] px-[5vw] flex items-center overflow-hidden">
           <div className="relative z-1 w-full max-w-7xl mx-auto flex items-center justify-between gap-14 flex-wrap max-[860px]:justify-center max-[860px]:text-center">
             <div className="max-w-135 -mt-7 max-[860px]:max-w-full max-[860px]:mt-0">
-              <h1 className="font-display text-[clamp(34px,4.4vw,52px)] font-extrabold leading-[1.12] tracking-[-0.01em] text-white mb-5.5">Selesaikan Skripsi Lebih Cepat dengan <span className="bg-linear-to-r from-[#8FE3C0] to-[#6FE3A6] bg-clip-text text-transparent">Bimbingan Terstruktur</span></h1>
+              <h1 className="font-display text-[clamp(34px,4.4vw,52px)] font-extrabold leading-[1.12] tracking-[-0.01em] text-white mb-5.5">Selesaikan Tugas Akhir Lebih Cepat dengan <span className="bg-linear-to-r from-[#8FE3C0] to-[#6FE3A6] bg-clip-text text-transparent">Bimbingan Terstruktur</span></h1>
               <p className="text-[16.5px] text-white/78 mb-8.5 leading-[1.65] max-w-115 max-[860px]:mx-auto">SIBITA membantu mahasiswa melacak setiap tahapan tugas akhir, dari diskusi konsep hingga ujian akhir, dengan timeline, deadline, dan komunikasi dosen pembimbing dalam satu platform.</p>
               <div className="flex gap-3.5 flex-wrap max-[860px]:justify-center max-[480px]:flex-col max-[480px]:w-full">
                 <Button
@@ -123,7 +123,7 @@ export default function Home() {
         <section className="py-20 px-[5vw] pb-24 bg-linear-to-b from-[#F8F9FD] to-white max-[768px]:py-10 max-[768px]:px-[4vw]">
           <div className="text-center max-w-155 mx-auto mb-13">
             <span className="inline-block text-brand text-[12.5px] font-bold tracking-[0.08em] uppercase mb-3.5">Fitur Utama</span>
-            <h2 className="font-display text-[clamp(26px,3vw,34px)] font-extrabold tracking-[-0.01em] text-neutral-text mb-3 leading-tight max-[768px]:text-6">Semua yang Kamu Butuhkan untuk Menyelesaikan Skripsi</h2>
+            <h2 className="font-display text-[clamp(26px,3vw,34px)] font-extrabold tracking-[-0.01em] text-neutral-text mb-3 leading-tight max-[768px]:text-6">Semua yang Kamu Butuhkan untuk Menyelesaikan Tugas Akhir</h2>
             <p className="text-[15px] text-neutral-muted leading-[1.6]">Satu platform untuk melacak progres, menyimpan referensi, dan berkoordinasi dengan dosen pembimbing — dari diskusi konsep sampai ujian akhir.</p>
           </div>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-6 max-w-270 mx-auto">
@@ -160,7 +160,7 @@ export default function Home() {
               SIBITA
             </div>
             <p className="text-[13.5px] text-white/65 leading-[1.6]">
-              Sistem Bimbingan Tugas Akhir platform terintegrasi yang membantu mahasiswa dan dosen menyelesaikan skripsi dengan proses yang lebih cepat, rapi, dan terstruktur.
+              Sistem Bimbingan Tugas Akhir platform terintegrasi yang membantu mahasiswa dan dosen menyelesaikan Tugas Akhir dengan proses yang lebih cepat, rapi, dan terstruktur.
             </p>
           </div>
 
@@ -168,7 +168,7 @@ export default function Home() {
             <h4 className="font-display text-[13px] font-bold uppercase tracking-widest text-white mb-4">Eksplorasi</h4>
             <ul className="list-none p-0 m-0 flex flex-col gap-2.5">
               <li><a href="#" className="text-white/65 no-underline text-[13.5px] transition-[color,transform] duration-200 inline-block hover:text-white hover:translate-x-1">Beranda</a></li>
-              <li><a href="#" className="text-white/65 no-underline text-[13.5px] transition-[color,transform] duration-200 inline-block hover:text-white hover:translate-x-1">Panduan Skripsi</a></li>
+              <li><a href="#" className="text-white/65 no-underline text-[13.5px] transition-[color,transform] duration-200 inline-block hover:text-white hover:translate-x-1">Panduan Tugas Akhir</a></li>
               <li><a href="#" className="text-white/65 no-underline text-[13.5px] transition-[color,transform] duration-200 inline-block hover:text-white hover:translate-x-1">Cari Jurnal</a></li>
               <li><a href="#" className="text-white/65 no-underline text-[13.5px] transition-[color,transform] duration-200 inline-block hover:text-white hover:translate-x-1">FAQ Mahasiswa</a></li>
             </ul>

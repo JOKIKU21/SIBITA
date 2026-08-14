@@ -12,7 +12,7 @@ export function TimelineList() {
   if (isLoading) {
     return (
       <div className="py-12 text-center text-neutral-muted font-semibold bg-white rounded-3.5 border border-neutral-border my-4 shadow-xs">
-        Memuat progres skripsi Anda...
+        Memuat progres tugas akhir Anda...
       </div>
     );
   }

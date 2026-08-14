@@ -76,7 +76,7 @@ export function StagePageClient({ stageId: urlStageId }: StagePageClientProps) {
       <div className="p-7 max-[600px]:p-4">
         <Link href="/dashboard/mahasiswa" className="inline-flex items-center gap-1.5 bg-transparent border-none text-neutral-muted text-[13px] font-semibold cursor-pointer p-0 mb-4.5 transition-[color] duration-150 hover:text-brand">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          Kembali ke Progress Skripsi
+          Kembali ke Progress Tugas Akhir
         </Link>
         
         <div className="bg-linear-to-r from-brand to-brand-dark rounded-4 py-6 px-7 mb-6">

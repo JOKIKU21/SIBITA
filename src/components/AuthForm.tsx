@@ -86,7 +86,7 @@ export default function AuthForm({ mode }: { mode: "masuk" | "daftar" }) {
   return (
     <div className="min-h-screen bg-[#F0F4FF] flex items-center justify-center py-10 px-4">
       <div className="bg-white rounded-5 py-10 px-9 w-full max-w-105 shadow-[0_8px_40px_rgba(43,59,175,0.12)] border-[1.5px] border-[#e0e7ff] text-center">
-        <div className="w-18 h-18 bg-neutral-bg rounded-3.5 mx-auto mb-5 flex items-center justify-center"><Image src="/sibita.png" alt="SIBITA" width={34} height={34} className="w-8.5 h-8.5 shrink-0" /></div>
+        <div className="w-18 h-18 bg-neutral-bg rounded-3.5 mx-auto mb-5 flex items-center justify-center"><Image src="/sibita.png" alt="SIBITA" width={34} height={34} className="w-18 h-18 shrink-0" /></div>
         <h1 className="text-5.5 font-extrabold text-neutral-text mb-7">{isLogin ? "Selamat Datang di SIBITA" : "Daftar Akun SIBITA"}</h1>
 
         {error && (

@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     template: "%s | SIBITA",
   },
   description:
-    "Platform terintegrasi yang membantu mahasiswa dan dosen menyelesaikan skripsi dengan proses yang lebih cepat, rapi, dan terstruktur.",
+    "Platform terintegrasi yang membantu mahasiswa dan dosen menyelesaikan Tugas Akhir dengan proses yang lebih cepat, rapi, dan terstruktur.",
   openGraph: {
     type: "website",
     locale: "id_ID",

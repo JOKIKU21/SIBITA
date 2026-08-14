@@ -57,7 +57,7 @@ export function AdminCharts({
           <div>
             <div className="flex items-center gap-2.5 mb-1">
               <h3 className="font-extrabold text-gray-900 text-base tracking-tight">
-                Sebaran Mahasiswa per Tahapan Skripsi
+                Sebaran Mahasiswa per Tahapan Tugas Akhir
               </h3>
               <span className="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200/80 px-2.5 py-0.5 rounded-full">
                 {stageDistribution.totalStudents} Mahasiswa Total

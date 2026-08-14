@@ -10,7 +10,7 @@ export function StageHeader({ n, name }: { n: number; name: string }) {
         className="mb-4 inline-flex items-center gap-1 text-[13px] font-semibold text-neutral-muted transition-colors hover:text-brand"
       >
         <ChevronLeft size={16} />
-        Kembali ke Progress Skripsi
+        Kembali ke Progress Tugas Akhir
       </Link>
       <div className="rounded-panel border border-neutral-border bg-white p-6">
         <span className="mb-2 inline-block rounded-full bg-brand-bg px-3 py-1 font-display text-sm font-extrabold text-brand">
