@@ -63,6 +63,7 @@ export default function RegistrationFlow() {
   const mapPaymentOption = (opt: string) => {
     switch (opt) {
       case "langsung-lunas": return "full";
+      case "cicil":
       case "cicilan":
         return "installment";
       case "bayar-diakhir": return "pay_at_end";
@@ -171,19 +172,27 @@ export default function RegistrationFlow() {
     setIsUploadingPayment(true);
     try {
       const uploadRes = await apiUpload(file, "registrations");
-      if (activeRegistration) {
-        // If registration already exists, get the payment record ID
-        const firstInstallment = activeRegistration.payments?.find((p: StudentRegistrationPayment) => p.installment === 1) || activeRegistration.payments?.[0];
-        if (!firstInstallment) {
-          throw new Error("Data pembayaran cicilan pertama tidak ditemukan.");
+      let currentReg = activeRegistration;
+      if (!currentReg) {
+        try {
+          const fresh = await studentService.getRegistration();
+          currentReg = fresh?.registration || null;
+          if (currentReg) setActiveRegistration(currentReg);
+        } catch {
+          // ignore
         }
+      }
+
+      if (currentReg) {
+        // If registration already exists, get the payment record ID
+        const firstInstallment = currentReg.payments?.find((p: StudentRegistrationPayment) => p.installment === 1) || currentReg.payments?.[0];
         const res = await studentService.uploadRegistrationFile({
           type: "payment_proof",
           fileName: uploadRes.fileName,
           fileUrl: uploadRes.fileUrl,
           fileType: uploadRes.fileType,
           fileSize: uploadRes.fileSize,
-          registrationPaymentId: firstInstallment.id,
+          registrationPaymentId: firstInstallment?.id,
         });
         setPaymentFile(res.file);
       } else {
@@ -301,15 +310,6 @@ export default function RegistrationFlow() {
           });
           registration = res.registration;
           setActiveRegistration(registration);
-          
-          if (uktFile && uktFile.isTemp) {
-            // Retrieve full registration state
-            const fullRes = await studentService.getRegistration();
-            registration = fullRes.registration;
-            setActiveRegistration(registration);
-            const ukt = registration.files?.find((f: StudentRegistrationFile) => f.type === "ukt");
-            if (ukt) setUktFile(ukt);
-          }
         } else {
           // If registration already exists, link UKT if it was uploaded as temp
           if (uktFile && uktFile.isTemp) {
@@ -322,6 +322,19 @@ export default function RegistrationFlow() {
             });
             setUktFile(res.file);
           }
+        }
+
+        // Always fetch fresh registration to have complete payment & file structures
+        try {
+          const fullRes = await studentService.getRegistration();
+          if (fullRes?.registration) {
+            registration = fullRes.registration;
+            setActiveRegistration(registration);
+            const ukt = registration.files?.find((f: StudentRegistrationFile) => f.type === "ukt");
+            if (ukt) setUktFile(ukt);
+          }
+        } catch (err) {
+          console.error("Gagal memuat ulang data registrasi:", err);
         }
 
         setCurrentStep(2);
@@ -358,18 +371,25 @@ export default function RegistrationFlow() {
 
         // 2. Link Payment Proof file if uploaded and temporary
         if (paymentFile && paymentFile.isTemp) {
-          const firstInstallment = registration.payments?.find((p: StudentRegistrationPayment) => p.installment === 1) || registration.payments?.[0];
-          if (firstInstallment) {
-            const res = await studentService.uploadRegistrationFile({
-              type: "payment_proof",
-              fileName: paymentFile.fileName,
-              fileUrl: paymentFile.fileUrl,
-              fileType: paymentFile.fileType || "",
-              fileSize: paymentFile.fileSize || 0,
-              registrationPaymentId: firstInstallment.id,
-            });
-            setPaymentFile(res.file);
+          let currentReg = registration;
+          if (!currentReg) {
+            try {
+              const fresh = await studentService.getRegistration();
+              currentReg = fresh?.registration || null;
+            } catch {
+              // ignore
+            }
           }
+          const firstInstallment = currentReg?.payments?.find((p: StudentRegistrationPayment) => p.installment === 1) || currentReg?.payments?.[0];
+          const res = await studentService.uploadRegistrationFile({
+            type: "payment_proof",
+            fileName: paymentFile.fileName,
+            fileUrl: paymentFile.fileUrl,
+            fileType: paymentFile.fileType || "",
+            fileSize: paymentFile.fileSize || 0,
+            registrationPaymentId: firstInstallment?.id,
+          });
+          setPaymentFile(res.file);
         }
 
         setCurrentStep(3); // Onboarding complete!
@@ -611,7 +631,7 @@ export default function RegistrationFlow() {
                     onChange={(e) => setFormData({ ...formData, pembayaran: e.target.value })}
                   >
                     <option value="langsung-lunas">Langsung Lunas</option>
-                    <option value="cicil">Cicilan</option>
+                    <option value="cicilan">Cicilan</option>
                     <option value="bayar-diakhir">Bayar Di Akhir</option>
                   </select>
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-muted">
