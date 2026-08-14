@@ -28,7 +28,6 @@ const EMPTY_PROFILE_FORM = {
   phoneNumber: "",
   studyProgram: "",
   campus: "",
-  nidn: "",
   department: "",
 };
 
@@ -89,7 +88,6 @@ export default function ProfilForm({ initialRole }: ProfilFormProps = {}) {
         phoneNumber: studentProfile.phoneNumber ?? "",
         studyProgram: studentProfile.studyProgram ?? "",
         campus: studentProfile.campus ?? "",
-        nidn: "",
         department: "",
       });
     } else if (
@@ -102,7 +100,6 @@ export default function ProfilForm({ initialRole }: ProfilFormProps = {}) {
         phoneNumber: user.phoneNumber ?? "",
         studyProgram: "",
         campus: lecturerProfileResponse.profile.campus ?? "",
-        nidn: lecturerProfileResponse.profile.nidn ?? "",
         department: lecturerProfileResponse.profile.department ?? "",
       });
     } else if (
@@ -114,7 +111,6 @@ export default function ProfilForm({ initialRole }: ProfilFormProps = {}) {
         phoneNumber: user.phoneNumber ?? "",
         studyProgram: "",
         campus: "",
-        nidn: "",
         department: "",
       });
     }
@@ -127,7 +123,6 @@ export default function ProfilForm({ initialRole }: ProfilFormProps = {}) {
         phoneNumber: studentProfile?.phoneNumber ?? "",
         studyProgram: studentProfile?.studyProgram ?? "",
         campus: studentProfile?.campus ?? "",
-        nidn: "",
         department: "",
       });
     } else if (resolvedRole === "lecturer") {
@@ -136,7 +131,6 @@ export default function ProfilForm({ initialRole }: ProfilFormProps = {}) {
         phoneNumber: user?.phoneNumber ?? "",
         studyProgram: "",
         campus: lecturerProfileResponse?.profile?.campus ?? "",
-        nidn: lecturerProfileResponse?.profile?.nidn ?? "",
         department: lecturerProfileResponse?.profile?.department ?? "",
       });
     } else if (resolvedRole === "admin" || resolvedRole === "superadmin") {
@@ -145,7 +139,6 @@ export default function ProfilForm({ initialRole }: ProfilFormProps = {}) {
         phoneNumber: user?.phoneNumber ?? "",
         studyProgram: "",
         campus: "",
-        nidn: "",
         department: "",
       });
     }
@@ -182,7 +175,6 @@ export default function ProfilForm({ initialRole }: ProfilFormProps = {}) {
       updateLecturerProfile.mutate(
         {
           name: form.name,
-          nidn: form.nidn,
           campus: form.campus,
           department: form.department,
           phoneNumber: form.phoneNumber,
@@ -462,7 +454,7 @@ export default function ProfilForm({ initialRole }: ProfilFormProps = {}) {
                   />
                 </div>
 
-                {/* NIM / NIDN */}
+                {/* NIM */}
                 {resolvedRole === "student" && (
                   <div className="flex flex-col gap-1.5">
                     <label className="text-[12.5px] font-semibold text-neutral-muted">
@@ -473,22 +465,6 @@ export default function ProfilForm({ initialRole }: ProfilFormProps = {}) {
                       type="text"
                       value={studentProfile?.nim || ""}
                       readOnly
-                    />
-                  </div>
-                )}
-                 {resolvedRole === "lecturer" && (
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[12.5px] font-semibold text-neutral-muted">
-                      NIDN
-                    </label>
-                    <Input
-                      variant={editableVariant}
-                      type="text"
-                      value={form.nidn || ""}
-                      readOnly={!isEditing}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, nidn: e.target.value }))
-                      }
                     />
                   </div>
                 )}

@@ -165,3 +165,17 @@ export function useUpdateStudentStatus() {
     },
   });
 }
+
+/** Create a new lecturer account. */
+export function useCreateLecturer() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { name: string; email: string; password: string; phoneNumber?: string; department?: string }) =>
+      adminService.createLecturer(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.lecturers() });
+      queryClient.invalidateQueries({ queryKey: adminKeys.lecturersSummary() });
+    },
+  });
+}

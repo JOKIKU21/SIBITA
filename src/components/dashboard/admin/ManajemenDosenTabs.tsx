@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { useAdminLecturers, useAdminLecturersSummary } from "@/hooks/useAdmin";
+import { useState, useEffect } from "react";
+import { useAdminLecturers, useAdminLecturersSummary, useCreateLecturer } from "@/hooks/useAdmin";
 import { useDebounce } from "@/hooks/useDebounce";
+import Button from "@/components/Button";
+import Input from "@/components/Input";
 
 const AVATAR_COLORS = [
   "from-[#818CF8] to-[#6366F1]",
@@ -153,11 +155,228 @@ function DosenStatCards() {
   );
 }
 
+// ─── Tambah Dosen Modal ───
+function TambahDosenModal({ onClose }: { onClose: () => void }) {
+  const createLecturer = useCreateLecturer();
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    phoneNumber: "",
+    department: "",
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
+  const handleChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+    if (errors[field]) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
+
+  const validate = () => {
+    const errs: Record<string, string> = {};
+    if (!form.name.trim()) errs.name = "Nama lengkap wajib diisi.";
+    if (!form.email.trim()) errs.email = "Email wajib diisi.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+      errs.email = "Format email tidak valid.";
+    if (!form.password) errs.password = "Password wajib diisi.";
+    else if (form.password.length < 8)
+      errs.password = "Password minimal 8 karakter.";
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    try {
+      await createLecturer.mutateAsync({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        password: form.password,
+        ...(form.phoneNumber.trim() && { phoneNumber: form.phoneNumber.trim() }),
+        ...(form.department.trim() && { department: form.department.trim() }),
+      });
+      onClose();
+    } catch (err: any) {
+      setErrors({ _general: err?.message || "Gagal membuat akun dosen." });
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+
+      {/* Modal */}
+      <div
+        className="relative bg-white rounded-3.5 shadow-xl w-full max-w-[480px] max-h-[90vh] overflow-y-auto"
+        style={{ animation: "modalIn 0.2s ease-out" }}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-neutral-border">
+          <div>
+            <h3 className="font-display text-[17px] font-extrabold text-neutral-text">
+              Tambah Dosen Baru
+            </h3>
+            <p className="text-[12.5px] text-neutral-muted mt-0.5">
+              Buat akun dosen baru untuk sistem bimbingan.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-neutral-muted hover:bg-neutral-bg hover:text-neutral-text transition-colors cursor-pointer"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              className="w-5 h-5"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+          {errors._general && (
+            <div className="bg-danger/8 border border-danger/20 text-danger text-[12.5px] font-semibold px-3.5 py-2.5 rounded-2.5">
+              {errors._general}
+            </div>
+          )}
+
+          <Input
+            label="Nama Lengkap"
+            placeholder="Contoh: Dr. Budi Santoso, M.Kom"
+            value={form.name}
+            onChange={handleChange("name")}
+            error={errors.name}
+            variant="bordered"
+            required
+          />
+
+          <Input
+            label="Email"
+            type="email"
+            placeholder="contoh@email.com"
+            value={form.email}
+            onChange={handleChange("email")}
+            error={errors.email}
+            variant="bordered"
+            required
+          />
+
+          <Input
+            label="Password"
+            type="password"
+            placeholder="Minimal 8 karakter"
+            value={form.password}
+            onChange={handleChange("password")}
+            error={errors.password}
+            variant="bordered"
+            required
+          />
+
+          <Input
+            label="No. HP"
+            type="tel"
+            placeholder="0812-3456-7890"
+            value={form.phoneNumber}
+            onChange={handleChange("phoneNumber")}
+            error={errors.phoneNumber}
+            variant="bordered"
+          />
+
+          <Input
+            label="Program Studi / Departemen"
+            placeholder="Contoh: Teknik Informatika"
+            value={form.department}
+            onChange={handleChange("department")}
+            error={errors.department}
+            variant="bordered"
+          />
+
+          {/* Actions */}
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <Button
+              type="button"
+              variant="outline-neutral"
+              size="sm"
+              onClick={onClose}
+              disabled={createLecturer.isPending}
+            >
+              Batal
+            </Button>
+            <Button
+              type="submit"
+              variant="brand"
+              size="sm"
+              isLoading={createLecturer.isPending}
+            >
+              Simpan Dosen
+            </Button>
+          </div>
+        </form>
+      </div>
+
+      {/* Modal animation keyframe */}
+      <style>{`
+        @keyframes modalIn {
+          from { opacity: 0; transform: scale(0.95) translateY(8px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 export function ManajemenDosenTabs() {
+  const [showModal, setShowModal] = useState(false);
+
   return (
     <>
+      <div className="flex items-center justify-end -mt-12 mb-4 max-[600px]:mt-0 max-[600px]:mb-4">
+        <Button
+          variant="brand"
+          size="sm"
+          onClick={() => setShowModal(true)}
+          leftIcon={
+            <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+              <path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" />
+            </svg>
+          }
+        >
+          Tambah Dosen
+        </Button>
+      </div>
       <DosenStatCards />
       <DaftarDosenTab />
+      {showModal && <TambahDosenModal onClose={() => setShowModal(false)} />}
     </>
   );
 }
@@ -270,4 +489,3 @@ function DaftarDosenTab() {
     </div>
   );
 }
-

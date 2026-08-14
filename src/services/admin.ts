@@ -363,4 +363,12 @@ export const adminService = {
       body: JSON.stringify({ status }),
     });
   },
+
+  /** Create a new lecturer account. */
+  createLecturer(data: { name: string; email: string; password: string; phoneNumber?: string; department?: string }) {
+    return apiFetch<{ lecturer: LecturerItem }>('/api/admin/lecturers', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
 };

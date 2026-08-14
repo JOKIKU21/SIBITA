@@ -32,7 +32,6 @@ export function useUpdateLecturerProfile() {
   return useMutation({
     mutationFn: (payload: {
       name?: string;
-      nidn?: string;
       campus?: string;
       department?: string;
       phoneNumber?: string;

@@ -3,7 +3,6 @@ import type { BackendStage, StudentProgress, GetStageDetailResponse, ChatMessage
 
 export interface LecturerProfile {
   userId: string;
-  nidn: string;
   campus: string;
   department: string;
   createdAt: string;
@@ -183,7 +182,6 @@ export const lecturerService = {
   /** Update lecturer profile. */
   updateProfile(payload: {
     name?: string;
-    nidn?: string;
     campus?: string;
     department?: string;
     phoneNumber?: string;
