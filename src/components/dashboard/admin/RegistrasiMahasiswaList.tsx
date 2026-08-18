@@ -411,28 +411,50 @@ export function RegistrasiMahasiswaList() {
                   <div className="border-t border-neutral-border pt-4.5">
                     <h4 className="text-[12px] font-bold text-neutral-muted uppercase tracking-wider mb-2.5">Berkas Pendukung</h4>
                     <div className="flex flex-col gap-2.5">
-                      {selectedReg.files.map((file) => (
-                        <div
-                          key={file.id}
-                          className="flex items-center justify-between p-3 bg-neutral-bg border border-neutral-border rounded-2.5 hover:bg-neutral-bg/60 transition-colors"
-                        >
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-neutral-muted shrink-0">
-                              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                              <path d="M14 2v6h6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                            <span className="text-[13px] font-semibold text-neutral-text truncate">{file.name}</span>
-                          </div>
-                          <a
-                            href={file.url}
-                            onClick={(e) => { e.preventDefault(); alert(`Mengunduh berkas: ${file.name}`); }}
-                            className="text-[12.5px] text-brand font-bold hover:underline shrink-0 pl-4"
-                          >
-                            Unduh
-                          </a>
-                        </div>
-                      ))}
-                      {selectedReg.files.length === 0 && (
+                      {selectedReg.files
+                        .filter((file) => file.type === "ukt" || file.type === "contract")
+                        .map((file) => {
+                          const typeLabel = file.type === "ukt" ? "Bukti UKT" : "Surat Kontrak";
+                          const typeColor = file.type === "ukt" ? "bg-brand-bg text-brand" : "bg-warning-bg text-warning";
+                          const fileSizeStr = file.fileSize
+                            ? file.fileSize >= 1048576
+                              ? `${(file.fileSize / 1048576).toFixed(1)} MB`
+                              : `${Math.round(file.fileSize / 1024)} KB`
+                            : null;
+                          return (
+                            <div
+                              key={file.id}
+                              className="flex items-center justify-between p-3 bg-neutral-bg border border-neutral-border rounded-2.5 hover:bg-neutral-bg/60 transition-colors"
+                            >
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-neutral-muted shrink-0">
+                                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                                  <path d="M14 2v6h6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                                <div className="flex flex-col min-w-0">
+                                  <span className="text-[13px] font-semibold text-neutral-text truncate">{file.fileName}</span>
+                                  <div className="flex items-center gap-2 mt-0.5">
+                                    <span className={`inline-flex items-center text-[10.5px] font-bold py-0.5 px-1.5 rounded ${typeColor}`}>
+                                      {typeLabel}
+                                    </span>
+                                    {fileSizeStr && (
+                                      <span className="text-[11px] text-neutral-muted">{fileSizeStr}</span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                              <a
+                                href={file.fileUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[12.5px] text-brand font-bold hover:underline shrink-0 pl-4"
+                              >
+                                Unduh
+                              </a>
+                            </div>
+                          );
+                        })}
+                      {selectedReg.files.filter((file) => file.type === "ukt" || file.type === "contract").length === 0 && (
                         <div className="text-[13px] text-neutral-muted italic">Tidak ada berkas yang diunggah.</div>
                       )}
                     </div>

@@ -28,9 +28,12 @@ export interface StudentDetail {
 export interface FileItem {
   id: string;
   registrationId: string;
-  name: string;
-  url: string;
-  key?: string;
+  registrationPaymentId?: string | null;
+  type: "ukt" | "contract" | "payment_proof";
+  fileName: string;
+  fileUrl: string;
+  fileType?: string | null;
+  fileSize?: number | null;
   createdAt: string;
 }
 
